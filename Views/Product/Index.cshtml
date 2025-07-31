@@ -1,38 +1,86 @@
-﻿@page
-@model IEnumerable<InventorySystem.Models.Product>
+﻿@model IEnumerable<InventorySystem.Models.Product>
+
 @{
-	ViewData["Title"] = "Ürün Listesi";
+    ViewData["Title"] = "Ürün Listesi";
 }
 
-<h2>Ürünler</h2>
+<h2 class="mb-4">@ViewData["Title"]</h2>
 
+<!-- Yeni ürün ekleme butonu -->
 <p>
-		<a asp-action="Create" class="btn btn-primary">Yeni Ürün Ekle</a>
+    <a asp-action="Create" class="btn btn-primary">➕ Yeni Ürün Ekle</a>
 </p>
 
-<table class="table table-striped">
-	<thead>
-		<tr>
-			<th>@Html.DisplayNameFor(Model => Model.First().Name)</th>
-			<th>@Html.DisplayNameFor(Model => Model.First().Barcode)</th>
-			<th>@Html.DisplayNameFor(Model => Model.First().Quantity)</th>
-			<th>İşlemler</th>
-		</tr>
-	</thead>
+<!-- BARKOD OKUMA GİRİŞİ -->
+<div class="card p-3 mb-4 bg-light">
+    <h4 class="mb-3">📦 Barkod ile Ürün Sorgulama</h4>
 
-	<tbody>
-		<!-- Her bir ürünü tabloya yazdırdık-->
-		@foreach (var item in Model)
-		{
-			<tr>
+    <!-- Barkod input alanı -->
+    <input type="text" id="barcodeInput" class="form-control"
+           placeholder="Barkodu okutunuz..." autofocus />
+
+    <!-- Sonuç burada gösterilecek -->
+    <div id="result" class="mt-3"></div>
+</div>
+
+<!-- ÜRÜN LİSTELEME TABLOSU -->
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.First().Name)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Barcode)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Quantity)</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
                 <td>@item.Name</td>
                 <td>@item.Barcode</td>
                 <td>@item.Quantity</td>
-				<td>
-					<a asp-action="Edit" asp-route-id="@item.Id" class ="btn btn-sm btn-warning">Düzenle</a>
-					<a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Sil</a>
-				</td>
-			</tr>
-		}
-	</tbody>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">✏️ Düzenle</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">🗑️ Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
+
+<!-- CLIENT-SIDE VALIDATION + JS BARKOD OKUYUCU -->
+@section Scripts {
+    <script>
+        // Barkod input'a Enter basıldığında tetiklenir
+        document.getElementById("barcodeInput").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // Form submit olmasın
+
+                let barcode = this.value;
+
+                // Sunucuya istek at: ProductController -> SearchByBarcode
+                fetch(`/Product/SearchByBarcode?barcode=${barcode}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Ürün bulunduysa bilgiyi göster
+                            document.getElementById("result").innerHTML = `
+                                <div class="alert alert-success">
+                                    <strong>Ürün:</strong> ${data.data.name}<br />
+                                    <strong>Barkod:</strong> ${data.data.barcode}<br />
+                                    <strong>Stok:</strong> ${data.data.quantity}
+                                </div>`;
+                        } else {
+                            // Bulunamadıysa uyarı ver
+                            document.getElementById("result").innerHTML =
+                                `<div class="alert alert-danger">${data.message}</div>`;
+                        }
+
+                        // Barkod input'u temizle
+                        this.value = "";
+                    });
+            }
+        });
+    </script>
+}

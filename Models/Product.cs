@@ -21,6 +21,6 @@ namespace InventorySystem.Models
 
         [Required]
         [Display(Name = "Stok Miktarı")]
-        public string Quantity { get; set; }
+        public required string Quantity { get; set; }
     }
 }

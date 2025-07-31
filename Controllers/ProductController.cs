@@ -68,5 +68,38 @@ namespace InventorySystem.Controllers
 
             return RedirectToAction("Index");
         }
+
+        ///<summary>
+        /// Barkod numarası ile ürün aramak için kullanılır
+        /// Barkod doğruysa JSON formatında ürün bilgisi döner
+        /// </summary>
+        /// <param name="barcode">Kullanıcının veya barkod okuyucunun gönderdiği barkod</param>
+        /// <returns>JSON veri objesi (başarılı/başarısız)</returns>
+        public async Task<IActionResult> SearchByBarcode(string barcode)
+        {
+            //Barkod boş gönderildiyse uyarı ver
+            if (string.IsNullOrEmpty(barcode))
+                return Json(new { succes = false, message = "Barkod boş." });
+
+            //Veritabanında barkoda sahip ürünü ara
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Barcode == barcode);
+
+            //Ürün bulunamazsa hata döndür
+            if (product != null)
+                return Json(new { succes = false, message = "Ürün bulunamadı" });
+
+            //Ürün bulunduysa JSON ile ürün bilgilerini döndür
+            return Json(new
+            {
+                succes = true,
+                data = new
+                {
+                    name = product.Name,
+                    barcode = product.Barcode,
+                    quantity = product.Quantity
+                }
+            });
+        }
     }
 }
