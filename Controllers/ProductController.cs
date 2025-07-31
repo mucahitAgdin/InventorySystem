@@ -22,6 +22,13 @@ namespace InventorySystem.Controllers
             return View(products);
         }
 
+        // Sayfa yüklenince boş form döner
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(Product model)
         {
@@ -79,20 +86,20 @@ namespace InventorySystem.Controllers
         {
             //Barkod boş gönderildiyse uyarı ver
             if (string.IsNullOrEmpty(barcode))
-                return Json(new { succes = false, message = "Barkod boş." });
+                return Json(new { success = false, message = "Barkod boş." });
 
             //Veritabanında barkoda sahip ürünü ara
             var product = await _context.Products
                 .FirstOrDefaultAsync(p => p.Barcode == barcode);
 
             //Ürün bulunamazsa hata döndür
-            if (product != null)
-                return Json(new { succes = false, message = "Ürün bulunamadı" });
+            if (product == null)
+                return Json(new { success = false, message = "Ürün bulunamadı" });
 
             //Ürün bulunduysa JSON ile ürün bilgilerini döndür
             return Json(new
             {
-                succes = true,
+                success = true,
                 data = new
                 {
                     name = product.Name,

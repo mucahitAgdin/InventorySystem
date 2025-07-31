@@ -9,6 +9,7 @@ namespace InventorySystem.Models
     /// </summary>
     public class Product
     {
+
         public int Id { get; set; }
         
         [Required]
@@ -21,6 +22,6 @@ namespace InventorySystem.Models
 
         [Required]
         [Display(Name = "Stok Miktarı")]
-        public required string Quantity { get; set; }
+        public int Quantity { get; set; } = 0;
     }
 }
