@@ -12,10 +12,10 @@ namespace InventorySystem.Models
 
         [Required(ErrorMessage = "Kullanıcı adı zorunludur.")]
         [MaxLength(50)]
-        public string Username { get; set; }
+        public required string Username { get; set; }
 
         [Required(ErrorMessage = "Şifre zorunludur.")]
         [DataType(DataType.Password)]
-        public string Password { get; set; }
+        public required string Password { get; set; }
     }
 }

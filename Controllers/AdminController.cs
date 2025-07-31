@@ -25,7 +25,7 @@ namespace InventorySystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(Admin model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 Log.Warning("Geçersiz model ile giriş denemesi.");
                 return View(model);
