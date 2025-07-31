@@ -1,43 +1,41 @@
 ﻿@model InventorySystem.Models.Product
+
 @{
 	ViewData["Title"] = "Ürün Güncelle";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="mb-4">@ViewData["Title"]</h2>
 
-<!--Ürün bilgilerini düzenlemek için form-->
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" class="card p-4 shadow-sm">
 
-	<!--Ürün ID'si formda gizli tutulur çünkü update için gerekir-->
-	<input type="hidden" asp-for="Id"/>
+	<!-- ID gizli alan -->
+	<input type="hidden" asp-for="Id" />
 
-	<!--Ürün adı-->
-	<div class="form-group" >
+	<!-- Ürün Adı -->
+	<div class="form-group mb-3">
 		<label asp-for="Name"></label>
-		<input asp-for="Name" class="form-control"/>
+		<input asp-for="Name" class="form-control" />
 		<span asp-validation-for="Name" class="text-danger"></span>
 	</div>
 
-	<!--Barkod alanı-->
-	<div class="form-group">
+	<!-- Barkod -->
+	<div class="form-group mb-3">
 		<label asp-for="Barcode"></label>
-		<input asp-for="Barcode" class="form-control"/>
+		<input asp-for="Barcode" class="form-control" />
 		<span asp-validation-for="Barcode" class="text-danger"></span>
 	</div>
 
-	<!--Stok Miktarı-->
-	<div class="form-group">
+	<!-- Miktar -->
+	<div class="form-group mb-3">
 		<label asp-for="Quantity"></label>
 		<input asp-for="Quantity" class="form-control" type="number" min="0" />
 		<span asp-validation-for="Quantity" class="text-danger"></span>
 	</div>
 
-	<!-- Güncelle ve Vazgeç Butonları -->
-	<button type="submit" class="btn btn-primary mt-2">Güncelle</button>
-	<a asp-action="Index" class="btn btn-secondary mt-2">İptal</a>
+	<button type="submit" class="btn btn-primary">Güncelle</button>
+	<a asp-action="InStockOnly" class="btn btn-secondary ms-2">İptal</a>
 </form>
 
-<!-- Client-side doğrulama için gerekli script -->
 @section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");

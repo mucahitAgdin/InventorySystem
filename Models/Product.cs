@@ -1,27 +1,39 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace InventorySystem.Models
 {
     /// <summary>
-    /// IT envanterindeki bir ürünü temsil eder
-    /// Barkod üzerinden erişilecek
+    /// Bu sınıf, sistemdeki mevcut ürünlerin anlık durumunu temsil eder.
+    /// Örneğin: Şu an depoda mı, dışarıda mı? Kimde, ne kadar var?
     /// </summary>
     public class Product
     {
-
         public int Id { get; set; }
-        
-        [Required]
-        [Display(Name = "Ürün Adı")]
+
+        [Required(ErrorMessage = "Ürün adı zorunludur.")]
         public string Name { get; set; } = string.Empty;
 
-        [Required]
-        [Display(Name = "Barkod")]
-        public string Barcode { get; set; } = String.Empty;
+        [Required(ErrorMessage = "Barkod zorunludur.")]
+        public string Barcode { get; set; } = string.Empty;
 
-        [Required]
-        [Display(Name = "Stok Miktarı")]
-        public int Quantity { get; set; } = 0;
+        [Required(ErrorMessage = "Stok miktarı zorunludur.")]
+        [Range(0, int.MaxValue, ErrorMessage = "Stok 0 veya daha fazla olmalıdır.")]
+        public int Quantity { get; set; }
+
+        /// <summary>
+        /// Ürün şu anda depoda mı? true = depoda, false = dışarıda.
+        /// </summary>
+        public bool IsInStock { get; set; } = true;
+
+        /// <summary>
+        /// Eğer ürün dışarıdaysa: şu anda kimde?
+        /// Örnek: "Ali Yılmaz"
+        /// </summary>
+        public string? CurrentHolder { get; set; }
+
+        /// <summary>
+        /// Ürünün fiziksel konumu. Örn: Depo, Servis, Ofis, Atölye, vs.
+        /// </summary>
+        public string Location { get; set; } = "Depo";
     }
 }

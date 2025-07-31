@@ -1,0 +1,47 @@
+﻿@model IEnumerable<InventorySystem.Models.Product>
+
+@{
+    ViewData["Title"] = "Depodaki Ürünler";
+}
+
+<h2 class="mb-4">🏢 Depodaki Ürünler</h2>
+
+<!-- Ürün Ekle Butonu -->
+<a asp-action="Create" class="btn btn-success mb-3">➕ Yeni Ürün Ekle</a>
+
+<!-- Depodaki Ürün Listesi -->
+<table class="table table-striped table-bordered">
+    <thead class="table-success">
+        <tr>
+            <th>Adı</th>
+            <th>Barkod</th>
+            <th>Stok</th>
+            <th>Lokasyon</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Barcode</td>
+                <td>@product.Quantity</td>
+                <td>@product.Location</td>
+                <td>
+                    <!-- Stok Girişi Yap -->
+                    <a asp-controller="Stock" asp-action="Entry" asp-route-barcode="@product.Barcode"
+                       class="btn btn-sm btn-primary me-1">
+                        📥 Giriş Yap
+                    </a>
+
+                    <!-- Ürün Bilgisi Düzenle -->
+                    <a asp-action="Edit" asp-route-id="@product.Id"
+                       class="btn btn-sm btn-warning">
+                        ✏️ Düzenle
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

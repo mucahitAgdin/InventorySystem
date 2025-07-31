@@ -14,5 +14,7 @@ namespace InventorySystem.Data
 
         // Veritabanındaki Product tablosu için model tanımı 
         public DbSet<Product> Products { get; set; }
+
+        public DbSet<StockTransaction> StockTransaction { get; set; }
     }
 }

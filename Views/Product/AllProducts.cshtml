@@ -1,0 +1,56 @@
+﻿@model IEnumerable<InventorySystem.Models.Product>
+
+@{
+    ViewData["Title"] = "Tüm Ürünler (Zimmet dahil)";
+}
+
+<h2 class="mb-4">📋 Tüm Ürünler</h2>
+
+<!-- Geri dön butonu -->
+<a asp-action="InStockOnly" class="btn btn-outline-secondary mb-3">🏢 Depodaki Ürünlere Git</a>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Adı</th>
+            <th>Barkod</th>
+            <th>Stok</th>
+            <th>Durum</th>
+            <th>Kimde</th>
+            <th>Lokasyon</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr class="@(product.IsInStock ? "" : "table-warning")">
+                <td>@product.Name</td>
+                <td>@product.Barcode</td>
+                <td>@product.Quantity</td>
+                <td>
+                    @(product.IsInStock ? "✅ Depoda" : "🚫 Dışarıda")
+                </td>
+                <td>
+                    @(product.IsInStock ? "-" : product.CurrentHolder ?? "Bilinmiyor")
+                </td>
+                <td>@product.Location</td>
+                <td>
+                    @if (product.IsInStock)
+                    {
+                        <!-- Depodaki ürünler düzenlenebilir -->
+                        <a asp-action="Edit" asp-route-id="@product.Id"
+                           class="btn btn-sm btn-warning">
+                            ✏️ Düzenle
+                        </a>
+                    }
+                    else
+                    {
+                        <!-- Dışarıdaki ürünler için düzenleme yapılmaz -->
+                        <span class="text-muted">Zimmetli</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

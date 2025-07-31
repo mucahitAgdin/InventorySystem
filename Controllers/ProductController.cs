@@ -16,12 +16,6 @@ namespace InventorySystem.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var products = await _context.Products.ToListAsync();
-            return View(products);
-        }
-
         // Sayfa yüklenince boş form döner
         [HttpGet]
         public IActionResult Create()
@@ -107,6 +101,27 @@ namespace InventorySystem.Controllers
                     quantity = product.Quantity
                 }
             });
+        }
+
+
+        public async Task<IActionResult> InStockOnly()
+        {
+            var inStock = await _context.Products
+                .Where(p => p.IsInStock)
+                .ToListAsync();
+
+            return View(inStock);
+        }
+
+        public async Task<IActionResult> AllProducts()
+        {
+            var all = await _context.Products.ToListAsync();
+            return View(all); 
+        }
+
+        public IActionResult Index()
+        {
+            return RedirectToAction("InStockOnly");
         }
     }
 }

@@ -1,86 +1,81 @@
 ﻿@model IEnumerable<InventorySystem.Models.Product>
-
 @{
     ViewData["Title"] = "Ürün Listesi";
+    var inStock = ViewBag.InStock as List<InventorySystem.Models.Product>;
 }
 
-<h2 class="mb-4">@ViewData["Title"]</h2>
+<h2 class="mb-4">📦 Ürün Listesi</h2>
 
-<!-- Yeni ürün ekleme butonu -->
-<p>
-    <a asp-action="Create" class="btn btn-primary">➕ Yeni Ürün Ekle</a>
-</p>
-
-<!-- BARKOD OKUMA GİRİŞİ -->
-<div class="card p-3 mb-4 bg-light">
-    <h4 class="mb-3">📦 Barkod ile Ürün Sorgulama</h4>
-
-    <!-- Barkod input alanı -->
-    <input type="text" id="barcodeInput" class="form-control"
-           placeholder="Barkodu okutunuz..." autofocus />
-
-    <!-- Sonuç burada gösterilecek -->
-    <div id="result" class="mt-3"></div>
+<!-- 🔹 DEPODAKİ ÜRÜNLER -->
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        🏢 Depodaki Ürünler
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped m-0">
+            <thead>
+                <tr>
+                    <th>Adı</th>
+                    <th>Barkod</th>
+                    <th>Miktar</th>
+                    <th>Lokasyon</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in inStock)
+                {
+                    <tr>
+                        <td>@product.Name</td>
+                        <td>@product.Barcode</td>
+                        <td>@product.Quantity</td>
+                        <td>@product.Location</td>
+                        <td>
+                            <a asp-controller="Stock" asp-action="Entry" asp-route-barcode="@product.Barcode" class="btn btn-sm btn-primary">
+                                📥 Giriş Yap
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- ÜRÜN LİSTELEME TABLOSU -->
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.First().Name)</th>
-            <th>@Html.DisplayNameFor(model => model.First().Barcode)</th>
-            <th>@Html.DisplayNameFor(model => model.First().Quantity)</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Barcode</td>
-                <td>@item.Quantity</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">✏️ Düzenle</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">🗑️ Sil</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<!-- CLIENT-SIDE VALIDATION + JS BARKOD OKUYUCU -->
-@section Scripts {
-    <script>
-        // Barkod input'a Enter basıldığında tetiklenir
-        document.getElementById("barcodeInput").addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-                e.preventDefault(); // Form submit olmasın
-
-                let barcode = this.value;
-
-                // Sunucuya istek at: ProductController -> SearchByBarcode
-                fetch(`/Product/SearchByBarcode?barcode=${barcode}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Ürün bulunduysa bilgiyi göster
-                            document.getElementById("result").innerHTML = `
-                                <div class="alert alert-success">
-                                    <strong>Ürün:</strong> ${data.data.name}<br />
-                                    <strong>Barkod:</strong> ${data.data.barcode}<br />
-                                    <strong>Stok:</strong> ${data.data.quantity}
-                                </div>`;
-                        } else {
-                            // Bulunamadıysa uyarı ver
-                            document.getElementById("result").innerHTML =
-                                `<div class="alert alert-danger">${data.message}</div>`;
-                        }
-
-                        // Barkod input'u temizle
-                        this.value = "";
-                    });
-            }
-        });
-    </script>
-}
+<!-- 🔸 TÜM ÜRÜNLER (Zimmetli dahil) -->
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        📋 Tüm Ürünler (Depoda ve dışarıda)
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-bordered m-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Adı</th>
+                    <th>Barkod</th>
+                    <th>Miktar</th>
+                    <th>Durum</th>
+                    <th>Kimde</th>
+                    <th>Lokasyon</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr>
+                        <td>@product.Name</td>
+                        <td>@product.Barcode</td>
+                        <td>@product.Quantity</td>
+                        <td>
+                            @(product.IsInStock ? "✅ Depoda" : "🚫 Dışarıda")
+                        </td>
+                        <td>
+                            @(product.IsInStock ? "-" : product.CurrentHolder ?? "Bilinmiyor")
+                        </td>
+                        <td>@product.Location</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
