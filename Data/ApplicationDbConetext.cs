@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using InventorySystem.Models;
-using InventorySystem.Controllers;
+
 
 namespace InventorySystem.Data
 {
@@ -9,6 +9,10 @@ namespace InventorySystem.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
-        public DbSet<AdminController> Admins { get; set; }
+        // Veritabanındaki Admin tablosu için model tanımı
+        public DbSet<Admin> Admins { get; set; }
+
+        // Veritabanındaki Product tablosu için model tanımı 
+        public DbSet<Product> Products { get; set; }
     }
 }
