@@ -1,0 +1,36 @@
+﻿@model IEnumerable<InventorySystem.Models.StockTransaction>
+@{
+	ViewData["Title"] = "Hareket Geçmişi";
+}
+
+<h2 class="mb-4" Hareket Geçmişi ></h2>
+
+
+<a asp-controller="Product" asp-action="InStockOnly" class="btn btn-outline-secondary mb-3">Depo Ekranına Dön</a>
+
+<table class="table table-striped table-bordered">
+	<thead class="table-dark">
+		<tr>
+			<th>#</th>
+			<th>Barkod</th>
+			<th>Miktar</th>
+			<th>Alan</th>
+			<th>Veren</th>
+			<th>Açıklama</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		@foreach (var tx in Model)
+		{
+			<tr class="@(tx.DeliveredTo == null ? "table-success" : "table-warning")">
+				<td>@tx.Id</td>
+				<td>@tx.Barcode</td>
+				<td>@tx.Quantity</td>
+				<td>@(tx.DeliveredTo ?? "-")</td>
+				<td>@(tx.DeliveredBy ?? "-")</td>
+				<td>@(tx.Note ?? "-")</td>
+			</tr>
+		}
+	</tbody>
+</table>

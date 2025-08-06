@@ -1,34 +1,30 @@
 ﻿@model InventorySystem.Models.Admin
-
 @{
-	ViewData["Title"] = "Admin Giriş";
+    ViewData["Title"] = "Admin Giriş";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="text-center mb-4 fw-bold">🔐 Admin Giriş</h2>
 
 <form asp-action="Login" method="post">
-	<div>
-		<label asp-for="Username"></label>
-		<input asp-for="Username" class="form-control" />
-		<span asp-validation-for="Username" class="text-danger"></span>
-	</div>
+    <div class="mb-3">
+        <label asp-for="Username" class="form-label fw-semibold"></label>
+        <input asp-for="Username" class="form-control" placeholder="Kullanıcı adı" autofocus />
+        <span asp-validation-for="Username" class="text-danger small"></span>
+    </div>
 
-	<div>
-		<label asp-for="Password"></label>
-		<input asp-for="Password" type="password" class="form-control" />
-		<span asp-validation-for="Password" class="text-danger"></span>
-	</div>
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label fw-semibold"></label>
+        <input asp-for="Password" type="password" class="form-control" placeholder="Şifre" />
+        <span asp-validation-for="Password" class="text-danger small"></span>
+    </div>
 
-	@if (ViewBag.Error != null)
-	{
-		<p style="color:red">@ViewBag.Error</p>
-	}
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
 
-	<button type="submit" class="btn btn-primary">Giriş Yap</button>
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Giriş Yap</button>
+    </div>
 </form>
-
-@section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
-}

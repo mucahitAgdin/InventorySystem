@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using InventorySystem.Data;
+﻿using InventorySystem.Data;
 using InventorySystem.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventorySystem.Controllers
@@ -71,5 +72,24 @@ namespace InventorySystem.Controllers
             TempData["Success"] = "Ürün çıkışı başarıyla kaydedildi.";
             return RedirectToAction("InStockOnly", "Product");
         }
+
+        public async  Task<IActionResult> History()
+        {
+            var transactions = await _context.StockTransaction
+                .OrderByDescending(t => t.Id)
+                .ToListAsync();
+
+            return View(transactions);
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (HttpContext.Session.GetString("IsAdmin") != "true")
+            {
+                context.Result = RedirectToAction("Login", "Admin");
+            }
+            base.OnActionExecuting(context);
+        }
+
     }
 }

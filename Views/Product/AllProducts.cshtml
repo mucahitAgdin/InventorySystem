@@ -2,18 +2,36 @@
 
 @{
     ViewData["Title"] = "Tüm Ürünler (Zimmet dahil)";
+    // Ürün türlerini bulmak için:
+    var productTypes = Model.Select(x => x.ProductType).Distinct().OrderBy(x => x).ToList();
 }
 
 <h2 class="mb-4">📋 Tüm Ürünler</h2>
 
-<!-- Geri dön butonu -->
-<a asp-action="InStockOnly" class="btn btn-outline-secondary mb-3">🏢 Depodaki Ürünlere Git</a>
+<!-- Kategori (Ürün Tipi) Filtresi -->
+<form method="get" asp-action="AllProducts" class="mb-3 d-flex gap-2">
+    <select name="productType" class="form-select w-auto" onchange="this.form.submit()">
+        <option value="">Tüm Kategoriler</option>
+        @foreach (var type in productTypes)
+        {
+            var isSelected = (ViewBag.SelectedProductType as string) == type;
+            <option value="@type" selected="@(isSelected ? "selected" : null)">@type</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-outline-primary">Filtrele</button>
+    <a asp-action="InStockOnly" class="btn btn-outline-secondary">🏢 Depodaki Ürünlere Git</a>
+</form>
 
-<table class="table table-bordered">
+<table class="table table-bordered table-hover align-middle">
     <thead class="table-dark">
         <tr>
             <th>Adı</th>
+            <th>Tipi</th>
+            <th>Marka</th>
+            <th>Model</th>
             <th>Barkod</th>
+            <th>Seri No</th>
+            <th>Açıklama</th>
             <th>Stok</th>
             <th>Durum</th>
             <th>Kimde</th>
@@ -26,7 +44,12 @@
         {
             <tr class="@(product.IsInStock ? "" : "table-warning")">
                 <td>@product.Name</td>
+                <td>@product.ProductType</td>
+                <td>@product.Brand</td>
+                <td>@product.Model</td>
                 <td>@product.Barcode</td>
+                <td>@product.SerialNumber</td>
+                <td>@product.Description</td>
                 <td>@product.Quantity</td>
                 <td>
                     @(product.IsInStock ? "✅ Depoda" : "🚫 Dışarıda")
@@ -38,7 +61,6 @@
                 <td>
                     @if (product.IsInStock)
                     {
-                        <!-- Depodaki ürünler düzenlenebilir -->
                         <a asp-action="Edit" asp-route-id="@product.Id"
                            class="btn btn-sm btn-warning">
                             ✏️ Düzenle
@@ -46,7 +68,6 @@
                     }
                     else
                     {
-                        <!-- Dışarıdaki ürünler için düzenleme yapılmaz -->
                         <span class="text-muted">Zimmetli</span>
                     }
                 </td>

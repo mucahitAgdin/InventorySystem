@@ -1,22 +1,98 @@
-html {
-  font-size: 14px;
+﻿:root {
+    --forvia-blue: #0024D3;
+    --forvia-light-blue: #00A9EB;
+    --forvia-dark-gray: #575757;
+    --forvia-bg: #F5F5F5;
+    --forvia-font: 'Open Sans', sans-serif;
+    --forvia-radius: 8px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* 🔤 Genel yazı tipi ve arkaplan */
 body {
-  margin-bottom: 60px;
+    font-family: var(--forvia-font);
+   /* background-image: url('/images/background.jpg');*/
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    background-color: #000f
+    color: #333;
 }
+
+
+
+/* 🔷 Navbar başlangıçta şeffaf */
+.topbar {
+    background-color: transparent;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+    /* 🧭 Navbar aktif olduğunda (mouse gelince) arkaplan beyaz olur */
+    .topbar.active {
+        background-color: white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    /* 🔗 Navbar linkleri - şeffafken beyaz, aktifken mavi */
+    .topbar .nav-link {
+        position: relative;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        transition: color 0.3s ease;
+    }
+
+        /* 🟦 Navbar link hover – mavi alt çizgi efekti */
+        .topbar .nav-link::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background-color: var(--forvia-blue);
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .topbar .nav-link:hover::after {
+            transform: scaleX(1);
+        }
+
+    /* 🧢 Navbar aktif olduğunda link rengi mavi olur */
+    .topbar.active .nav-link {
+        color: var(--forvia-blue) !important;
+    }
+
+    /* 🧭 Navbar öğeleri ortalanır */
+    .topbar .navbar-nav {
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+/* 📌 FORVIA Logosu ve yazısı */
+.navbar-center-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2rem;
+}
+
+    .navbar-center-logo img {
+        height: 36px;
+        margin-bottom: 0.25rem;
+    }
+
+    .navbar-center-logo span {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: var(--forvia-blue);
+        font-family: var(--forvia-font);
+    }

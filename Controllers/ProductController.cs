@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using InventorySystem.Data;
+﻿using InventorySystem.Data;
 using InventorySystem.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Diagnostics.Contracts;
@@ -29,13 +30,19 @@ namespace InventorySystem.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            // Sistem tarafından atanacak varsayılan değerler:
+            model.IsInStock = true;                // Yeni ürün stokta başlasın
+            model.CurrentHolder = null;            // Başlangıçta kimseye zimmetli değil
+            model.Location = "Depo";               // Depoda tutuluyor
+
             _context.Products.Add(model);
             await _context.SaveChangesAsync();
 
             Log.Information("Yeni ürün eklendi: {@Name}, {@Barcode}", model.Name, model.Barcode);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("InStockOnly");
         }
+
 
         public async Task<IActionResult> Edit (int id)
         {
@@ -113,15 +120,46 @@ namespace InventorySystem.Controllers
             return View(inStock);
         }
 
-        public async Task<IActionResult> AllProducts()
+        public async Task<IActionResult> AllProducts(string? productType = null)
         {
-            var all = await _context.Products.ToListAsync();
-            return View(all); 
+            var query = _context.Products.AsQueryable();
+            if (!string.IsNullOrEmpty(productType))
+                query = query.Where(p => p.ProductType == productType);
+
+            var grouped = await query
+                .OrderBy(p => p.ProductType)
+                .ThenBy(p => p.Name)
+                .ToListAsync();
+
+            // Seçili tipi ViewBag ile View'a gönder
+            ViewBag.SelectedProductType = productType;
+
+            return View(grouped);
+        }
+
+
+        // Tüm farklı product type’ları dropdown için getir
+        public async Task<IActionResult> GetProductTypes()
+        {
+            var types = await _context.Products
+                .Select(p => p.ProductType)
+                .Distinct()
+                .ToListAsync();
+            return Json(types);
         }
 
         public IActionResult Index()
         {
             return RedirectToAction("InStockOnly");
         }
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (HttpContext.Session.GetString("IsAdmin") != "true")
+            {
+                context.Result = RedirectToAction("Login", "Admin");
+            }
+            base.OnActionExecuting(context);
+        }
+
     }
 }

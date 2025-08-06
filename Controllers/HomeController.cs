@@ -1,6 +1,7 @@
-using System.Diagnostics;
 using InventorySystem.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using System.Diagnostics;
 
 namespace InventorySystem.Controllers
 {
@@ -28,5 +29,15 @@ namespace InventorySystem.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (HttpContext.Session.GetString("IsAdmin") != "true")
+            {
+                context.Result = RedirectToAction("Login", "Admin");
+            }
+            base.OnActionExecuting(context);
+        }
+
     }
 }
