@@ -9,6 +9,7 @@
 <h2 class="mb-4">📋 Tüm Ürünler</h2>
 
 <!-- Kategori (Ürün Tipi) Filtresi -->
+<!-- GET form olduğu için CSRF token gerekmiyor, sadece bilgilendirme -->
 <form method="get" asp-action="AllProducts" class="mb-3 d-flex gap-2">
     <select name="productType" class="form-select w-auto" onchange="this.form.submit()">
         <option value="">Tüm Kategoriler</option>
@@ -51,18 +52,13 @@
                 <td>@product.SerialNumber</td>
                 <td>@product.Description</td>
                 <td>@product.Quantity</td>
-                <td>
-                    @(product.IsInStock ? "✅ Depoda" : "🚫 Dışarıda")
-                </td>
-                <td>
-                    @(product.IsInStock ? "-" : product.CurrentHolder ?? "Bilinmiyor")
-                </td>
+                <td>@(product.IsInStock ? "✅ Depoda" : "🚫 Dışarıda")</td>
+                <td>@(product.IsInStock ? "-" : product.CurrentHolder ?? "Bilinmiyor")</td>
                 <td>@product.Location</td>
                 <td>
                     @if (product.IsInStock)
                     {
-                        <a asp-action="Edit" asp-route-id="@product.Id"
-                           class="btn btn-sm btn-warning">
+                        <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-warning">
                             ✏️ Düzenle
                         </a>
                     }

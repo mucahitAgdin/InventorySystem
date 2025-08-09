@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<InventorySystem.Models.Product>
 @{
     ViewData["Title"] = "Ürün Listesi";
-    var inStock = ViewBag.InStock as List<InventorySystem.Models.Product>;
+    var InStock = ViewBag.InStock as List<InventorySystem.Models.Product>;
 }
 
 <h2 class="mb-4">📦 Ürün Listesi</h2>
@@ -23,7 +23,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var product in inStock)
+                @foreach (var product in InStock)
                 {
                     <tr>
                         <td>@product.Name</td>
@@ -31,6 +31,7 @@
                         <td>@product.Quantity</td>
                         <td>@product.Location</td>
                         <td>
+                            <!-- Not: StockController’da Entry action yoksa bu link 404 döner -->
                             <a asp-controller="Stock" asp-action="Entry" asp-route-barcode="@product.Barcode" class="btn btn-sm btn-primary">
                                 📥 Giriş Yap
                             </a>
@@ -66,12 +67,8 @@
                         <td>@product.Name</td>
                         <td>@product.Barcode</td>
                         <td>@product.Quantity</td>
-                        <td>
-                            @(product.IsInStock ? "✅ Depoda" : "🚫 Dışarıda")
-                        </td>
-                        <td>
-                            @(product.IsInStock ? "-" : product.CurrentHolder ?? "Bilinmiyor")
-                        </td>
+                        <td>@(product.IsInStock ? "✅ Depoda" : "🚫 Dışarıda")</td>
+                        <td>@(product.IsInStock ? "-" : product.CurrentHolder ?? "Bilinmiyor")</td>
                         <td>@product.Location</td>
                     </tr>
                 }

@@ -5,8 +5,14 @@
 }
 
 <h2>Ürün Bilgileri</h2>
+
+<!-- POST form → antiforgery token eklendi -->
 <form asp-action="@ViewData["Action"]" method="post" autocomplete="off">
-    @* Edit.cshtml’de Id için hidden alan ekle *@
+    @Html.AntiForgeryToken() <!-- ✅ CSRF token -->
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    @* Düzenleme senaryosunda Id gerekli *@
     @if (Model.Id > 0)
     {
         <input type="hidden" asp-for="Id" />
@@ -17,41 +23,49 @@
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="Barcode" class="form-label"></label>
         <input asp-for="Barcode" class="form-control" />
         <span asp-validation-for="Barcode" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="Quantity" class="form-label"></label>
         <input asp-for="Quantity" type="number" class="form-control" />
         <span asp-validation-for="Quantity" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="ProductType" class="form-label"></label>
         <input asp-for="ProductType" class="form-control" placeholder="Ör: Monitor, Kasa" />
         <span asp-validation-for="ProductType" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="Brand" class="form-label"></label>
         <input asp-for="Brand" class="form-control" />
         <span asp-validation-for="Brand" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="Model" class="form-label"></label>
         <input asp-for="Model" class="form-control" />
         <span asp-validation-for="Model" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="SerialNumber" class="form-label"></label>
         <input asp-for="SerialNumber" class="form-control" />
         <span asp-validation-for="SerialNumber" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="Description" class="form-label"></label>
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="DateTime" class="form-label"></label>
         <input asp-for="DateTime" type="date" class="form-control" />
@@ -63,7 +77,5 @@
 </form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

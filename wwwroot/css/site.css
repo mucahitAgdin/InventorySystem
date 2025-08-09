@@ -2,22 +2,20 @@
     --forvia-blue: #0024D3;
     --forvia-light-blue: #00A9EB;
     --forvia-dark-gray: #575757;
-    --forvia-bg: #F5F5F5;
-    --forvia-font: 'Open Sans', sans-serif;
+    --forvia-gray: #8C8C8C;
+    --forvia-bg: #FFFFFF; /* Prefer white as base per brand */
+    --forvia-font: 'Open Sans', Arial, sans-serif;
     --forvia-radius: 8px;
 }
 
 /* 🔤 Genel yazı tipi ve arkaplan */
+/* load Open Sans in _Layout.cshtml head: <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap" rel="stylesheet"> */
+
 body {
     font-family: var(--forvia-font);
-   /* background-image: url('/images/background.jpg');*/
-    background-size: cover;
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    background-color: #000f
+    background-color: #000; /* or var(--forvia-bg) if no hero image */
     color: #333;
+    margin: 0;
 }
 
 

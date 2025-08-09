@@ -1,165 +1,115 @@
 ﻿using InventorySystem.Data;
 using InventorySystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System.Diagnostics.Contracts;
+// 🔽 ekle
+using Microsoft.AspNetCore.Authorization;
 
 namespace InventorySystem.Controllers
 {
+    [Authorize(Roles = "Admin")] // ✅ Artık erişim buradan kontrol
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
+        public ProductController(ApplicationDbContext context) => _context = context;
 
-        public ProductController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        // Sayfa yüklenince boş form döner
         [HttpGet]
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
 
         [HttpPost]
-        public async Task<IActionResult> Create(Product model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Product productData)
         {
             if (!ModelState.IsValid)
-                return View(model);
+                return View(productData);
 
-            // Sistem tarafından atanacak varsayılan değerler:
-            model.IsInStock = true;                // Yeni ürün stokta başlasın
-            model.CurrentHolder = null;            // Başlangıçta kimseye zimmetli değil
-            model.Location = "Depo";               // Depoda tutuluyor
+            // Varsayılan değerler
+            productData.IsInStock = true;     // Yeni ürün stokta başlasın
+            productData.CurrentHolder = null; // Kimseye zimmetli değil
+            productData.Location = "Depo";    // Depoda
 
-            _context.Products.Add(model);
+            _context.Products.Add(productData);
             await _context.SaveChangesAsync();
 
-            Log.Information("Yeni ürün eklendi: {@Name}, {@Barcode}", model.Name, model.Barcode);
+            Log.Information("Yeni ürün eklendi: {@Name}, {@Barcode}", productData.Name, productData.Barcode);
 
             return RedirectToAction("InStockOnly");
         }
 
 
-        public async Task<IActionResult> Edit (int id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
             var product = await _context.Products.FindAsync(id);
             return View(product);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Product model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Product productData)
         {
             if (!ModelState.IsValid)
-                return View(model);
+                return View(productData);
 
-            _context.Products.Update(model);
+            _context.Products.Update(productData);
             await _context.SaveChangesAsync();
 
-            Log.Information("Ürün güncellendi: {@Name}", model.Name);
+            Log.Information("Ürün güncellendi: {@Name}", productData.Name);
 
             return RedirectToAction("Index");
         }
+
 
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if(product != null)
+            var p = await _context.Products.FindAsync(id);
+            if (p != null)
             {
-                _context.Products.Remove(product);
+                _context.Products.Remove(p);
                 await _context.SaveChangesAsync();
-                Log.Warning("Ürün silindi: {@Barcode}", product.Barcode);
+                Log.Warning("Ürün silindi: {@Barcode}", p.Barcode);
             }
-
             return RedirectToAction("Index");
         }
 
-        ///<summary>
-        /// Barkod numarası ile ürün aramak için kullanılır
-        /// Barkod doğruysa JSON formatında ürün bilgisi döner
-        /// </summary>
-        /// <param name="barcode">Kullanıcının veya barkod okuyucunun gönderdiği barkod</param>
-        /// <returns>JSON veri objesi (başarılı/başarısız)</returns>
         public async Task<IActionResult> SearchByBarcode(string barcode)
         {
-            //Barkod boş gönderildiyse uyarı ver
             if (string.IsNullOrEmpty(barcode))
                 return Json(new { success = false, message = "Barkod boş." });
 
-            //Veritabanında barkoda sahip ürünü ara
-            var product = await _context.Products
-                .FirstOrDefaultAsync(p => p.Barcode == barcode);
-
-            //Ürün bulunamazsa hata döndür
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Barcode == barcode);
             if (product == null)
                 return Json(new { success = false, message = "Ürün bulunamadı" });
 
-            //Ürün bulunduysa JSON ile ürün bilgilerini döndür
-            return Json(new
-            {
-                success = true,
-                data = new
-                {
-                    name = product.Name,
-                    barcode = product.Barcode,
-                    quantity = product.Quantity
-                }
-            });
+            return Json(new { success = true, data = new { name = product.Name, barcode = product.Barcode, quantity = product.Quantity } });
         }
-
 
         public async Task<IActionResult> InStockOnly()
         {
-            var inStock = await _context.Products
-                .Where(p => p.IsInStock)
-                .ToListAsync();
-
+            var inStock = await _context.Products.Where(p => p.IsInStock).ToListAsync();
             return View(inStock);
         }
 
         public async Task<IActionResult> AllProducts(string? productType = null)
         {
-            var query = _context.Products.AsQueryable();
-            if (!string.IsNullOrEmpty(productType))
-                query = query.Where(p => p.ProductType == productType);
+            var q = _context.Products.AsQueryable();
+            if (!string.IsNullOrEmpty(productType)) q = q.Where(p => p.ProductType == productType);
 
-            var grouped = await query
-                .OrderBy(p => p.ProductType)
-                .ThenBy(p => p.Name)
-                .ToListAsync();
-
-            // Seçili tipi ViewBag ile View'a gönder
+            var list = await q.OrderBy(p => p.ProductType).ThenBy(p => p.Name).ToListAsync();
             ViewBag.SelectedProductType = productType;
-
-            return View(grouped);
+            return View(list);
         }
 
-
-        // Tüm farklı product type’ları dropdown için getir
         public async Task<IActionResult> GetProductTypes()
         {
-            var types = await _context.Products
-                .Select(p => p.ProductType)
-                .Distinct()
-                .ToListAsync();
+            var types = await _context.Products.Select(p => p.ProductType).Distinct().ToListAsync();
             return Json(types);
         }
 
-        public IActionResult Index()
-        {
-            return RedirectToAction("InStockOnly");
-        }
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            if (HttpContext.Session.GetString("IsAdmin") != "true")
-            {
-                context.Result = RedirectToAction("Login", "Admin");
-            }
-            base.OnActionExecuting(context);
-        }
+        public IActionResult Index() => RedirectToAction("InStockOnly");
 
+        // ❌ Artık gerek yok
+        // public override void OnActionExecuting(...) { ... }
     }
 }

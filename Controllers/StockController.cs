@@ -1,95 +1,59 @@
 ﻿using InventorySystem.Data;
 using InventorySystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+// 🔽 ekle
+using Microsoft.AspNetCore.Authorization;
 
 namespace InventorySystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class StockController : Controller
     {
         private readonly ApplicationDbContext _context;
+        public StockController(ApplicationDbContext context) => _context = context;
 
-        public StockController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        /// <summary>
-        /// 📤 GET: Ürün çıkış formunu göster
-        /// </summary>
+        [HttpGet]
         public IActionResult Exit(string? barcode)
         {
-            // Barkod gönderilmişse, otomatik doldurmak için model oluştur
             var model = new StockTransaction();
-            if (!string.IsNullOrEmpty(barcode))
-                model.Barcode = barcode;
-
+            if (!string.IsNullOrEmpty(barcode)) model.Barcode = barcode;
             return View(model);
         }
 
-        /// <summary>
-        /// 📤 POST: Ürün çıkışı yapılır (zimmet verilir)
-        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> Exit(StockTransaction transaction)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Exit(StockTransaction t)
         {
-            if (!ModelState.IsValid)
-                return View(transaction);
+            if (!ModelState.IsValid) return View(t);
 
-            // Ürünü barkodla bul
-            var product = await _context.Products
-                .FirstOrDefaultAsync(p => p.Barcode == transaction.Barcode);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Barcode == t.Barcode);
+            if (product == null) { ViewBag.Error = "Ürün bulunamadı."; return View(t); }
+            if (product.Quantity < t.Quantity) { ModelState.AddModelError("Quantity", "Stok yetersiz."); return View(t); }
 
-            if (product == null)
-            {
-                ViewBag.Error = "Ürün bulunamadı.";
-                return View(transaction);
-            }
-
-            // Miktar yeterli mi kontrol et
-            if (product.Quantity < transaction.Quantity)
-            {
-                ModelState.AddModelError("Quantity", "Stok yetersiz.");
-                return View(transaction);
-            }
-
-            // Stoktan düş
-            product.Quantity -= transaction.Quantity;
-
-            // Ürün artık dışarıda
+            product.Quantity -= t.Quantity;
             product.IsInStock = false;
-            product.CurrentHolder = transaction.DeliveredTo;
+            product.CurrentHolder = t.DeliveredTo;
             product.Location = "Dışarıda";
 
-            // Hareket kaydı oluştur
-            transaction.Type = TransactionType.Exit;
-            transaction.TransactionDate = DateTime.Now;
+            t.Type = TransactionType.Exit;
+            t.TransactionDate = DateTime.Now;
 
-            _context.StockTransaction.Add(transaction);
+            _context.StockTransaction.Add(t);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Ürün çıkışı başarıyla kaydedildi.";
+            TempData["Success"] = "Ürün çıkışı kaydedildi.";
             return RedirectToAction("InStockOnly", "Product");
         }
 
-        public async  Task<IActionResult> History()
+        [HttpGet]
+        public async Task<IActionResult> History()
         {
-            var transactions = await _context.StockTransaction
-                .OrderByDescending(t => t.Id)
-                .ToListAsync();
-
-            return View(transactions);
+            var list = await _context.StockTransaction.OrderByDescending(x => x.Id).ToListAsync();
+            return View(list);
         }
 
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            if (HttpContext.Session.GetString("IsAdmin") != "true")
-            {
-                context.Result = RedirectToAction("Login", "Admin");
-            }
-            base.OnActionExecuting(context);
-        }
-
+        // ❌ Artık gerek yok
+        // public override void OnActionExecuting(...) { ... }
     }
 }

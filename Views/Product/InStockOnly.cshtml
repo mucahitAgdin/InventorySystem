@@ -2,7 +2,6 @@
 
 @{
     ViewData["Title"] = "Depodaki Ürünler";
-
 }
 
 <h2 class="mb-4">🏢 Depodaki Ürünler</h2>
@@ -30,15 +29,14 @@
                 <td>@product.Quantity</td>
                 <td>@product.Location</td>
                 <td>
-                    <!-- Stok Girişi Yap -->
+                    <!-- Not: StockController’da Entry action yoksa bu link 404 döner -->
                     <a asp-controller="Stock" asp-action="Entry" asp-route-barcode="@product.Barcode"
                        class="btn btn-sm btn-primary me-1">
                         📥 Giriş Yap
                     </a>
 
                     <!-- Ürün Bilgisi Düzenle -->
-                    <a asp-action="Edit" asp-route-id="@product.Id"
-                       class="btn btn-sm btn-warning">
+                    <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-warning">
                         ✏️ Düzenle
                     </a>
                 </td>

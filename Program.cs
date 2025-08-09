@@ -1,81 +1,93 @@
 ﻿using InventorySystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.File;
 
-// Uygulamanın yapılandırılmasını başlatıyoruz
+// 🔽 yeni eklemeler
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.CookiePolicy;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// 1️⃣ MVC controller ve view servislerini ekliyoruz (standart)
 builder.Services.AddControllersWithViews();
 
-// 2️⃣ Veritabanı bağlantısı için DbContext'i, connection string ile ekliyoruz
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 3️⃣ HttpContext'e erişim için accessor eklenir (bazı helper sınıflarda işe yarar)
 builder.Services.AddHttpContextAccessor();
 
-// 4️⃣ Serilog ile günlük (log) tutma ayarı
+// Serilog (sizde vardı)
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 builder.Host.UseSerilog();
 
-// 5️⃣ **Session servisini ekliyoruz**
-// Session, kullanıcıya özel geçici veri saklamak için kullanılır (örn: login olan admin'in bilgisini veya alışveriş sepetini session'da tutarsın).
-builder.Services.AddSession(options =>
+// Antiforgery (siz eklemiştiniz – kalsın)
+builder.Services.AddAntiforgery(o =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // 30 dakika boyunca işlem yapılmazsa session biter
-    options.Cookie.HttpOnly = true;                 // Cookie'ye sadece sunucu erişebilir (daha güvenli)
-    options.Cookie.IsEssential = true;              // Kullanıcı çerezleri reddetse bile session çerezi mutlaka olmalı
+    o.Cookie.Name = ".AspNetCore.Antiforgery";
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    o.Cookie.SameSite = SameSiteMode.Lax;
+    o.HeaderName = "X-CSRF-TOKEN";
 });
+builder.Services.AddControllersWithViews(o =>
+{
+    o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
+
+// ❌ Session’ı ARTIK kullanmıyoruz (isteğe bağlı kaldırabilirsiniz).
+// builder.Services.AddSession(...);
+
+// ✅ Cookie Authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Admin/Login";
+        options.LogoutPath = "/Admin/Logout";
+        options.AccessDeniedPath = "/Admin/Login";
+        options.SlidingExpiration = true;
+
+        // Mixed-scheme sorunlarını minimuma indir
+        options.Cookie.Name = ".Inventory.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// 6️⃣ HTTP isteği pipeline'ı yapılandırıyoruz
 if (!app.Environment.IsDevelopment())
 {
-    // Hata durumunda özel error sayfası ve HSTS aktif
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseHttpsRedirection(); // Tüm istekleri HTTPS'e yönlendir
-app.UseStaticFiles();      // wwwroot altındaki statik dosyalara (css, js, img) izin ver
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
 
-app.UseRouting();          // Route'ları aktifleştir
+// CookiePolicy: güvenli bayrakları zorlayalım
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    Secure = CookieSecurePolicy.Always,
+    MinimumSameSitePolicy = SameSiteMode.Lax
+});
 
-app.UseSession();          // **Session middleware mutlaka Routing'den sonra ve Authorization'dan önce çağrılmalı!**
+// ✅ kimlik doğrulama / yetkilendirme (Session yerine bunlar)
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.UseAuthorization();    // Yetkilendirme kontrolleri (login olup olmama)
+// (İsteğe bağlı) http alt kaynakları upgrade et
+app.Use(async (ctx, next) =>
+{
+    ctx.Response.Headers["Content-Security-Policy"] = "upgrade-insecure-requests";
+    await next();
+});
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Admin}/{action=Login}/{id?}");
 
-// Uygulamayı başlatıyoruz
 app.Run();
-
-/*
-    --- SESSION NEDİR? ---
-
-    - Session, sunucu tarafında, kullanıcıya özel kısa süreli veri saklama yöntemidir.
-    - Örneğin: Bir kullanıcı giriş yaptıysa onun "admin" olup olmadığını, session'da tutabilirsin.
-    - Session verisi, kullanıcının tarayıcısındaki bir session cookie ile eşleştirilir.
-    - Her istekle beraber sunucuya "ben buyum" diye gelir ve sunucu onun verisini bulur.
-
-    --- BU PROJEDE NEDEN KULLANIYORUZ? ---
-
-    - Sadece adminlerin ürün eklemesini/silmesini/incelemesini istiyorsun.
-    - Kullanıcı login olunca, `HttpContext.Session.SetString("IsAdmin", "true")` diyorsun.
-    - Sonra her action başında, gerçekten admin mi diye `Session.GetString("IsAdmin")` ile kontrol ediyorsun.
-    - Eğer admin değilse -> login ekranına yönlendiriyorsun.
-    - Session olmazsa, kim admin, kim değil asla ayırt edemezsin!
-
-    --- DİKKAT ETMEN GEREKENLER ---
-    - Session servislerini mutlaka ekle ve kullan.
-    - Cookie'lerin engellenmediğine emin ol (yoksa session kaybolur).
-    - Session, login/logout işlemlerinin güvenli çalışması için şarttır.
-*/

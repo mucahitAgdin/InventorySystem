@@ -1,26 +1,23 @@
 ﻿// site.js
-
-// Navbar elementini seçiyoruz
 const navbar = document.querySelector('.topbar');
+const logoImg = document.querySelector('.navbar-brand img');
 
-// Mouse navbar üzerine gelince "active" class'ı eklenir
-navbar.addEventListener('mouseenter', () => {
-    navbar.classList.add('active');
-});
+if (navbar && logoImg) {
+    const whiteLogo = '/images/logo-white.png';
+    const blueLogo = '/images/logo-blue.png';
 
-// Mouse ayrılınca "active" class'ı kaldırılır
-navbar.addEventListener('mouseleave', () => {
-    navbar.classList.remove('active');
-});
+    // Başlangıç: şeffaf navbar ise beyaz logo
+    if (!navbar.classList.contains('active')) {
+        logoImg.src = whiteLogo;
+    }
 
-const logo = document.querySelector('.navbar-brand img');
+    navbar.addEventListener('mouseenter', () => {
+        navbar.classList.add('active');
+        logoImg.src = blueLogo; // beyaz zemin -> mavi logo
+    });
 
-navbar.addEventListener('mouseenter', () => {
-    navbar.classList.add('active');
-    logo.src = '/images/logo-blue.png'; // hover'da değişen logo
-});
-
-navbar.addEventListener('mouseleave', () => {
-    navbar.classList.remove('active');
-    logo.src = '/images/logo-blue.png'; // orijinal logo
-});
+    navbar.addEventListener('mouseleave', () => {
+        navbar.classList.remove('active');
+        logoImg.src = whiteLogo; // koyu/şeffaf zemin -> beyaz logo
+    });
+}

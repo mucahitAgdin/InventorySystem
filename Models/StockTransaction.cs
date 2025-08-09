@@ -34,7 +34,7 @@ namespace InventorySystem.Models
         /// eğer ürün çıkışı yapıldıysa > kime teslim edildi?
         /// </summary>
         [Required(ErrorMessage = "Teslim alan kişi girilmelidir.")]
-        public string DeliveredTo { get; set; }
+        public string? DeliveredTo { get; set; }
 
         /// <summary>
         /// Ürünü teslim eden kişi 
