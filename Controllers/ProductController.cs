@@ -1,115 +1,173 @@
-﻿using InventorySystem.Data;
-using InventorySystem.Models;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
-// 🔽 ekle
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using InventorySystem.Data;
+using InventorySystem.Models; // Product namespace’in neyse ona göre düzelt
 
 namespace InventorySystem.Controllers
 {
-    [Authorize(Roles = "Admin")] // ✅ Artık erişim buradan kontrol
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public ProductController(ApplicationDbContext context) => _context = context;
+        private readonly ILogger<ProductController> _logger;
 
-        [HttpGet]
-        public IActionResult Create() => View();
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product productData)
+        public ProductController(ApplicationDbContext context, ILogger<ProductController> logger)
         {
-            if (!ModelState.IsValid)
-                return View(productData);
-
-            // Varsayılan değerler
-            productData.IsInStock = true;     // Yeni ürün stokta başlasın
-            productData.CurrentHolder = null; // Kimseye zimmetli değil
-            productData.Location = "Depo";    // Depoda
-
-            _context.Products.Add(productData);
-            await _context.SaveChangesAsync();
-
-            Log.Information("Yeni ürün eklendi: {@Name}, {@Barcode}", productData.Name, productData.Barcode);
-
-            return RedirectToAction("InStockOnly");
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        // GET: /Product/All
+        public async Task<IActionResult> All()
         {
-            var product = await _context.Products.FindAsync(id);
+            var products = await _context.Products
+                                         .AsNoTracking()
+                                         .OrderByDescending(p => p.Id)
+                                         .ToListAsync();
+            return View("AllProducts", products);
+        }
+
+        // GET: /Product/InStockOnly
+        public async Task<IActionResult> InStockOnly()
+        {
+            var products = await _context.Products
+                                         .AsNoTracking()
+                                         .Where(p => p.IsInStock)
+                                         .OrderByDescending(p => p.Id)
+                                         .ToListAsync();
+            return View("InStockOnly", products);
+        }
+
+        // GET: /Product/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id is null) return BadRequest();
+
+            var product = await _context.Products.AsNoTracking()
+                                 .FirstOrDefaultAsync(p => p.Id == id.Value);
+
+            if (product is null) return NotFound();
             return View(product);
         }
 
+        // GET: /Product/Create
+        public IActionResult Create() => View();
+
+        // POST: /Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Product productData)
+        public async Task<IActionResult> Create([Bind("Name,Barcode,Quantity,CurrentHolder,Location,ProductType,Brand,Model,Description,SerialNumber,DateTime")] Product input)
         {
+            // Null guard (view’den hiç gelmezse)
+            if (input is null) return BadRequest();
+
+            // Derived field: IsInStock mantığını merkezileştir
+            input.IsInStock = (input.Quantity >= 1);
+
             if (!ModelState.IsValid)
-                return View(productData);
-
-            _context.Products.Update(productData);
-            await _context.SaveChangesAsync();
-
-            Log.Information("Ürün güncellendi: {@Name}", productData.Name);
-
-            return RedirectToAction("Index");
-        }
-
-
-        public async Task<IActionResult> Delete(int id)
-        {
-            var p = await _context.Products.FindAsync(id);
-            if (p != null)
             {
-                _context.Products.Remove(p);
-                await _context.SaveChangesAsync();
-                Log.Warning("Ürün silindi: {@Barcode}", p.Barcode);
+                // Hataları logla – validation mesajları UI’da gösterilecek
+                _logger.LogWarning("Create Product validation failed: {@ModelState}", ModelState);
+                return View(input);
             }
-            return RedirectToAction("Index");
+
+            try
+            {
+                await _context.Products.AddAsync(input);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Product created successfully.";
+                return RedirectToAction(nameof(All));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Create Product failed for {@Input}", input);
+                TempData["Error"] = "An error occurred while creating the product.";
+                return View(input);
+            }
         }
 
-        public async Task<IActionResult> SearchByBarcode(string barcode)
+        // GET: /Product/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (string.IsNullOrEmpty(barcode))
-                return Json(new { success = false, message = "Barkod boş." });
+            if (id is null) return BadRequest();
 
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Barcode == barcode);
-            if (product == null)
-                return Json(new { success = false, message = "Ürün bulunamadı" });
+            var product = await _context.Products.FindAsync(id.Value);
+            if (product is null) return NotFound();
 
-            return Json(new { success = true, data = new { name = product.Name, barcode = product.Barcode, quantity = product.Quantity } });
+            return View(product);
         }
 
-        public async Task<IActionResult> InStockOnly()
+        // POST: /Product/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Barcode,Quantity,CurrentHolder,Location,ProductType,Brand,Model,Description,SerialNumber,DateTime,IsInStock")] Product input)
         {
-            var inStock = await _context.Products.Where(p => p.IsInStock).ToListAsync();
-            return View(inStock);
+            if (id != input.Id) return BadRequest();
+            if (input is null) return BadRequest();
+
+            // türetilen alanı tekrar hesapla
+            input.IsInStock = (input.Quantity >= 1);
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Edit Product validation failed: {@ModelState}", ModelState);
+                return View(input);
+            }
+
+            try
+            {
+                // Tracking’i basit tut: Attach + Modified
+                _context.Attach(input);
+                _context.Entry(input).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Product updated successfully.";
+                return RedirectToAction(nameof(All));
+            }
+            catch (DbUpdateConcurrencyException cex)
+            {
+                // Kayıt silinmiş olabilir
+                if (!await _context.Products.AnyAsync(p => p.Id == id))
+                    return NotFound();
+
+                _logger.LogError(cex, "Concurrency error on Edit for Id={Id}", id);
+                TempData["Error"] = "Concurrency error while updating the product.";
+                return View(input);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Edit Product failed for Id={Id}", id);
+                TempData["Error"] = "An error occurred while updating the product.";
+                return View(input);
+            }
         }
 
-        public async Task<IActionResult> AllProducts(string? productType = null)
+        // POST: /Product/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int? id)
         {
-            var q = _context.Products.AsQueryable();
-            if (!string.IsNullOrEmpty(productType)) q = q.Where(p => p.ProductType == productType);
+            if (id is null) return BadRequest();
 
-            var list = await q.OrderBy(p => p.ProductType).ThenBy(p => p.Name).ToListAsync();
-            ViewBag.SelectedProductType = productType;
-            return View(list);
+            try
+            {
+                var product = await _context.Products.FindAsync(id.Value);
+                if (product is null) return NotFound();
+
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Product deleted.";
+                return RedirectToAction(nameof(All));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Delete Product failed for Id={Id}", id);
+                TempData["Error"] = "An error occurred while deleting the product.";
+                return RedirectToAction(nameof(All));
+            }
         }
-
-        public async Task<IActionResult> GetProductTypes()
-        {
-            var types = await _context.Products.Select(p => p.ProductType).Distinct().ToListAsync();
-            return Json(types);
-        }
-
-        public IActionResult Index() => RedirectToAction("InStockOnly");
-
-        // ❌ Artık gerek yok
-        // public override void OnActionExecuting(...) { ... }
     }
 }
