@@ -1,36 +1,46 @@
-﻿@model IEnumerable<InventorySystem.Models.StockTransaction>
+﻿@using InventorySystem.Models
+@model IEnumerable<StockTransaction>
+
 @{
-	ViewData["Title"] = "Hareket Geçmişi";
+    ViewData["Title"] = "Geçmiş";
+    var items = Model ?? Enumerable.Empty<StockTransaction>();
+    string bc = ViewBag.Barcode as string ?? "";
 }
+<h2>Geçmiş</h2>
 
-<h2 class="mb-4" Hareket Geçmişi ></h2>
+<form method="get" class="d-flex gap-2 mb-3">
+    <input name="barcode" class="form-control" placeholder="Barkod filtrele…" value="@bc" />
+    <button type="submit" class="btn btn-primary">Filtrele</button>
+    <a asp-action="History" class="btn btn-outline-secondary">Temizle</a>
+</form>
 
-
-<a asp-controller="Product" asp-action="InStockOnly" class="btn btn-outline-secondary mb-3">Depo Ekranına Dön</a>
-
-<table class="table table-striped table-bordered">
-	<thead class="table-dark">
-		<tr>
-			<th>#</th>
-			<th>Barkod</th>
-			<th>Miktar</th>
-			<th>Alan</th>
-			<th>Veren</th>
-			<th>Açıklama</th>
-		</tr>
-	</thead>
-
-	<tbody>
-		@foreach (var tx in Model)
-		{
-			<tr class="@(tx.DeliveredTo == null ? "table-success" : "table-warning")">
-				<td>@tx.Id</td>
-				<td>@tx.Barcode</td>
-				<td>@tx.Quantity</td>
-				<td>@(tx.DeliveredTo ?? "-")</td>
-				<td>@(tx.DeliveredBy ?? "-")</td>
-				<td>@(tx.Note ?? "-")</td>
-			</tr>
-		}
-	</tbody>
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Barkod</th>
+            <th>Tür</th>
+            <th>Miktar</th>
+            <th>Alan</th>
+            <th>Veren</th>
+            <th>Açıklama</th>
+            <th>Tarih</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in items)
+        {
+            <!-- enum karşılaştırma -->
+            <tr class="@(t.Type == TransactionType.Exit ? "table-warning" : "table-light")">
+                <td>@t.Id</td>
+                <td>@t.Barcode</td>
+                <td>@t.Type</td>
+                <td>@t.Quantity</td>
+                <td>@(t.DeliveredTo ?? "-")</td>
+                <td>@(t.DeliveredBy ?? "-")</td>
+                <td>@(t.Note ?? "-")</td>
+                <td>@t.TransactionDate.ToString("g")</td>
+            </tr>
+        }
+    </tbody>
 </table>

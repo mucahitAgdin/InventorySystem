@@ -1,9 +1,9 @@
 ﻿using InventorySystem.Data;
 using InventorySystem.Models;
+using InventorySystem.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-// 🔽 ekle
-using Microsoft.AspNetCore.Authorization;
 
 namespace InventorySystem.Controllers
 {
@@ -11,49 +11,89 @@ namespace InventorySystem.Controllers
     public class StockController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public StockController(ApplicationDbContext context) => _context = context;
+        private readonly ILogger<StockController> _logger;
 
-        [HttpGet]
-        public IActionResult Exit(string? barcode)
+        private const string DeliveredToWarehousePlaceholder = "Depo"; // IN'de entity Required uyumu
+
+        public StockController(ApplicationDbContext context, ILogger<StockController> logger)
         {
-            var model = new StockTransaction();
-            if (!string.IsNullOrEmpty(barcode)) model.Barcode = barcode;
-            return View(model);
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        // ... ctor aynen
+
+        [HttpGet] public IActionResult In() => View(new StockInVm());
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Exit(StockTransaction t)
+        public async Task<IActionResult> In(StockInVm vm)
         {
-            if (!ModelState.IsValid) return View(t);
+            if (!ModelState.IsValid) return View(vm);
+            var p = await _context.Products.FirstOrDefaultAsync(x => x.Barcode == vm.Barcode);
+            if (p is null) { ModelState.AddModelError(nameof(vm.Barcode), "Ürün bulunamadı."); return View(vm); }
 
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Barcode == t.Barcode);
-            if (product == null) { ViewBag.Error = "Ürün bulunamadı."; return View(t); }
-            if (product.Quantity < t.Quantity) { ModelState.AddModelError("Quantity", "Stok yetersiz."); return View(t); }
+            p.Quantity += vm.Quantity;
+            p.Location = "Depo";
+            p.CurrentHolder = null;
 
-            product.Quantity -= t.Quantity;
-            product.IsInStock = false;
-            product.CurrentHolder = t.DeliveredTo;
-            product.Location = "Dışarıda";
+            await _context.StockTransaction.AddAsync(new StockTransaction
+            {
+                Barcode = vm.Barcode,
+                Type = vm.Type,                                  // TransactionType.Entry
+                Quantity = vm.Quantity,
+                DeliveredTo = DeliveredToWarehousePlaceholder,   // Entity [Required] uyumu
+                DeliveredBy = vm.DeliveredBy,
+                Note = vm.Note
+            });
 
-            t.Type = TransactionType.Exit;
-            t.TransactionDate = DateTime.Now;
-
-            _context.StockTransaction.Add(t);
             await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Ürün çıkışı kaydedildi.";
+            TempData["Success"] = "Stok girişi kaydedildi.";
             return RedirectToAction("InStockOnly", "Product");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> History()
+        [HttpGet] public IActionResult Out() => View(new StockOutVm());
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Out(StockOutVm vm)
         {
-            var list = await _context.StockTransaction.OrderByDescending(x => x.Id).ToListAsync();
-            return View(list);
+            if (!ModelState.IsValid) return View(vm);
+            var p = await _context.Products.FirstOrDefaultAsync(x => x.Barcode == vm.Barcode);
+            if (p is null) { ModelState.AddModelError(nameof(vm.Barcode), "Ürün bulunamadı."); return View(vm); }
+            if (vm.Quantity <= 0) { ModelState.AddModelError(nameof(vm.Quantity), "Miktar en az 1 olmalıdır."); return View(vm); }
+            if (p.Quantity < vm.Quantity) { ModelState.AddModelError(nameof(vm.Quantity), $"Yetersiz stok. Mevcut: {p.Quantity}"); return View(vm); }
+
+            p.Quantity -= vm.Quantity;
+            p.Location = "Dışarıda";
+            p.CurrentHolder = vm.DeliveredTo;
+
+            await _context.StockTransaction.AddAsync(new StockTransaction
+            {
+                Barcode = vm.Barcode,
+                Type = vm.Type,                // TransactionType.Exit
+                Quantity = vm.Quantity,
+                DeliveredTo = vm.DeliveredTo,  // Required
+                DeliveredBy = vm.DeliveredBy,
+                Note = vm.Note
+            });
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Stok çıkışı kaydedildi.";
+            return RedirectToAction("All", "Product");
         }
 
-        // ❌ Artık gerek yok
-        // public override void OnActionExecuting(...) { ... }
+        [HttpGet]
+        public async Task<IActionResult> History(string? barcode = null)
+        {
+            var q = _context.StockTransaction.AsNoTracking().AsQueryable();
+            if (!string.IsNullOrWhiteSpace(barcode)) q = q.Where(t => t.Barcode == barcode);
+
+            var list = await q.OrderByDescending(t => t.TransactionDate)
+                              .ThenByDescending(t => t.Id)
+                              .ToListAsync();
+
+            ViewBag.Barcode = barcode ?? "";
+            return View(list);
+        }
     }
 }

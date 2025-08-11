@@ -52,10 +52,14 @@ namespace InventorySystem.Data
             modelBuilder.Entity<StockTransaction>(e =>
             {
                 e.Property(x => x.Barcode).HasMaxLength(100);
-                e.Property(x => x.Type).HasMaxLength(30);
-                e.Property(x => x.TransactionDate)
-                    .HasDefaultValueSql("GETDATE()");
+                e.Property(x => x.Type).HasConversion<string>().HasMaxLength(10); // enum'u string tutmak istersen
+                e.Property(x => x.TransactionDate).HasDefaultValueSql("GETDATE()");
+                e.Property(x => x.DeliveredTo).HasMaxLength(200);
+                e.Property(x => x.DeliveredBy).HasMaxLength(200);
+                e.Property(x => x.Note).HasMaxLength(500);
+
                 e.HasIndex(x => x.Barcode);
+                e.HasIndex(x => x.TransactionDate);
             });
         }
     }
