@@ -1,81 +1,98 @@
-﻿@model InventorySystem.Models.Product
+﻿@using InventorySystem.Models
+@model Product
 
 @{
-    ViewData["Title"] = "Ürün Ekle / Düzenle";
+    ViewData["Title"] = "Edit Product";
+    // Model null gelirse UI kırılmasın (controller zaten NotFound döndürüyor ama yine de)
+    var m = Model ?? new Product();
 }
 
-<h2>Ürün Bilgileri</h2>
+<h2>Edit Product</h2>
 
-<!-- POST form → antiforgery token eklendi -->
-<form asp-action="@ViewData["Action"]" method="post" autocomplete="off">
-    @Html.AntiForgeryToken() <!-- ✅ CSRF token -->
+<form asp-action="Edit" method="post" novalidate>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
 
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    @* Düzenleme senaryosunda Id gerekli *@
-    @if (Model.Id > 0)
-    {
-        <input type="hidden" asp-for="Id" />
-    }
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" value="@(m.Name ?? string.Empty)" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+        <div class="col-md-6">
+            <label asp-for="Barcode" class="form-label"></label>
+            <input asp-for="Barcode" class="form-control" value="@(m.Barcode ?? string.Empty)" />
+            <span asp-validation-for="Barcode" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Quantity" class="form-label"></label>
+            <input asp-for="Quantity" class="form-control" min="0" value="@(m.Quantity)" />
+            <span asp-validation-for="Quantity" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="ProductType" class="form-label"></label>
+            <input asp-for="ProductType" class="form-control" value="@(m.ProductType ?? string.Empty)" />
+            <span asp-validation-for="ProductType" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Brand" class="form-label"></label>
+            <input asp-for="Brand" class="form-control" value="@(m.Brand ?? string.Empty)" />
+            <span asp-validation-for="Brand" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="Model" class="form-label"></label>
+            <input asp-for="Model" class="form-control" value="@(m.Model ?? string.Empty)" />
+            <span asp-validation-for="Model" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="SerialNumber" class="form-label"></label>
+            <input asp-for="SerialNumber" class="form-control" value="@(m.SerialNumber ?? string.Empty)" />
+            <span asp-validation-for="SerialNumber" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="CurrentHolder" class="form-label"></label>
+            <input asp-for="CurrentHolder" class="form-control" value="@(m.CurrentHolder ?? string.Empty)" />
+            <span asp-validation-for="CurrentHolder" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="Location" class="form-label"></label>
+            <input asp-for="Location" class="form-control" value="@(m.Location ?? "Depo")" />
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+
+        <div class="col-12">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="3">@((m.Description ?? string.Empty))</textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="DateTime" class="form-label"></label>
+            <input asp-for="DateTime" class="form-control"
+                   value="@(m.DateTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
+            <span asp-validation-for="DateTime" class="text-danger"></span>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Barcode" class="form-label"></label>
-        <input asp-for="Barcode" class="form-control" />
-        <span asp-validation-for="Barcode" class="text-danger"></span>
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="All" class="btn btn-outline-secondary">Cancel</a>
+        <form asp-action="Delete" asp-route-id="@m.Id" method="post" class="ms-auto">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger"
+                    onclick="return confirm('Delete this product?');">
+                Delete
+            </button>
+        </form>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="Quantity" class="form-label"></label>
-        <input asp-for="Quantity" type="number" class="form-control" />
-        <span asp-validation-for="Quantity" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ProductType" class="form-label"></label>
-        <input asp-for="ProductType" class="form-control" placeholder="Ör: Monitor, Kasa" />
-        <span asp-validation-for="ProductType" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Brand" class="form-label"></label>
-        <input asp-for="Brand" class="form-control" />
-        <span asp-validation-for="Brand" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Model" class="form-label"></label>
-        <input asp-for="Model" class="form-control" />
-        <span asp-validation-for="Model" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="SerialNumber" class="form-label"></label>
-        <input asp-for="SerialNumber" class="form-control" />
-        <span asp-validation-for="SerialNumber" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="DateTime" class="form-label"></label>
-        <input asp-for="DateTime" type="date" class="form-control" />
-        <span asp-validation-for="DateTime" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-success">Kaydet</button>
-    <a asp-action="AllProducts" class="btn btn-secondary">İptal</a>
 </form>
-
-@section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-}

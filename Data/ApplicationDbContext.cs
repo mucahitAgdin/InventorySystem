@@ -39,8 +39,12 @@ namespace InventorySystem.Data
                 e.Property(x => x.ProductType).HasMaxLength(100);
                 e.Property(x => x.Location).HasMaxLength(100);
                 e.Property(x => x.CurrentHolder).HasMaxLength(200);
-                e.HasIndex(x => x.Barcode);
-                e.HasIndex(x => x.SerialNumber);
+                e.HasIndex(x => x.Barcode)
+                .IsUnique();
+                e.HasIndex(x => x.SerialNumber)
+                .IsUnique(false);
+                e.Property(p => p.IsInStock)
+                .HasComputedColumnSql("CASE WHEN [Quantity] > 0 THEN 1 ELSE 0 END", stored: true);
             });
 
             modelBuilder.Entity<StockTransaction>(e =>

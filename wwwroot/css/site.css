@@ -13,7 +13,7 @@
 
 body {
     font-family: var(--forvia-font);
-    background-color: #000; /* or var(--forvia-bg) if no hero image */
+    background-color: #FFFFFF; /* or var(--forvia-bg) if no hero image */
     color: #333;
     margin: 0;
 }

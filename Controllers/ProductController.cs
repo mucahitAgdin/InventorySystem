@@ -64,6 +64,15 @@ namespace InventorySystem.Controllers
             // Null guard (view’den hiç gelmezse)
             if (input is null) return BadRequest();
 
+
+            if (!string.IsNullOrWhiteSpace(input.Barcode) &&
+                await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode))
+            {
+                ModelState.AddModelError(nameof(input.Barcode), "This barcode already exists.");
+                return View(input);
+            }
+
+
             // Derived field: IsInStock mantığını merkezileştir
             input.IsInStock = (input.Quantity >= 1);
 
@@ -87,6 +96,7 @@ namespace InventorySystem.Controllers
                 TempData["Error"] = "An error occurred while creating the product.";
                 return View(input);
             }
+
         }
 
         // GET: /Product/Edit/5

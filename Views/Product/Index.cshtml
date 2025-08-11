@@ -1,78 +1,9 @@
-﻿@model IEnumerable<InventorySystem.Models.Product>
-@{
-    ViewData["Title"] = "Ürün Listesi";
-    var InStock = ViewBag.InStock as List<InventorySystem.Models.Product>;
+﻿@{
+    ViewData["Title"] = "Products";
 }
 
-<h2 class="mb-4">📦 Ürün Listesi</h2>
-
-<!-- 🔹 DEPODAKİ ÜRÜNLER -->
-<div class="card mb-4">
-    <div class="card-header bg-success text-white">
-        🏢 Depodaki Ürünler
-    </div>
-    <div class="card-body p-0">
-        <table class="table table-striped m-0">
-            <thead>
-                <tr>
-                    <th>Adı</th>
-                    <th>Barkod</th>
-                    <th>Miktar</th>
-                    <th>Lokasyon</th>
-                    <th>İşlem</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var product in InStock)
-                {
-                    <tr>
-                        <td>@product.Name</td>
-                        <td>@product.Barcode</td>
-                        <td>@product.Quantity</td>
-                        <td>@product.Location</td>
-                        <td>
-                            <!-- Not: StockController’da Entry action yoksa bu link 404 döner -->
-                            <a asp-controller="Stock" asp-action="Entry" asp-route-barcode="@product.Barcode" class="btn btn-sm btn-primary">
-                                📥 Giriş Yap
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- 🔸 TÜM ÜRÜNLER (Zimmetli dahil) -->
-<div class="card mb-4">
-    <div class="card-header bg-dark text-white">
-        📋 Tüm Ürünler (Depoda ve dışarıda)
-    </div>
-    <div class="card-body p-0">
-        <table class="table table-bordered m-0">
-            <thead class="table-secondary">
-                <tr>
-                    <th>Adı</th>
-                    <th>Barkod</th>
-                    <th>Miktar</th>
-                    <th>Durum</th>
-                    <th>Kimde</th>
-                    <th>Lokasyon</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var product in Model)
-                {
-                    <tr>
-                        <td>@product.Name</td>
-                        <td>@product.Barcode</td>
-                        <td>@product.Quantity</td>
-                        <td>@(product.IsInStock ? "✅ Depoda" : "🚫 Dışarıda")</td>
-                        <td>@(product.IsInStock ? "-" : product.CurrentHolder ?? "Bilinmiyor")</td>
-                        <td>@product.Location</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+<div class="d-flex gap-2">
+    <a asp-action="All" class="btn btn-primary">All Products</a>
+    <a asp-action="InStockOnly" class="btn btn-outline-primary">In Stock</a>
+    <a asp-action="Create" class="btn btn-success">Create</a>
 </div>

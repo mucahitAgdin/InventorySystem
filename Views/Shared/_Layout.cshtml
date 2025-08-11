@@ -1,7 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor HttpContextAccessor
-
-@{
+﻿@{
     var isAuthenticated = User?.Identity?.IsAuthenticated == true;
 }
 
@@ -67,7 +64,27 @@
 
     <!-- Uygulama JS (kök path → https karma olmaz) -->
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    @* place near the end of <body> *@
+    @if (TempData["Success"] is string s && !string.IsNullOrWhiteSpace(s))
+    {
+        <div class="alert alert-success alert-dismissible fade show position-fixed end-0 top-0 m-3" role="alert">
+            @s
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is string e && !string.IsNullOrWhiteSpace(e))
+    {
+        <div class="alert alert-danger alert-dismissible fade show position-fixed end-0 top-0 m-3" role="alert">
+            @e
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 </body>
 </html>
