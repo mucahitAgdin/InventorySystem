@@ -42,10 +42,11 @@ namespace InventorySystem.Controllers
         public async Task<IActionResult> InStockOnly()
         {
             var products = await _context.Products
-                                         .AsNoTracking()
-                                         .Where(p => p.Quantity > 0)  //geçici
-                                         .OrderByDescending(p => p.Id)
-                                         .ToListAsync();
+                .AsNoTracking()
+                .Where(p => p.IsInStock && p.Location == "Depo")   // ← sadece depodakiler
+                .OrderByDescending(p => p.Id)
+                .ToListAsync();
+
             return View("InStockOnly", products);
         }
 
