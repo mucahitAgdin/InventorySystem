@@ -11,8 +11,9 @@ namespace InventorySystem.Models
         [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; } = string.Empty;
 
-        [StringLength(100)]
-        public string? Barcode { get; set; }
+        [StringLength(200)]
+        [Required]
+        public string Barcode { get; set; } = string.Empty;
 
         [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative.")]
         public int Quantity { get; set; } = 0;

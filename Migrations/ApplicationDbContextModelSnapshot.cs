@@ -76,7 +76,7 @@ namespace InventorySystem.Migrations
                     b.Property<bool>("IsInStock")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bit")
-                        .HasComputedColumnSql("CASE WHEN [Quantity] > 0 THEN 1 ELSE 0 END", true);
+                        .HasComputedColumnSql("CASE WHEN [Quantity] > 0 THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END", true);
 
                     b.Property<string>("Location")
                         .HasMaxLength(100)

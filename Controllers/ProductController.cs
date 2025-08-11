@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,21 +19,31 @@ namespace InventorySystem.Controllers
         }
 
         // GET: /Product/All
-        public async Task<IActionResult> All()
+        // ProductController
+
+        // GET: /Product/All   (?productType=.. destekler)
+        public async Task<IActionResult> All(string? productType = null)
         {
-            var products = await _context.Products
-                                         .AsNoTracking()
-                                         .OrderByDescending(p => p.Id)
-                                         .ToListAsync();
+            var q = _context.Products.AsNoTracking().AsQueryable();
+            if (!string.IsNullOrWhiteSpace(productType))
+                q = q.Where(p => p.ProductType == productType);
+
+            var products = await q.OrderByDescending(p => p.Id).ToListAsync();
+            ViewBag.SelectedProductType = productType;
             return View("AllProducts", products);
         }
+
+        // Eski linkler 404 vermesin diye alias (geçici)
+        [HttpGet]
+        public IActionResult AllProducts(string? productType) =>
+            RedirectToAction(nameof(All), new { productType });
 
         // GET: /Product/InStockOnly
         public async Task<IActionResult> InStockOnly()
         {
             var products = await _context.Products
                                          .AsNoTracking()
-                                         .Where(p => p.IsInStock)
+                                         .Where(p => p.Quantity > 0)  //geçici
                                          .OrderByDescending(p => p.Id)
                                          .ToListAsync();
             return View("InStockOnly", products);

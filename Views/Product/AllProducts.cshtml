@@ -11,10 +11,11 @@
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="mb-0">All Products</h2>
 
-    <form asp-action="AllProducts" method="get" class="d-flex gap-2">
+    <form asp-action="All" method="get" class="d-flex gap-2">
+        <!-- was AllProducts -->
         <input name="productType" class="form-control" placeholder="Filter by type…" value="@selectedType" />
         <button type="submit" class="btn btn-primary">Filter</button>
-        <a asp-action="AllProducts" class="btn btn-outline-secondary">Clear</a>
+        <a asp-action="All" class="btn btn-outline-secondary">Clear</a> <!-- was AllProducts -->
     </form>
 </div>
 

@@ -44,7 +44,9 @@ namespace InventorySystem.Data
                 e.HasIndex(x => x.SerialNumber)
                 .IsUnique(false);
                 e.Property(p => p.IsInStock)
-                .HasComputedColumnSql("CASE WHEN [Quantity] > 0 THEN 1 ELSE 0 END", stored: true);
+                .HasComputedColumnSql(
+        "CASE WHEN [Quantity] > 0 THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END",
+        stored: true);
             });
 
             modelBuilder.Entity<StockTransaction>(e =>
