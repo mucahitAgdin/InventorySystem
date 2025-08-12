@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using InventorySystem.Models;
-
+﻿using InventorySystem.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventorySystem.Data
 {
@@ -9,19 +8,18 @@ namespace InventorySystem.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
-        // Veritabanındaki Admin tablosu için model tanımı
+        // Tablolar
         public DbSet<Admin> Admins { get; set; }
-
-        // Veritabanındaki Product tablosu için model tanımı 
         public DbSet<Product> Products { get; set; }
 
+        // Not: property adı tekil; istersen plural (StockTransactions) yapabilirsin.
         public DbSet<StockTransaction> StockTransaction { get; set; }
 
-        // Eğer Column config veya indexleri Fluent API'dan vermek istersen:
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // --- Admin --------------------------------------------------------
             modelBuilder.Entity<Admin>(e =>
             {
                 e.Property(x => x.Username).HasMaxLength(50).IsRequired();
@@ -29,6 +27,7 @@ namespace InventorySystem.Data
                 e.HasIndex(x => x.Username);
             });
 
+            // --- Product ------------------------------------------------------
             modelBuilder.Entity<Product>(e =>
             {
                 e.Property(x => x.Name).HasMaxLength(200);
@@ -39,20 +38,27 @@ namespace InventorySystem.Data
                 e.Property(x => x.ProductType).HasMaxLength(100);
                 e.Property(x => x.Location).HasMaxLength(100);
                 e.Property(x => x.CurrentHolder).HasMaxLength(200);
-                e.HasIndex(x => x.Barcode)
-                .IsUnique();
-                e.HasIndex(x => x.SerialNumber)
-                .IsUnique(false);
+
+                // 1) Barcode benzersiz: önceki .HasIndex(...).IsUnique() migration'ların varsa kalabilir,
+                //    fakat FK için "Alternate Key" şart. (Unique constraint + PrincipalKey)
+                e.HasAlternateKey(p => p.Barcode)
+                 .HasName("AK_Products_Barcode");
+
+                // (İstersen aşağıdaki satırı kaldır: AlternateKey zaten unique index üretir)
+                // e.HasIndex(x => x.Barcode).IsUnique();
+
+                // 2) IsInStock computed (Quantity > 0)
                 e.Property(p => p.IsInStock)
-                .HasComputedColumnSql(
-        "CASE WHEN [Quantity] > 0 THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END",
-        stored: true);
+                 .HasComputedColumnSql(
+                     "CASE WHEN [Quantity] > 0 THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END",
+                     stored: true);
             });
 
+            // --- StockTransaction --------------------------------------------
             modelBuilder.Entity<StockTransaction>(e =>
             {
                 e.Property(x => x.Barcode).HasMaxLength(100);
-                e.Property(x => x.Type).HasConversion<string>().HasMaxLength(10); // enum'u string tutmak istersen
+                e.Property(x => x.Type).HasConversion<string>().HasMaxLength(10); // enum -> nvarchar
                 e.Property(x => x.TransactionDate).HasDefaultValueSql("GETDATE()");
                 e.Property(x => x.DeliveredTo).HasMaxLength(200);
                 e.Property(x => x.DeliveredBy).HasMaxLength(200);
@@ -60,13 +66,14 @@ namespace InventorySystem.Data
 
                 e.HasIndex(x => x.Barcode);
                 e.HasIndex(x => x.TransactionDate);
+
+                // 3) FK: StockTransaction.Barcode -> Product.Barcode (Alternate Key)
+                e.HasOne<Product>()
+                 .WithMany()
+                 .HasForeignKey(st => st.Barcode)
+                 .HasPrincipalKey(p => p.Barcode)
+                 .OnDelete(DeleteBehavior.Restrict); // Ürün silinmeden önce log ele alınmalı
             });
         }
     }
 }
-
-///<summary>
-/// dotnet ef database drop
-/// dotnet ef migrations add InitialCreate_2025
-/// dotnet ef database update
-/// </summary>
