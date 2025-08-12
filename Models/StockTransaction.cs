@@ -10,7 +10,7 @@ namespace InventorySystem.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Barkod zorunludur.")]
-        [StringLength(100)]
+        [StringLength(200)]
         public string Barcode { get; set; } = string.Empty;
 
         /// <summary>Giriş (Entry) veya Çıkış (Exit).</summary>
