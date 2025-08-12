@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using InventorySystem.Data;
+using InventorySystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using InventorySystem.Data;
-using InventorySystem.Models;
-
-// ✅ (opsiyonel ama önerilir) Sayfayı sadece Admin rolüne aç
-using Microsoft.AspNetCore.Authorization;
 
 namespace InventorySystem.Controllers
 {
-    // ⚠️ Cookie-Auth + Role claim kuruluysa aktif et
+    // Yalnızca Admin erişsin
     [Authorize(Roles = "Admin")]
     public class ProductController : Controller
     {
@@ -25,9 +23,8 @@ namespace InventorySystem.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: /Product/All   (?productType=.. destekler)
-        // - Tüm ürünleri listeler. Lokasyona BAKMAZ. (Depo/Dışarıda fark etmez.)
-        // - Sadece kullanıcı filtre girerse ProductType'a göre daraltır.
+        // GET: /Product/All   (?productType=.. opsiyonel filtre)
+        // Tekil model: lokasyona bakmadan TÜM ürünleri getirir.
         public async Task<IActionResult> All(string? productType = null)
         {
             var q = _context.Products.AsNoTracking().AsQueryable();
@@ -35,27 +32,23 @@ namespace InventorySystem.Controllers
             if (!string.IsNullOrWhiteSpace(productType))
                 q = q.Where(p => p.ProductType == productType);
 
-            var products = await q
-                .OrderByDescending(p => p.Id)
-                .ToListAsync();
-
+            var products = await q.OrderByDescending(p => p.Id).ToListAsync();
             ViewBag.SelectedProductType = productType;
             return View("AllProducts", products);
         }
 
-        // Eski linkler 404 vermesin diye alias (geçiş dönemi için bırakıldı)
+        // Eski linkler 404 vermesin diye geçici yönlendirme
         [HttpGet]
         public IActionResult AllProducts(string? productType) =>
             RedirectToAction(nameof(All), new { productType });
 
         // GET: /Product/InStockOnly
-        // - Sadece depodaki ürünleri göster. (Dışarıda olanları sakla)
-        // - IsInStock computed olsa da, iş ihtiyacın net: Depo şartı
+        // Depoda olan tekil ürünler (Location == "Depo")
         public async Task<IActionResult> InStockOnly()
         {
             var products = await _context.Products
                 .AsNoTracking()
-                .Where(p => p.Quantity > 0 && p.Location == "Depo") // ← iş kuralı
+                .Where(p => p.Location == "Depo")
                 .OrderByDescending(p => p.Id)
                 .ToListAsync();
 
@@ -79,24 +72,35 @@ namespace InventorySystem.Controllers
         public IActionResult Create() => View();
 
         // POST: /Product/Create
+        // Tekil model: Quantity bind etmiyoruz (yok); IsInStock DB/computed.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            // ✅ Overposting koruması
-            [Bind("Name,Barcode,Quantity,CurrentHolder,Location,ProductType,Brand,Model,Description,SerialNumber,DateTime")]
+            [Bind("Name,Barcode,CurrentHolder,Location,ProductType,Brand,Model,Description,SerialNumber,DateTime")]
             Product input)
         {
             if (input is null) return BadRequest();
 
-            // ✅ Benzersiz barkod kontrolü (UI/UX için server-side doğrulama)
+            // Barkod boş olamaz
+            if (string.IsNullOrWhiteSpace(input.Barcode))
+                ModelState.AddModelError(nameof(input.Barcode), "Barcode is required.");
+
+            // ✅ Unique kontrolleri (UI tarafında kibar hata ver)
             if (!string.IsNullOrWhiteSpace(input.Barcode) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode))
             {
                 ModelState.AddModelError(nameof(input.Barcode), "This barcode already exists.");
             }
 
-            // ❌ IsInStock SET ETME — computed column (DB hesaplıyor)
-            // input.IsInStock = (input.Quantity >= 1);
+            if (!string.IsNullOrWhiteSpace(input.SerialNumber) &&
+                await _context.Products.AsNoTracking().AnyAsync(p => p.SerialNumber == input.SerialNumber))
+            {
+                ModelState.AddModelError(nameof(input.SerialNumber), "This serial number already exists.");
+            }
+
+            // Varsayılan konum
+            if (string.IsNullOrWhiteSpace(input.Location))
+                input.Location = "Depo";
 
             if (!ModelState.IsValid)
             {
@@ -131,18 +135,28 @@ namespace InventorySystem.Controllers
         }
 
         // POST: /Product/Edit/5
+        // Tekil model: Quantity yok; IsInStock DB/computed.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            // ✅ Overposting koruması (IsInStock dahil edilmedi; computed)
-            [Bind("Id,Name,Barcode,Quantity,CurrentHolder,Location,ProductType,Brand,Model,Description,SerialNumber,DateTime")]
+            [Bind("Id,Name,Barcode,CurrentHolder,Location,ProductType,Brand,Model,Description,SerialNumber,DateTime")]
             Product input)
         {
             if (input is null || id != input.Id) return BadRequest();
 
-            // ❌ IsInStock SET ETME — computed column
-            // input.IsInStock = (input.Quantity >= 1);
+            // Unique kontrolleri (kendi kaydını hariç tut)
+            if (!string.IsNullOrWhiteSpace(input.Barcode) &&
+                await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode && p.Id != id))
+            {
+                ModelState.AddModelError(nameof(input.Barcode), "This barcode is used by another product.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.SerialNumber) &&
+                await _context.Products.AsNoTracking().AnyAsync(p => p.SerialNumber == input.SerialNumber && p.Id != id))
+            {
+                ModelState.AddModelError(nameof(input.SerialNumber), "This serial number is used by another product.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -152,7 +166,7 @@ namespace InventorySystem.Controllers
 
             try
             {
-                // Daha güvenli güncelleme: Attach + Modified
+                // Minimal update (attach + modified)
                 _context.Attach(input);
                 _context.Entry(input).State = EntityState.Modified;
 
@@ -201,5 +215,8 @@ namespace InventorySystem.Controllers
                 return RedirectToAction(nameof(All));
             }
         }
+
+        // (opsiyonel) /Product/Index → All’a yönlendirme
+        public IActionResult Index() => RedirectToAction(nameof(All));
     }
 }
