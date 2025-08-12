@@ -58,14 +58,26 @@ namespace InventorySystem.Controllers
         public async Task<IActionResult> Out(StockOutVm vm)
         {
             if (!ModelState.IsValid) return View(vm);
+
             var p = await _context.Products.FirstOrDefaultAsync(x => x.Barcode == vm.Barcode);
             if (p is null) { ModelState.AddModelError(nameof(vm.Barcode), "Ürün bulunamadı."); return View(vm); }
             if (vm.Quantity <= 0) { ModelState.AddModelError(nameof(vm.Quantity), "Miktar en az 1 olmalıdır."); return View(vm); }
             if (p.Quantity < vm.Quantity) { ModelState.AddModelError(nameof(vm.Quantity), $"Yetersiz stok. Mevcut: {p.Quantity}"); return View(vm); }
 
+            // miktarı düş
             p.Quantity -= vm.Quantity;
-            p.Location = "Dışarıda";
-            p.CurrentHolder = vm.DeliveredTo;
+
+            // ✅ kalan miktara göre konum ve holder kuralı
+            if (p.Quantity == 0)
+            {
+                p.Location = "Dışarıda";
+                p.CurrentHolder = vm.DeliveredTo;
+            }
+            else
+            {
+                p.Location = "Depo";
+                p.CurrentHolder = null; // depoda kaldıysa zimmet olmaz
+            }
 
             await _context.StockTransaction.AddAsync(new StockTransaction
             {

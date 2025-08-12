@@ -3,8 +3,8 @@ const navbar = document.querySelector('.topbar');
 const logoImg = document.querySelector('.navbar-brand img');
 
 if (navbar && logoImg) {
-    const whiteLogo = '/images/logo-white.png';
-    const blueLogo = '/images/logo-blue.png';
+    const whiteLogo = '/images/faurecia_inspiring_white.png';
+    const blueLogo = '/images/faurecia_inspiring_blue.png';
 
     // Başlangıç: şeffaf navbar ise beyaz logo
     if (!navbar.classList.contains('active')) {
