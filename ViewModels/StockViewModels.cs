@@ -10,9 +10,6 @@ namespace InventorySystem.ViewModels
         [StringLength(100)]
         public string Barcode { get; set; } = string.Empty;
 
-        [Range(1, int.MaxValue)]
-        public int Quantity { get; set; } = 1;
-
         [StringLength(200)]
         public string? DeliveredBy { get; set; }
 
