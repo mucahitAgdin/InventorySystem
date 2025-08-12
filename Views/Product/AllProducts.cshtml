@@ -24,7 +24,6 @@
         <tr>
             <th>Name</th>
             <th>Barcode</th>
-            <th>Qty</th>
             <th>In Stock</th>
             <th>Holder</th>
             <th>Location</th>
@@ -42,7 +41,6 @@
         <tr>
             <td>@(item?.Name ?? "-")</td>
             <td>@(item?.Barcode ?? "-")</td>
-            <td>@(item?.Quantity ?? 0)</td>
             <td>
                 @if (item?.IsInStock == true)
                 {

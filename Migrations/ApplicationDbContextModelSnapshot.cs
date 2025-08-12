@@ -76,11 +76,11 @@ namespace InventorySystem.Migrations
                     b.Property<bool>("IsInStock")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bit")
-                        .HasComputedColumnSql("CASE WHEN [Quantity] > 0 THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END", true);
+                        .HasComputedColumnSql("CASE WHEN COALESCE([Location],'') = 'Depo' THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END", true);
 
                     b.Property<string>("Location")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Model")
                         .HasMaxLength(150)
@@ -95,9 +95,6 @@ namespace InventorySystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
@@ -106,6 +103,10 @@ namespace InventorySystem.Migrations
 
                     b.HasAlternateKey("Barcode")
                         .HasName("AK_Products_Barcode");
+
+                    b.HasIndex("SerialNumber")
+                        .IsUnique()
+                        .HasFilter("[SerialNumber] IS NOT NULL");
 
                     b.ToTable("Products");
                 });
@@ -120,8 +121,8 @@ namespace InventorySystem.Migrations
 
                     b.Property<string>("Barcode")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("DeliveredBy")
                         .HasMaxLength(200)

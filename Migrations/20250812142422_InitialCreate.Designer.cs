@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventorySystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250811112148_InitialCreate")]
+    [Migration("20250812142422_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -79,11 +79,11 @@ namespace InventorySystem.Migrations
                     b.Property<bool>("IsInStock")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bit")
-                        .HasComputedColumnSql("CASE WHEN [Quantity] > 0 THEN 1 ELSE 0 END", true);
+                        .HasComputedColumnSql("CASE WHEN COALESCE([Location],'') = 'Depo' THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END", true);
 
                     b.Property<string>("Location")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Model")
                         .HasMaxLength(150)
@@ -98,19 +98,18 @@ namespace InventorySystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Barcode")
-                        .IsUnique();
+                    b.HasAlternateKey("Barcode")
+                        .HasName("AK_Products_Barcode");
 
-                    b.HasIndex("SerialNumber");
+                    b.HasIndex("SerialNumber")
+                        .IsUnique()
+                        .HasFilter("[SerialNumber] IS NOT NULL");
 
                     b.ToTable("Products");
                 });
@@ -125,18 +124,21 @@ namespace InventorySystem.Migrations
 
                     b.Property<string>("Barcode")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("DeliveredBy")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("DeliveredTo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -146,15 +148,28 @@ namespace InventorySystem.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<int>("Type")
-                        .HasMaxLength(30)
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Barcode");
 
+                    b.HasIndex("TransactionDate");
+
                     b.ToTable("StockTransaction");
+                });
+
+            modelBuilder.Entity("InventorySystem.Models.StockTransaction", b =>
+                {
+                    b.HasOne("InventorySystem.Models.Product", null)
+                        .WithMany()
+                        .HasForeignKey("Barcode")
+                        .HasPrincipalKey("Barcode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -29,12 +29,6 @@
         </div>
 
         <div class="col-md-4">
-            <label asp-for="Quantity" class="form-label"></label>
-            <input asp-for="Quantity" class="form-control" min="0" value="@(m.Quantity)" />
-            <span asp-validation-for="Quantity" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-4">
             <label asp-for="ProductType" class="form-label"></label>
             <input asp-for="ProductType" class="form-control" value="@(m.ProductType ?? string.Empty)" />
             <span asp-validation-for="ProductType" class="text-danger"></span>

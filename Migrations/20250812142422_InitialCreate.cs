@@ -33,10 +33,9 @@ namespace InventorySystem.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Barcode = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    IsInStock = table.Column<bool>(type: "bit", nullable: false, computedColumnSql: "CASE WHEN [Quantity] > 0 THEN 1 ELSE 0 END", stored: true),
+                    IsInStock = table.Column<bool>(type: "bit", nullable: false, computedColumnSql: "CASE WHEN COALESCE([Location],'') = 'Depo' THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END", stored: true),
                     CurrentHolder = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Location = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ProductType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Brand = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Model = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
@@ -47,6 +46,7 @@ namespace InventorySystem.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
+                    table.UniqueConstraint("AK_Products_Barcode", x => x.Barcode);
                 });
 
             migrationBuilder.CreateTable(
@@ -55,17 +55,23 @@ namespace InventorySystem.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Barcode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Type = table.Column<int>(type: "int", maxLength: 30, nullable: false),
+                    Barcode = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    DeliveredTo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DeliveredBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    DeliveredTo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    DeliveredBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Note = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_StockTransaction", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StockTransaction_Products_Barcode",
+                        column: x => x.Barcode,
+                        principalTable: "Products",
+                        principalColumn: "Barcode",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -74,20 +80,21 @@ namespace InventorySystem.Migrations
                 column: "Username");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_Barcode",
-                table: "Products",
-                column: "Barcode",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Products_SerialNumber",
                 table: "Products",
-                column: "SerialNumber");
+                column: "SerialNumber",
+                unique: true,
+                filter: "[SerialNumber] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StockTransaction_Barcode",
                 table: "StockTransaction",
                 column: "Barcode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockTransaction_TransactionDate",
+                table: "StockTransaction",
+                column: "TransactionDate");
         }
 
         /// <inheritdoc />
@@ -97,10 +104,10 @@ namespace InventorySystem.Migrations
                 name: "Admins");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "StockTransaction");
 
             migrationBuilder.DropTable(
-                name: "StockTransaction");
+                name: "Products");
         }
     }
 }
