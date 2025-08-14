@@ -31,7 +31,7 @@ namespace InventorySystem.Data
             modelBuilder.Entity<Product>(e =>
             {
                 e.Property(x => x.Name).HasMaxLength(200);
-                e.Property(x => x.Barcode).HasMaxLength(200).IsRequired();
+                e.Property(x => x.Barcode).HasMaxLength(7).IsRequired();
                 e.Property(x => x.SerialNumber).HasMaxLength(150);
                 e.Property(x => x.Brand).HasMaxLength(100);
                 e.Property(x => x.Model).HasMaxLength(150);
@@ -57,7 +57,7 @@ namespace InventorySystem.Data
             // --- StockTransaction --------------------------------------------
             modelBuilder.Entity<StockTransaction>(e =>
             {
-                e.Property(x => x.Barcode).HasMaxLength(200); // ⬅ Products.Barcode ile birebir
+                e.Property(x => x.Barcode).HasMaxLength(7); // ⬅ Products.Barcode ile birebir
                 e.Property(x => x.Type).HasConversion<string>().HasMaxLength(10);
                 e.Property(x => x.TransactionDate).HasDefaultValueSql("GETDATE()");
                 e.Property(x => x.DeliveredTo).HasMaxLength(200);

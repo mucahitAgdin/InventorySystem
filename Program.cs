@@ -1,6 +1,7 @@
 ﻿using InventorySystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using InventorySystem.Middleware;
 
 // 🔽 eklendi
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -42,11 +43,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
-// Serilog konfigürasyonu
+// Program.cs (yalnızca Serilog konfigürasyonu satırını genişletiyoruz)
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext() // << LogContext.PushProperty(...) alanlarını enable eder
+    .WriteTo.File(
+        "Logs/log.txt",
+        rollingInterval: RollingInterval.Day,
+        outputTemplate:
+            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] " +
+            "{Message:lj} | Op={Op} Barcode={Barcode} User={User} DeliveredTo={DeliveredTo}{NewLine}{Exception}")
     .CreateLogger();
-builder.Host.UseSerilog();
 
 var app = builder.Build();
 
@@ -65,6 +71,9 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();   // 🔽 eklendi
 app.UseAuthorization();
+
+// 🔽 Global try-catch + log
+app.UseGlobalExceptionHandling();
 
 app.MapControllerRoute(
     name: "default",

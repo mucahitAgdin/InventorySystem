@@ -16,7 +16,7 @@ namespace InventorySystem.Models
         public string Name { get; set; } = string.Empty;
 
         // 🔒 Tekil ürün için benzersiz barkod (DbContext’te AlternateKey/Unique ile destekli)
-        [StringLength(200)]
+        [StringLength(7, MinimumLength = 6, ErrorMessage ="Barcode must be between 6 and 7 characters.")]
         [Required(ErrorMessage = "Barcode is required.")]
         public string Barcode { get; set; } = string.Empty;
 
@@ -45,6 +45,7 @@ namespace InventorySystem.Models
 
         // 🔒 Nullable unique (DbContext’te HasIndex(...).IsUnique().HasFilter("[SerialNumber] IS NOT NULL"))
         [StringLength(150)]
+        [Required(ErrorMessage = "SerialNumber is required.")]
         public string? SerialNumber { get; set; }
 
         public DateTime? DateTime { get; set; }      // eklenme/güncellenme tarihi (opsiyonel)

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
 
 namespace InventorySystem.Controllers
 {
@@ -22,6 +23,44 @@ namespace InventorySystem.Controllers
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        // ProductController.cs
+        [HttpGet]
+        public async Task<IActionResult> TypesJson()
+        {
+            var types = await _context.Products
+                .AsNoTracking()
+                .Where(p => p.ProductType != null && p.ProductType != "")
+                .Select(p => p.ProductType!)
+                .Distinct()
+                .OrderBy(t => t)
+                .ToListAsync();
+
+            return Json(types);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ListJson()
+        {
+            var data = await _context.Products
+                .AsNoTracking()
+                .OrderByDescending(p => p.Id)
+                .Select(p => new {
+                    id = p.Id,
+                    name = p.Name,
+                    barcode = p.Barcode,
+                    productType = p.ProductType,
+                    brand = p.Brand,
+                    model = p.Model,
+                    location = p.Location,
+                    currentHolder = p.CurrentHolder,
+                    isInStock = p.IsInStock
+                })
+                .ToListAsync();
+
+            return Json(data);
+        }
+
 
         // GET: /Product/All   (?productType=.. opsiyonel filtre)
         // Tekil model: lokasyona bakmadan TÜM ürünleri getirir.
@@ -84,8 +123,15 @@ namespace InventorySystem.Controllers
             // Barkod boş olamaz
             if (string.IsNullOrWhiteSpace(input.Barcode))
                 ModelState.AddModelError(nameof(input.Barcode), "Barcode is required.");
+           
+            if (!string.IsNullOrEmpty(input.Barcode) &&
+                (input.Barcode.Length < 6 || input.Barcode.Length > 7))
+            {
+                ModelState.AddModelError(nameof(input.Barcode), "Barcode must be between 6 and 7 characters.");
+            }
 
-            // ✅ Unique kontrolleri (UI tarafında kibar hata ver)
+
+            // ✅ Unique kontrolleri
             if (!string.IsNullOrWhiteSpace(input.Barcode) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode))
             {
@@ -151,6 +197,13 @@ namespace InventorySystem.Controllers
             {
                 ModelState.AddModelError(nameof(input.Barcode), "This barcode is used by another product.");
             }
+
+            if (!string.IsNullOrEmpty(input.Barcode) &&
+                (input.Barcode.Length < 6 || input.Barcode.Length > 7))
+            {
+                ModelState.AddModelError(nameof(input.Barcode), "Barcode must be between 6 and 7 characters.");
+            }
+
 
             if (!string.IsNullOrWhiteSpace(input.SerialNumber) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.SerialNumber == input.SerialNumber && p.Id != id))

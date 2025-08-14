@@ -1,0 +1,55 @@
+﻿<!-- _ProductPickerModal.cshtml -->
+<div class="modal fade" id="productPickerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ürün Listesi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-sm-4">
+                        <label class="form-label">Tip (ProductType)</label>
+                        <select id="ppFilterType" class="form-select">
+                            <option value="">— Hepsi —</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label">Arama</label>
+                        <input id="ppSearch" type="text" class="form-control" placeholder="İsim, barkod, marka, model, seri no..." />
+                    </div>
+                    <div class="col-sm-2 form-check ms-2">
+                        <input id="ppInStockOnly" class="form-check-input" type="checkbox">
+                        <label class="form-check-label" for="ppInStockOnly">Sadece depodakiler</label>
+                    </div>
+                    <div class="col-sm-2 text-end">
+                        <button id="ppRefresh" class="btn btn-primary w-100">Filtrele</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive border rounded">
+                    <table class="table table-hover align-middle mb-0" id="ppTable">
+                        <thead>
+                            <tr>
+                                <th>Barkod</th>
+                                <th>Ad</th>
+                                <th>Tip</th>
+                                <th>Marka</th>
+                                <th>Model</th>
+                                <th>Konum</th>
+                                <th>Üzerinde</th>
+                            </tr>
+                        </thead>
+                        <tbody><!-- doldurulacak --></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <small class="text-muted me-auto">Bir satıra tıklayarak barkodu forma aktarabilirsiniz.</small>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>

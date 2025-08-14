@@ -12,10 +12,10 @@ namespace InventorySystem.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Barkod zorunludur.")]
-        [StringLength(200)]                 // ⬅️ DB ile hizalı (NVARCHAR(200))
+        [StringLength(7, MinimumLength = 6, ErrorMessage = "Barkod 6 ile 7 karakter arasında olmalıdır.")]
         public string Barcode { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage ="Type zorunludur")]
         public TransactionType Type { get; set; }    // Entry / Exit
 
         // Tekil modelde hep 1 yazıyoruz (controller set ediyor).
