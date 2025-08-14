@@ -13,9 +13,9 @@
 
 body {
     font-family: var(--forvia-font);
-    /*background: url('/images/DesktopBackground_1680x1050_Epingles_FORVIA.png') no-repeat center center fixed;*/
+    background: url('/images/DesktopBackground_1680x1050_Epingles_FORVIA.png') no-repeat center center fixed;
     /*background: url('/images/DesktopBackground_1680x1050_FeuxStop_FORVIA.png') no-repeat center center fixed;*/
-    /*/background: url('/images/DesktopBackground_1680x1050_Lacets_FORVIA.png') no-repeat center center fixed;*//* or var(--forvia-bg) if no hero image */
+    /*background: url('/images/DesktopBackground_1680x1050_Lacets_FORVIA.png') no-repeat center center fixed;*//* or var(--forvia-bg) if no hero image */
     color: #333;
     margin: 0;
 }
@@ -96,3 +96,13 @@ body {
         color: var(--forvia-blue);
         font-family: var(--forvia-font);
     }
+
+
+/* 📄 Sayfa içerikleri için yarı saydam blur arka plan */
+.content-surface {
+   background: rgba(255, 255, 255, 0.85); /* beyaz yarı saydam */
+    backdrop-filter: blur(3px); /* blur efekti */
+    border-end-start-radius: 50px; /* köşeler yuvarlak */
+    padding: 20px; /* içerik boşluğu */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* hafif gölge */
+}
