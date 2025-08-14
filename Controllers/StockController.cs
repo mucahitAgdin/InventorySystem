@@ -1,13 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using InventorySystem.Data;
+﻿using InventorySystem.Data;
 using InventorySystem.Models;
 using InventorySystem.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Serilog.Context;
+
 
 namespace InventorySystem.Controllers
 {
@@ -17,6 +15,7 @@ namespace InventorySystem.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<StockController> _logger;
+
 
         // Entity tarafında StockTransaction.DeliveredTo [Required] olduğundan
         // stok girişi (Entry) için placeholder kullanıyoruz.
@@ -45,51 +44,61 @@ namespace InventorySystem.Controllers
                 ModelState.AddModelError(nameof(vm.Barcode), "Barkod zorunludur.");
                 return View(vm);
             }
+            if (barcode.Length < 6 || barcode.Length > 7)
+            {
+                ModelState.AddModelError(nameof(vm.Barcode), "Barkod 6 ile 7 karakter arasında olmalıdır.");
+                return View(vm);
+            }
 
-            // Ürün var mı? → Yoksa işlem YAPILMAZ (tekil modelin kuralı)
             var p = await _context.Products.FirstOrDefaultAsync(x => x.Barcode == barcode);
             if (p is null)
             {
                 ModelState.AddModelError(nameof(vm.Barcode), "Bu barkod ile kayıtlı ürün yok.");
                 return View(vm);
             }
-
-            // Zaten depodaysa ikinci kez IN yapılmasın (UX kararı)
             if (string.Equals(p.Location, "Depo", StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError(nameof(vm.Barcode), "Bu ürün zaten depoda görünüyor.");
                 return View(vm);
             }
 
-            try
+            // >>> Serilog LogContext scope
+            using (LogContext.PushProperty("Op", "Stock-IN"))
+            using (LogContext.PushProperty("Barcode", barcode))
+            using (LogContext.PushProperty("User", User?.Identity?.Name ?? "admin"))
             {
-                // Tekil model: adet yok — sadece konumu/görevlendirmeyi güncelle
-                p.Location = "Depo";
-                p.CurrentHolder = null;
+                _logger.LogInformation("Stock IN started for {Barcode}", barcode);
 
-                // Hareket kaydı (Quantity = 1; tekil hareket)
-                await _context.StockTransaction.AddAsync(new StockTransaction
+                try
                 {
-                    Barcode = barcode,
-                    Type = TransactionType.Entry,
-                    Quantity = 1,
-                    DeliveredTo = DeliveredToWarehousePlaceholder, // entity [Required] uyumu için
-                    DeliveredBy = vm.DeliveredBy,
-                    Note = vm.Note
-                    // TransactionDate: DB default GETDATE() / model default set ediyor
-                });
+                    p.Location = "Depo";
+                    p.CurrentHolder = null;
 
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Stok girişi kaydedildi.";
-                return RedirectToAction("InStockOnly", "Product");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Stock IN failed for {Barcode}", barcode);
-                TempData["Error"] = "Stok girişi sırasında beklenmeyen bir hata oluştu.";
-                return View(vm);
+                    await _context.StockTransaction.AddAsync(new StockTransaction
+                    {
+                        Barcode = barcode,
+                        Type = TransactionType.Entry,
+                        Quantity = 1,
+                        DeliveredTo = DeliveredToWarehousePlaceholder,
+                        DeliveredBy = vm.DeliveredBy,
+                        Note = vm.Note
+                    });
+
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Stock IN success for {Barcode}", barcode);
+                    TempData["Success"] = "Stok girişi kaydedildi.";
+                    return RedirectToAction("InStockOnly", "Product");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Stock IN failed for {Barcode}", barcode);
+                    TempData["Error"] = "Stok girişi sırasında beklenmeyen bir hata oluştu.";
+                    return View(vm);
+                }
             }
         }
+
 
         // ---- STOCK OUT (Çıkış) ----------------------------------------------
 
@@ -103,6 +112,11 @@ namespace InventorySystem.Controllers
             if (!ModelState.IsValid) return View(vm);
 
             var barcode = (vm.Barcode ?? string.Empty).Trim();
+            if (barcode.Length < 6 || barcode.Length > 7)
+            {
+                ModelState.AddModelError(nameof(vm.Barcode), "Barkod 6 ile 7 karakter arasında olmalıdır.");
+                return View(vm);
+            }
 
             var p = await _context.Products.FirstOrDefaultAsync(x => x.Barcode == barcode);
             if (p is null)
@@ -110,42 +124,50 @@ namespace InventorySystem.Controllers
                 ModelState.AddModelError(nameof(vm.Barcode), "Bu barkod ile kayıtlı ürün yok.");
                 return View(vm);
             }
-
-            // Depoda değilse ikinci kez OUT yapılmasın
             if (!string.Equals(p.Location, "Depo", StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError(nameof(vm.Barcode), "Bu ürün depoda değil (zaten dışarıda).");
                 return View(vm);
             }
 
-            try
+            // >>> Serilog LogContext scope
+            using (LogContext.PushProperty("Op", "Stock-OUT"))
+            using (LogContext.PushProperty("Barcode", barcode))
+            using (LogContext.PushProperty("DeliveredTo", vm.DeliveredTo))
+            using (LogContext.PushProperty("User", User?.Identity?.Name ?? "admin"))
             {
-                // Dışarı ver (tekil model; adet yok)
-                p.Location = "Dışarıda";
-                p.CurrentHolder = vm.DeliveredTo;
+                _logger.LogInformation("Stock OUT started for {Barcode}", barcode);
 
-                // Hareket kaydı (Quantity=1)
-                await _context.StockTransaction.AddAsync(new StockTransaction
+                try
                 {
-                    Barcode = barcode,
-                    Type = TransactionType.Exit,
-                    Quantity = 1,
-                    DeliveredTo = vm.DeliveredTo,  // VM tarafında Required
-                    DeliveredBy = vm.DeliveredBy,
-                    Note = vm.Note
-                });
+                    p.Location = "Dışarıda";
+                    p.CurrentHolder = vm.DeliveredTo;
 
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Stok çıkışı kaydedildi.";
-                return RedirectToAction("All", "Product"); // All Products her zaman listeler
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Stock OUT failed for {Barcode}", barcode);
-                TempData["Error"] = "Stok çıkışı sırasında beklenmeyen bir hata oluştu.";
-                return View(vm);
+                    await _context.StockTransaction.AddAsync(new StockTransaction
+                    {
+                        Barcode = barcode,
+                        Type = TransactionType.Exit,
+                        Quantity = 1,
+                        DeliveredTo = vm.DeliveredTo,
+                        DeliveredBy = vm.DeliveredBy,
+                        Note = vm.Note
+                    });
+
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Stock OUT success for {Barcode}", barcode);
+                    TempData["Success"] = "Stok çıkışı kaydedildi.";
+                    return RedirectToAction("All", "Product");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Stock OUT failed for {Barcode}", barcode);
+                    TempData["Error"] = "Stok çıkışı sırasında beklenmeyen bir hata oluştu.";
+                    return View(vm);
+                }
             }
         }
+
 
         // ---- HISTORY --------------------------------------------------------
 
