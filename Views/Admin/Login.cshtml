@@ -1,30 +1,105 @@
 ﻿@model InventorySystem.Models.Admin
 @{
     ViewData["Title"] = "Admin Giriş";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // mevcut yapıyı bozmuyoruz
 }
 
-<h2 class="text-center mb-4 fw-bold">🔐 Admin Giriş</h2>
+@section Styles{
+    <style>
+        :root{
+            --forvia-blue:#0024D3;
+            --forvia-blue-2:#00A9EB;
+            --forvia-gray-100:#F5F5F5;
+            --text-black:#212121;
+        }
 
-<form asp-action="Login" method="post">
-    <div class="mb-3">
-        <label asp-for="Username" class="form-label fw-semibold"></label>
-        <input asp-for="Username" class="form-control" placeholder="Kullanıcı adı" autofocus />
-        <span asp-validation-for="Username" class="text-danger small"></span>
+        /* Sayfa kahramanı: arka plan + koyu overlay */
+        .login-hero{
+            position: relative;
+            min-height: calc(100vh - 140px); /* üst navbar + footer payı düşünülerek */
+            display:flex; align-items:center;
+            border-radius: 16px;
+        }
+
+        /* Kart: yarı saydam cam efekti */
+        .login-card{
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255,255,255,.92);
+            border: 1px solid rgba(0,0,0,.05);
+            border-radius: 18px;
+            box-shadow: 0 24px 80px rgba(0,0,0,.18);
+            backdrop-filter: blur(6px);
+        }
+
+        /* Başlık ve etiketler */
+        .login-title{ color: var(--text-black); letter-spacing:.2px; }
+        .form-label{ font-weight:600; color: var(--text-black); }
+
+        /* Input focus */
+        .form-control:focus{
+            border-color: var(--forvia-blue-2);
+            box-shadow: 0 0 0 .25rem rgba(0,169,235,.15);
+        }
+
+        /* Buton: mevcut btn-primary'yi sadece bu view’da FORVIA maviye çeker */
+        .login-card .btn-primary{
+            background: var(--forvia-blue);
+            border-color: var(--forvia-blue);
+            font-weight:700;
+            letter-spacing:.2px;
+        }
+        .login-card .btn-primary:hover{
+            background:#001db0; border-color:#001db0;
+        }
+
+        /* Küçük yardımcı metin */
+        .login-help{ color:#ffffffcc; }
+    </style>
+}
+
+<div class="container my-4 my-md-5">
+    <div class="login-hero p-3 p-md-4">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-auto">
+
+                    <!-- Login Kartı: sadece görünüm düzenlendi -->
+                    <div class="login-card p-4 p-md-5">
+                        <h2 class="text-center mb-4 fw-bold login-title"> <img src="~/images/F_logo_blue.png"  alt="FORVIA" height="60"/></h2>
+
+                        <!-- backend yapısını bozmaz: antiforgery eklemek zorunlu ise hazır dursun -->
+                        <form asp-action="Login" method="post" novalidate>
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+                                <label asp-for="Username" class="form-label fw-semibold"></label>
+                                <input asp-for="Username" class="form-control" placeholder="Kullanıcı adı" autofocus />
+                                <span asp-validation-for="Username" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label fw-semibold"></label>
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Şifre" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            @if (ViewBag.Error != null)
+                            {
+                                <div class="alert alert-danger py-2 small mb-3">@ViewBag.Error</div>
+                            }
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary py-2">Giriş Yap</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <p class="text-center mt-3 mb-0 login-help small">
+                        © @DateTime.Now.Year · FORVIA visual identity compliant
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label fw-semibold"></label>
-        <input asp-for="Password" type="password" class="form-control" placeholder="Şifre" />
-        <span asp-validation-for="Password" class="text-danger small"></span>
-    </div>
-
-    @if (ViewBag.Error != null)
-    {
-        <div class="alert alert-danger">@ViewBag.Error</div>
-    }
-
-    <div class="d-grid">
-        <button type="submit" class="btn btn-primary">Giriş Yap</button>
-    </div>
-</form>
+</div>
