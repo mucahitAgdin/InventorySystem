@@ -23,7 +23,6 @@ namespace InventorySystem.Middleware
                    .ForContext("IP", ctx.Connection.RemoteIpAddress?.ToString())
                    .Error(ex, "Unhandled exception");
 
-                // Kullanıcıya dost bir sayfa
                 ctx.Response.Clear();
                 ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 ctx.Response.ContentType = "text/html; charset=utf-8";
