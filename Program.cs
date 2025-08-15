@@ -69,7 +69,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSession();
-app.UseAuthentication();   // 🔽 eklendi
+app.UseAuthentication();
 app.UseAuthorization();
 
 // 🔽 Global try-catch + log

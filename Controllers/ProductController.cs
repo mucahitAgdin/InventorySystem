@@ -268,6 +268,7 @@ namespace InventorySystem.Controllers
                 return RedirectToAction(nameof(All));
             }
         }
+        [HttpGet] public IActionResult Scan() => View();
 
         // (opsiyonel) /Product/Index → All’a yönlendirme
         public IActionResult Index() => RedirectToAction(nameof(All));

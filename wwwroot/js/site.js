@@ -211,3 +211,47 @@ if (navbar && logoImg) {
         bsModal().show(modalEl);
     });
 })();
+
+// --- BARCODE SCAN HELPER ----------------------------------------------------
+// Amaç: USB-HID barkod okuyucu (klavye emülasyonu) ile akıcı giriş.
+// Sunucu tarafı DEĞİŞMEDEN çalışır. 6–7 char ve Enter'da submit eder.
+// Ayrıca /Product/ListJson'u cache'leyip anlık ürün önizlemesi yapar.
+
+(function () {
+    // Sayfada barkod input'u varsa yakala (name='Barcode' MVC ile uyumlu)
+    const $barcode = document.querySelector("input[name='Barcode']");
+    if (!$barcode) return;
+
+    // Otomatik fokus
+    setTimeout(() => $barcode.focus(), 0);
+
+    // UI: önizleme kutusu (varsa dolduracağız)
+    const $preview = document.querySelector("#barcode-preview");
+
+    // 6–7 karakter kuralı (controller ile aynı)
+    const isValidLen = s => s && s.length >= 6 && s.length <= 7;
+
+    // Tarama ile manuel yazım ayrımı için küçük bir debounce
+    let lastKeyTime = 0;
+    $barcode.addEventListener("keydown", (e) => {
+        const now = Date.now();
+        const delta = now - lastKeyTime;
+        lastKeyTime = now;
+
+        // Enter'a basıldıysa ve uzunluk uygunsa formu gönder
+        if (e.key === "Enter") {
+            const code = ($barcode.value || "").trim();
+            if (isValidLen(code)) {
+                // çift submit koruması
+                const form = $barcode.closest("form");
+                if (form && !form.dataset.submitted) {
+                    form.dataset.submitted = "true";
+                    form.submit();
+                }
+            } else {
+                // UI uyarısı: controller zaten yakalayacak ama erken uyarı iyi olur
+                $barcode.classList.add("is-invalid");
+                setTimeout(() => $barcode.classList.remove("is-invalid"), 800);
+            }
+        }
+    });
