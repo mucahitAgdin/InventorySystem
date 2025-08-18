@@ -1,0 +1,158 @@
+﻿@model Tuple<InventorySystem.ViewModels.StockInVm, InventorySystem.ViewModels.StockOutVm>
+@{
+    ViewData["Title"] = "Stok Giriş / Çıkış";
+}
+
+<div class="container py-4 move-page">
+    <h2 class="move-title mb-3">Stok Giriş / Çıkış</h2>
+
+    <!-- 🔹 Barkod Okuma / Lookup (scanner.js ile) -->
+    <form id="scanForm" class="mb-3" autocomplete="off">
+        @Html.AntiForgeryToken() <!-- JS için token kaynağı -->
+        <div class="input-group input-group-lg">
+            <input id="barcodeInput" class="form-control"
+                   placeholder="Barkodu okutun veya yazıp Enter’a basın…" autocomplete="off" autofocus />
+            <button class="btn btn-forvia-accent" type="submit">Lookup</button>
+        </div>
+        <small class="move-help">Zebra DS3678 (HID) tarayıcı okutma sonunda Enter gönderir.</small>
+    </form>
+
+    <!-- 🔹 Lookup Sonuç Kartı -->
+    <div id="resultPanel" class="card move-card d-none mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 id="pName" class="card-title mb-1"></h5>
+                    <div id="pMeta" class="text-muted small"></div>
+                    <div id="pSerial" class="mt-1 small"></div>
+                </div>
+                <span id="pStockBadge" class="badge rounded-pill"></span>
+            </div>
+
+            <hr class="my-3" />
+
+            <div class="row g-2">
+                <div class="col-sm-6">
+                    <button id="btnIn" class="btn btn-forvia-primary w-100" disabled>IN (Depoya Al)</button>
+                </div>
+                <div class="col-sm-6">
+                    <button id="btnOut" class="btn btn-forvia-accent w-100" disabled>OUT (Teslim Et)</button>
+                </div>
+            </div>
+
+            <!-- OUT ek alanları -->
+            <div id="outForm" class="mt-3 d-none">
+                <div class="row g-2">
+                    <div class="col-md-4"><input id="deliveredTo" class="form-control" placeholder="Delivered To" /></div>
+                    <div class="col-md-4"><input id="deliveredBy" class="form-control" placeholder="Delivered By" /></div>
+                    <div class="col-md-4"><input id="note" class="form-control" placeholder="Note (opsiyonel)" /></div>
+                </div>
+                <button id="btnOutConfirm" class="btn btn-forvia-accent mt-2">OUT'u Onayla</button>
+            </div>
+
+            <div id="alerts" class="mt-3"></div>
+        </div>
+    </div>
+
+    <!-- 🔹 IN / OUT Kartları (yan yana; mobilde alt alta) -->
+    <div class="row g-4">
+        <!-- IN -->
+        <div class="col-lg-6">
+            <div class="card move-card h-100">
+                <div class="card-header">Stok Girişi</div>
+                <div class="card-body">
+                    <form asp-action="In" method="post" novalidate class="row g-3">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="col-12">
+                            <label asp-for="Item1.Barcode" class="form-label"></label>
+                            <input asp-for="Item1.Barcode" class="form-control" />
+                            <span asp-validation-for="Item1.Barcode" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Item1.DeliveredBy" class="form-label"></label>
+                            <input asp-for="Item1.DeliveredBy" class="form-control" />
+                            <span asp-validation-for="Item1.DeliveredBy" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Item1.Note" class="form-label"></label>
+                            <textarea asp-for="Item1.Note" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Item1.Note" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-forvia-primary">Girişi Kaydet</button>
+                            <a asp-controller="Product" asp-action="InStockOnly" class="btn btn-forvia-outline">Depodakiler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- OUT -->
+        <div class="col-lg-6">
+            <div class="card move-card h-100">
+                <div class="card-header">Stok Çıkışı</div>
+                <div class="card-body">
+                    <form asp-action="Out" method="post" novalidate class="row g-3">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="col-12">
+                            <label asp-for="Item2.Barcode" class="form-label"></label>
+                            <input asp-for="Item2.Barcode" class="form-control" />
+                            <span asp-validation-for="Item2.Barcode" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Item2.DeliveredTo" class="form-label"></label>
+                            <input asp-for="Item2.DeliveredTo" class="form-control" />
+                            <span asp-validation-for="Item2.DeliveredTo" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Item2.DeliveredBy" class="form-label"></label>
+                            <input asp-for="Item2.DeliveredBy" class="form-control" />
+                            <span asp-validation-for="Item2.DeliveredBy" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Item2.Note" class="form-label"></label>
+                            <textarea asp-for="Item2.Note" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Item2.Note" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-forvia-accent">Çıkışı Kaydet</button>
+                            <a asp-controller="Stock" asp-action="History" class="btn btn-forvia-outline">Geçmiş</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 Gizli formlar (scanner.js mevcut StockController'a POST için kullanır) -->
+    <form id="formIn" method="post" action="/Stock/In" class="d-none">
+        @Html.AntiForgeryToken()
+        <input name="Barcode" />
+        <input name="DeliveredBy" />
+        <input name="Note" />
+    </form>
+
+    <form id="formOut" method="post" action="/Stock/Out" class="d-none">
+        @Html.AntiForgeryToken()
+        <input name="Barcode" />
+        <input name="DeliveredTo" />
+        <input name="DeliveredBy" />
+        <input name="Note" />
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/scanner.js" asp-append-version="true"></script>
+}

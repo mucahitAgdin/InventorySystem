@@ -169,6 +169,16 @@ namespace InventorySystem.Controllers
         }
 
 
+        [HttpGet]
+        public IActionResult Move()
+        {
+            var inVm = new StockInVm();
+            var outVm = new StockOutVm();
+            return View(Tuple.Create(inVm, outVm));
+        }
+
+
+
         // ---- HISTORY --------------------------------------------------------
 
         [HttpGet]

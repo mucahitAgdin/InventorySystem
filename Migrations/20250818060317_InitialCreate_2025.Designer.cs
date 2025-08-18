@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventorySystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250814064835_UpdateBarcodeLengthTo6_7")]
-    partial class UpdateBarcodeLengthTo6_7
+    [Migration("20250818060317_InitialCreate_2025")]
+    partial class InitialCreate_2025
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

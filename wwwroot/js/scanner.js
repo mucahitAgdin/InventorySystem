@@ -4,10 +4,10 @@
 // - Ürün kartını doldurur, mevcut StockController POST’larına gizli formlar ile submit eder.
 // Güvenli kullanım: Elemanlar yoksa no‑op; 2 sn debounce; 6–7 uzunluk kontrolü; basit beep.
 
+// /wwwroot/js/scanner.js
 (() => {
     const $ = (s) => document.querySelector(s);
 
-    // ---- Elements (opsiyonel) ----
     const barcodeInput = $("#barcodeInput");
     const scanForm = $("#scanForm");
     const panel = $("#resultPanel");
@@ -25,10 +25,12 @@
     const alerts = $("#alerts");
     const formIn = $("#formIn");
     const formOut = $("#formOut");
-
     const isScanPage = !!(barcodeInput && scanForm);
 
-    // ---- Helpers ----
+    // ✅ yeni: tekrar çağrıyı engelle
+    let busy = false;
+    let last = { code: "", at: 0 }; // debounce
+
     function beep(ok = true) {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -39,34 +41,45 @@
             osc.connect(gain); gain.connect(ctx.destination);
             gain.gain.setValueAtTime(0.03, ctx.currentTime);
             osc.start(); osc.stop(ctx.currentTime + 0.08);
-        } catch { /* ignore */ }
+        } catch { }
     }
-
     function setBorder(ok) {
         if (!barcodeInput) return;
         barcodeInput.classList.remove("is-valid", "is-invalid");
         barcodeInput.classList.add(ok ? "is-valid" : "is-invalid");
     }
-
     function showAlert(type, msg) {
         if (!alerts) return;
         alerts.innerHTML = `<div class="alert alert-${type} py-2 my-1">${msg}</div>`;
     }
+    function clearAndFocus() {
+        if (barcodeInput) {
+            barcodeInput.value = "";
+            barcodeInput.focus();
+        }
+    }
 
-    let last = { code: "", at: 0 }; // debounce
-
-    // ---- Lookup ----
     async function lookup(code) {
-        if (!isScanPage) return;
-
+        if (!isScanPage || busy) return;
         const raw = (code || "").trim();
+
+        // uzunluk validasyonu
         if (raw.length < 6 || raw.length > 7) {
             setBorder(false); beep(false);
-            return showAlert("warning", "Barcode must be 6–7 chars.");
+            showAlert("warning", "Barcode must be 6–7 chars.");
+            clearAndFocus();
+            return;
         }
+
+        // 2 sn debounce
         const now = Date.now();
         if (last.code === raw && (now - last.at) < 2000) return;
         last = { code: raw, at: now };
+
+        // ✅ yeni: busy & buton durumu
+        busy = true;
+        const submitBtn = scanForm?.querySelector('button[type="submit"]');
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "Looking…"; }
 
         try {
             const res = await fetch(`/api/barcodes/lookup?code=${encodeURIComponent(raw)}`, {
@@ -76,17 +89,18 @@
             if (res.status === 404) {
                 setBorder(false); beep(false);
                 panel?.classList.add("d-none");
-                return showAlert("danger", "No product found for this barcode.");
+                showAlert("danger", "No product found for this barcode.");
+                return;
             }
             if (!res.ok) throw new Error("lookup failed");
 
             const p = await res.json();
 
-            // Kartı doldur
+            // kart doldur
             if (pName) {
                 const name = p.name ?? p.Name ?? "-";
-                const barcode = p.barcode ?? p.Barcode ?? "-";
-                pName.textContent = `${name} (${barcode})`;
+                const bc = p.barcode ?? p.Barcode ?? "-";
+                pName.textContent = `${name} (${bc})`;
             }
             if (pMeta) {
                 const type = p.productType ?? p.ProductType;
@@ -105,27 +119,29 @@
                 pStockBadge.className = `badge rounded-pill ${isInStock ? "text-bg-success" : "text-bg-warning"}`;
             }
 
-            // Aksiyonların durumu
+            // butonlar
             const isInStock = (p.isInStock ?? p.IsInStock) === true;
             if (btnIn) btnIn.disabled = isInStock;   // depoda ise IN kapalı
-            if (btnOut) btnOut.disabled = !isInStock; // depoda değilse OUT kapalı
+            if (btnOut) btnOut.disabled = !isInStock;  // depoda değilse OUT kapalı
             outForm?.classList.add("d-none");
-
-            // Click davranışı
             if (btnIn) btnIn.onclick = () => doIn(raw);
             if (btnOut) btnOut.onclick = () => { outForm?.classList.remove("d-none"); deliveredTo?.focus(); };
 
             panel?.classList.remove("d-none");
             setBorder(true); beep(true);
-            if (alerts) alerts.innerHTML = "";
-        } catch {
+            alerts && (alerts.innerHTML = "");
+        } catch (err) {
             setBorder(false); beep(false);
             panel?.classList.add("d-none");
             showAlert("danger", "Lookup failed. Check network.");
+        } finally {
+            // ✅ yeni: state temizliği
+            busy = false;
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Lookup"; }
+            clearAndFocus();
         }
     }
 
-    // ---- Hidden form submit ----
     function doIn(barcode) {
         if (!formIn) return showAlert("danger", "IN form not found.");
         formIn.querySelector('input[name="Barcode"]')?.setAttribute("value", barcode);
@@ -133,7 +149,6 @@
         formIn.querySelector('input[name="Note"]')?.setAttribute("value", "Scanned IN");
         formIn.submit();
     }
-
     function doOut(barcode) {
         if (!formOut) return showAlert("danger", "OUT form not found.");
         const to = deliveredTo?.value.trim();
@@ -150,29 +165,23 @@
         formOut.submit();
     }
 
-    // OUT onay
-    btnOutConfirm?.addEventListener("click", (e) => {
-        e.preventDefault();
-        const m = pName?.textContent?.match(/\((.+)\)$/);
-        const code = m ? m[1] : null;
-        if (code) doOut(code);
-    });
-
-    // Enter/submit wiring
+    // ✅ önemli: event bubbling’i kes
     scanForm?.addEventListener("submit", (e) => {
         e.preventDefault();
+        e.stopPropagation();
         lookup(barcodeInput?.value);
-        if (barcodeInput) barcodeInput.value = "";
     });
     barcodeInput?.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
+            e.stopPropagation();
             lookup(barcodeInput.value);
-            barcodeInput.value = "";
         }
     });
 
-    // Odak koruma
     window.addEventListener("load", () => { barcodeInput?.focus(); });
-    document.addEventListener("click", () => { barcodeInput?.focus(); });
+    document.addEventListener("click", (e) => {
+        // diğer formlarda tıklayınca focus kaçarsa geri al
+        if (!scanForm?.contains(e.target)) barcodeInput?.focus();
+    });
 })();

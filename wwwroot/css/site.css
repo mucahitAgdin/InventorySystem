@@ -1,11 +1,18 @@
 ﻿:root {
-    --forvia-blue: #0024D3;
-    --forvia-light-blue: #00A9EB;
-    --forvia-dark-gray: #575757;
-    --forvia-gray: #8C8C8C;
-    --forvia-bg: #FFFFFF; /* Prefer white as base per brand */
+    /* Primary */
+    --forvia-blue: #0024D3; /* Ana aksan ve CTA'lar */
+    --forvia-light-blue: #00A9EB; /* İkincil CTA/hover */
+    --forvia-dark-gray: #575757; /* Başlık/metin (koyu) */
+    --forvia-gray: #8C8C8C; /* İkincil metin */
+    --forvia-bg: #FFFFFF; /* Zemin */
     --forvia-font: 'Open Sans', Arial, sans-serif;
-    --forvia-radius: 8px;
+    /* Secondary accents (durum/uyarılar) */
+    --forvia-green: #00B48F; /* success */
+    --forvia-orange: #F58C35; /* warning */
+    --forvia-coral: #F06473; /* danger/error */
+    --forvia-teal: #00A8BF; /* info/nötr vurgu */
+    /* Marka gradient (opsiyonel arka plan şeritleri) */
+    --forvia-blue-grad: linear-gradient(135deg,#0024D3, #00A9EB);
 }
 
 /* 🔤 Genel yazı tipi ve arkaplan */
@@ -106,3 +113,42 @@ body {
     padding: 20px; /* içerik boşluğu */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* hafif gölge */
 }
+
+
+/* ===== Move.cshtml özel stiller ===== */
+.move-page .card {
+    border-radius: var(--forvia-radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background-color: var(--forvia-bg);
+    border: 1px solid var(--forvia-light-blue);
+}
+
+.move-page .card-header {
+    background-color: var(--forvia-blue);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border-top-left-radius: var(--forvia-radius);
+    border-top-right-radius: var(--forvia-radius);
+}
+
+.move-page .btn-primary {
+    background-color: var(--forvia-blue);
+    border-color: var(--forvia-blue);
+}
+
+    .move-page .btn-primary:hover {
+        background-color: var(--forvia-light-blue);
+        border-color: var(--forvia-light-blue);
+    }
+
+.move-page .btn-warning {
+    background-color: #FFC107;
+    border-color: #FFC107;
+    color: #212121;
+}
+
+    .move-page .btn-warning:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
