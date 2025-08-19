@@ -179,9 +179,31 @@
         }
     });
 
-    window.addEventListener("load", () => { barcodeInput?.focus(); });
+    let stickyFocus = true;
+
+    // Boş/arka plana tıklandıysa focus geri al; form kontrollerinde asla zorlama
     document.addEventListener("click", (e) => {
-        // diğer formlarda tıklayınca focus kaçarsa geri al
-        if (!scanForm?.contains(e.target)) barcodeInput?.focus();
+        if (!stickyFocus || !barcodeInput) return;
+
+        const t = e.target;
+        if (!t) return;
+
+        // Etkileşimli elemanlar: input, textarea, select, button, link vs.
+        const interactive = ["input", "textarea", "select", "button", "a", "label"];
+        const tag = (t.tagName || "").toLowerCase();
+
+        // Bir form kontrolüne ya da formun içine tıklandıysa odak GERİ ALMA
+        if (interactive.includes(tag) || t.closest("form") || t.closest(".modal")) return;
+
+        // Aksi halde barkod alanına odak
+        barcodeInput.focus();
     });
+    function setBorder(ok) {
+        if (!barcodeInput) return;
+        barcodeInput.classList.remove("is-valid", "is-invalid");
+        barcodeInput.classList.add(ok ? "is-valid" : "is-invalid");
+        if (!ok) setTimeout(() => barcodeInput.classList.remove("is-invalid"), 1500);
+    }
+
+
 })();
