@@ -152,3 +152,75 @@ body {
         background-color: #e0a800;
         border-color: #d39e00;
     }
+
+:root {
+    /* ...mevcut değişkenler... */
+    --forvia-success: #00B48F; /* IN — success */ /* FORVIA secondary */
+    --forvia-danger: #F06473; /* OUT — danger  */ /* FORVIA secondary */
+}
+
+/* Tek tip kart yüzeyi */
+.move-card {
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    border: 1px solid rgba(0,0,0,.06);
+    background: #fff;
+}
+
+/* Başlık renk varyantları */
+.card-header--in {
+    background: var(--forvia-success);
+    color: #fff;
+    font-weight: 600;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+.card-header--out {
+    background: var(--forvia-danger);
+    color: #fff;
+    font-weight: 600;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+/* FORVIA buton stilleri */
+.btn-forvia-success {
+    background: var(--forvia-success);
+    border-color: var(--forvia-success);
+    color: #fff;
+}
+
+    .btn-forvia-success:hover {
+        filter: brightness(0.92);
+    }
+
+.btn-forvia-danger {
+    background: var(--forvia-danger);
+    border-color: var(--forvia-danger);
+    color: #fff;
+}
+
+    .btn-forvia-danger:hover {
+        filter: brightness(0.92);
+    }
+
+.btn-forvia-outline {
+    background: #fff;
+    color: var(--forvia-blue);
+    border: 1px solid var(--forvia-blue);
+}
+
+    .btn-forvia-outline:hover {
+        background: var(--forvia-blue);
+        color: #fff;
+    }
+
+/* Küçük rozetler (lookup sonucu vs) */
+.badge-forvia-in {
+    background: var(--forvia-success);
+}
+
+.badge-forvia-out {
+    background: var(--forvia-danger);
+}
