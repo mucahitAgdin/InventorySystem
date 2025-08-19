@@ -18,15 +18,23 @@
     </form>
 
     <!-- 🔹 Lookup Sonucu (yalnızca bilgi; işlem alttaki kartlardan) -->
-    <div id="resultPanel" class="card move-card d-none mb-4">
+    <div id="resultPanel" class="card d-none mb-4">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <!-- Sol taraf ürün bilgileri -->
                 <div>
-                    <h5 id="pName" class="card-title mb-1"><!-- ürün adı --></h5>
-                    <div id="pMeta" class="text-muted small"><!-- tip/marka/model --></div>
-                    <div id="pSerial" class="mt-1 small"><!-- seri no --></div>
+                    <div id="pName"><!-- Ürün Adı + Barkod --></div>
+                    <div id="pMeta"><!-- Tip • Marka • Model --></div>
+                    <div id="pSerial"><!-- Seri No --></div>
+
+                    <!-- ✅ Eklenen chip satırı (aynı tipografi + hover açıklama) -->
+                    <div class="p-info-row mt-2">
+                        <span id="pBarcodeChip" class="info-chip" data-help="Sistemde kayıtlı benzersiz barkod"></span>
+                        <span id="pLocationChip" class="info-chip" data-help="Ürünün güncel konumu"></span>
+                    </div>
                 </div>
-                <span id="pStockBadge" class="badge rounded-pill"><!-- IN STOCK / OUT OF STOCK --></span>
+                <!-- Sağda stok durumu -->
+                <span id="pStockBadge" class="badge rounded-pill"></span>
             </div>
         </div>
     </div>

@@ -30,13 +30,17 @@ namespace InventorySystem.Controllers
         // ---- STOCK IN (Giriş) ------------------------------------------------
 
         [HttpGet]
-        public IActionResult In() => View(new StockInVm());
+        public IActionResult Move()
+        {
+            var tuple = Tuple.Create(new StockInVm(), new StockOutVm());
+            return View("Move", tuple);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> In(StockInVm vm)
         {
-            if (!ModelState.IsValid) return View(vm);
+            if (!ModelState.IsValid) return View("Move", Tuple.Create(vm, new StockOutVm()));
 
             var barcode = (vm.Barcode ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(barcode))
@@ -109,7 +113,7 @@ namespace InventorySystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Out(StockOutVm vm)
         {
-            if (!ModelState.IsValid) return View(vm);
+            if (!ModelState.IsValid) return View("Move", Tuple.Create(new StockInVm(), vm));
 
             var barcode = (vm.Barcode ?? string.Empty).Trim();
             if (barcode.Length < 6 || barcode.Length > 7)
@@ -166,15 +170,6 @@ namespace InventorySystem.Controllers
                     return View(vm);
                 }
             }
-        }
-
-
-        [HttpGet]
-        public IActionResult Move()
-        {
-            var inVm = new StockInVm();
-            var outVm = new StockOutVm();
-            return View(Tuple.Create(inVm, outVm));
         }
 
 

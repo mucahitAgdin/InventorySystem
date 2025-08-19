@@ -124,10 +124,11 @@ body {
 
 /* Tek tip kart yüzeyi */
 .move-card {
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.12);
-    border: 1px solid rgba(0,0,0,.06);
-    background: #fff;
+    background: rgba(255, 255, 255, 0.85); /* beyaz yarı saydam */
+    backdrop-filter: blur(3px); /* blur efekti */
+    border-end-start-radius: 50px; /* köşeler yuvarlak */
+    padding: 20px; /* içerik boşluğu */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* hafif gölge */
 }
 
 /* Başlık renk varyantları */
@@ -261,3 +262,197 @@ body {
     font-size: 0.9em; /* biraz küçük */
     opacity: 1; /* bazı tarayıcılar için */
 }
+
+
+/* ===== MOVE — görünürlük & okunabilirlik yükseltmesi (drop‑in) ===== */
+:root{
+  --move-shadow: 0 14px 32px rgba(0,0,0,.16);
+  --move-ring: 0 0 0 .25rem rgba(0,169,235,.18); /* forvia-light-blue halkası */
+}
+
+/* Başlık daha belirgin */
+.move-title{
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: var(--forvia-blue);
+  text-shadow: 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* Lookup bar: kalın çerçeve, hafif cam yüzey, büyük punto */
+#scanForm .input-group{
+  background: rgba(255,255,255,.92);
+  border: 1.5px solid rgba(0,0,0,.06);
+  border-radius: 14px;
+  box-shadow: var(--move-shadow);
+  overflow: hidden; /* buton/inputs yuvarlağa uysun */
+}
+
+#barcodeInput.form-control{
+  height: 56px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: #1a2230;
+  border: none;
+}
+#barcodeInput.form-control:focus{
+  box-shadow: var(--move-ring);
+}
+
+/* Lookup butonu tonları (Move.cshtml'de btn-forvia-accent kullanılıyor) */
+.btn-forvia-primary{
+  background: var(--forvia-blue);
+  border-color: var(--forvia-blue);
+  color: #fff; font-weight: 800;
+}
+.btn-forvia-primary:hover{ filter: brightness(.92); }
+
+.btn-forvia-accent{
+  background: var(--forvia-light-blue);
+  border-color: var(--forvia-light-blue);
+  color:#fff; font-weight: 800;
+}
+.btn-forvia-accent:hover{ filter: brightness(.92); }
+
+/* Ürün bilgi paneli: sticky, sol şerit, güçlü gölge, animasyon */
+#resultPanel{
+  position: sticky; top: 12px; z-index: 2;
+  border: 1px solid rgba(0,0,0,.06);
+  border-left: 6px solid var(--forvia-light-blue);
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(2px);
+  border-radius: 14px;
+  box-shadow: var(--move-shadow);
+  transform: translateY(0);
+  animation: moveFadeIn .18s ease;
+}
+@keyframes moveFadeIn{ from{ opacity:0; transform:translateY(4px) } to{ opacity:1; transform:translateY(0) } }
+
+/* Panel içi: iki kolon — metin solda, durum rozeti sağda */
+#resultPanel .card-body{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Ürün adı: büyük & kalın */
+#pName{
+  font-size: 1.25rem; /* ~20px */
+  font-weight: 800;
+  line-height: 1.25;
+  color: #111;
+}
+
+/* Tip/Marka/Model meta satırı */
+#pMeta{
+  margin-top: 2px;
+  font-size: .95rem;
+  color: #4f5b6a;
+}
+
+/* Seri no: monospaced chip */
+#pSerial{
+  margin-top: 6px;
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .2px;
+  background: rgba(0,0,0,.05);
+  color: #1b2533;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Stok rozeti: daha büyük, okunur, kabartmalı */
+#pStockBadge{
+  font-size: .9rem;
+  font-weight: 800;
+  letter-spacing: .3px;
+  padding: .55rem .8rem;
+  border: 0;
+  color: #fff;  /* scanner.js zaten arkaplan rengini set ediyor */
+  box-shadow: 0 6px 16px rgba(0,0,0,.14);
+}
+
+/* IN/OUT kartları: cam yüzey & header tipografisi */
+.move-card{
+  border-radius: 14px;
+  box-shadow: var(--move-shadow);
+}
+.move-card .card-header{
+  font-weight: 800;
+  letter-spacing: .3px;
+  font-size: 1rem;
+}
+
+/* Form etiketleri & alanları daha okunur */
+.move-page .form-label{ font-weight: 700; color:#233044; }
+.move-page .form-control, .move-page textarea{
+  border: 1.5px solid rgba(0,0,0,.08);
+}
+.move-page .form-control:focus, .move-page textarea:focus{
+  border-color: var(--forvia-light-blue);
+  box-shadow: var(--move-ring);
+}
+
+/* Yardım metni */
+.move-help{ color:#2b2b2b; opacity:.75; font-weight:600; }
+
+/* === Ek: Ürün bilgisi “chip” tipografisi ve hover ipucu === */
+.p-info-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.info-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.05);
+    border: 1px solid rgba(0,0,0,.06);
+    font-weight: 700;
+    font-size: 1rem; /* yazılar daha büyük */
+    color: #233044;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,.06) inset;
+    transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+}
+
+    .info-chip::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--forvia-light-blue);
+        box-shadow: 0 0 0 2px rgba(0,169,235,.15);
+    }
+
+    .info-chip:hover {
+        transform: translateY(-1px);
+        background: rgba(0,0,0,.07);
+        box-shadow: 0 0 0 .2rem rgba(0,169,235,.12);
+    }
+    /* CSS‑only tooltip (soluk açıklama) */
+    .info-chip[data-help]:hover::after {
+        content: attr(data-help);
+        position: absolute;
+        left: 0;
+        top: calc(100% + 6px);
+        white-space: nowrap;
+        background: rgba(0,0,0,.75);
+        color: #fff;
+        font-weight: 600;
+        font-size: .8rem;
+        letter-spacing: .2px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        opacity: .96;
+        pointer-events: none;
+        z-index: 5;
+        box-shadow: 0 6px 18px rgba(0,0,0,.18);
+    }

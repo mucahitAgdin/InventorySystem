@@ -23,6 +23,12 @@
     const pSerial = $("#pSerial");
     const pStockBadge = $("#pStockBadge");
 
+    // Ek açıklayıcı alanlar (table & chip)
+    const pBarcodeText = $("#pBarcodeText");
+    const pLocationText = $("#pLocationText");
+    const pBarcodeChip = $("#pBarcodeChip");
+    const pLocationChip = $("#pLocationChip");
+
     // Kalıcı IN/OUT kartlarındaki barkod alanları
     const inBarcode = $("#inBarcode");
     const outBarcode = $("#outBarcode");
@@ -91,6 +97,21 @@
         if (pName) pName.textContent = `${name} (${bc})`;
         if (pMeta) pMeta.textContent = [type, brand, model].filter(Boolean).join(" • ");
         if (pSerial) pSerial.textContent = serial ? `SN: ${serial}` : "";
+
+        // Açıklayıcı küçük tablo alanları (varsa)
+        if (pBarcodeText) pBarcodeText.textContent = bc;
+        if (pLocationText) pLocationText.textContent = location || (isInStock ? "Depo" : "Dışarıda");
+
+        // Yeni eklenen "chip" alanları (hover tool‑tip ile)
+        if (pBarcodeChip) {
+            pBarcodeChip.textContent = `Barkod: ${bc}`;
+            pBarcodeChip.setAttribute("data-help", "Sistemde ürünün benzersiz kimliği");
+        }
+        if (pLocationChip) {
+            const locText = location || (isInStock ? "depo" : "dışarıda");
+            pLocationChip.textContent = `Konum: ${locText}`;
+            pLocationChip.setAttribute("data-help", "Depo / dışarı durumu ve mevcut yer");
+        }
 
         // Badge (FORVIA renkleri varsa onları kullan, yoksa Bootstrap fallback)
         if (pStockBadge) {
@@ -224,4 +245,5 @@
         if (interactive.includes(tag) || t.closest("form") || t.closest(".modal")) return;
         barcodeInput.focus();
     });
+
 })();
