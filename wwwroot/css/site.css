@@ -116,43 +116,6 @@ body {
 
 
 /* ===== Move.cshtml özel stiller ===== */
-.move-page .card {
-    border-radius: var(--forvia-radius);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    background-color: var(--forvia-bg);
-    border: 1px solid var(--forvia-light-blue);
-}
-
-.move-page .card-header {
-    background-color: var(--forvia-blue);
-    color: white;
-    font-weight: 600;
-    font-size: 1.1rem;
-    border-top-left-radius: var(--forvia-radius);
-    border-top-right-radius: var(--forvia-radius);
-}
-
-.move-page .btn-primary {
-    background-color: var(--forvia-blue);
-    border-color: var(--forvia-blue);
-}
-
-    .move-page .btn-primary:hover {
-        background-color: var(--forvia-light-blue);
-        border-color: var(--forvia-light-blue);
-    }
-
-.move-page .btn-warning {
-    background-color: #FFC107;
-    border-color: #FFC107;
-    color: #212121;
-}
-
-    .move-page .btn-warning:hover {
-        background-color: #e0a800;
-        border-color: #d39e00;
-    }
-
 :root {
     /* ...mevcut değişkenler... */
     --forvia-success: #00B48F; /* IN — success */ /* FORVIA secondary */
