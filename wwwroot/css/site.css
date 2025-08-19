@@ -187,3 +187,77 @@ body {
 .badge-forvia-out {
     background: var(--forvia-danger);
 }
+
+/* ==== Compact Create Form (glass) ===================================== */
+.form-surface {
+    /* max 720px istersen 560 yapabilirsin */
+    max-width: 720px;
+    margin: clamp(8px, 2vh, 24px) auto;
+    padding: 16px 16px 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,.06);
+    /* Glass effect */
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 12px 36px rgba(0,0,0,.18);
+}
+
+    /* Form grid / spacing tweaks */
+    .form-surface .row.g-2 {
+        --bs-gutter-x: .75rem;
+        --bs-gutter-y: .5rem;
+    }
+
+    .form-surface .form-label {
+        margin-bottom: .2rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-surface .form-control,
+    .form-surface .form-select,
+    .form-surface textarea {
+        padding: .45rem .6rem;
+        line-height: 1.25;
+    }
+
+    .form-surface .text-danger.small {
+        font-size: .8rem;
+    }
+
+    /* Başlık ve butonlar */
+    .form-surface h1.h4 {
+        font-weight: 800;
+        letter-spacing: .2px;
+    }
+
+    .form-surface .btn-primary {
+        background: var(--forvia-blue);
+        border-color: var(--forvia-blue);
+        font-weight: 700;
+    }
+
+        .form-surface .btn-primary:hover {
+            filter: brightness(.92);
+        }
+
+/* Küçük ekranlarda tek sütun, büyükte 2 sütun düzen */
+@media (min-width: 992px) {
+    .form-surface {
+        max-width: 900px;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-surface {
+        padding: 12px 12px 14px;
+        border-radius: 14px;
+    }
+}
+
+/* Placeholder yazıları daha soluk görünür */
+::placeholder {
+    color: #999 !important; /* açık gri */
+    font-size: 0.9em; /* biraz küçük */
+    opacity: 1; /* bazı tarayıcılar için */
+}
