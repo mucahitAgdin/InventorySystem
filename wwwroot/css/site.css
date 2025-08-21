@@ -28,10 +28,6 @@ body {
     background-size: cover;
 }
 
-footer.footer {
-    margin-top: auto;
-}
-
 /* 🔷 Navbar başlangıçta şeffaf */
 .topbar {
     background-color: transparent;
@@ -379,25 +375,40 @@ footer.footer {
 }
 
 /* IN/OUT kartları: cam yüzey & header tipografisi */
-.move-card{
-  border-radius: 14px;
-  box-shadow: var(--move-shadow);
-}
-.move-card .card-header{
-  font-weight: 800;
-  letter-spacing: .3px;
-  font-size: 1rem;
+/* Tek kart başlığı gradient ve kalın tipografi */
+.move-card .card-header {
+    font-weight: 800;
+    letter-spacing: .3px;
+    font-size: 1rem;
 }
 
-/* Form etiketleri & alanları daha okunur */
-.move-page .form-label{ font-weight: 700; color:#233044; }
-.move-page .form-control, .move-page textarea{
-  border: 1.5px solid rgba(0,0,0,.08);
+/* Form alanları */
+.move-page .form-label {
+    font-weight: 700;
+    color: #233044;
 }
-.move-page .form-control:focus, .move-page textarea:focus{
-  border-color: var(--forvia-light-blue);
-  box-shadow: var(--move-ring);
+
+.move-page .form-control,
+.move-page .form-select,
+.move-page textarea {
+    border: 1.5px solid rgba(0,0,0,.08);
 }
+
+    .move-page .form-control:focus,
+    .move-page .form-select:focus,
+    .move-page textarea:focus {
+        border-color: var(--forvia-light-blue);
+        box-shadow: var(--move-ring);
+    }
+
+/* Select (Location) chip gibi dursun */
+.form-select {
+    padding-top: .45rem;
+    padding-bottom: .45rem;
+    font-weight: 700;
+    color: #233044;
+}
+
 
 /* Yardım metni */
 .move-help{ color:#2b2b2b; opacity:.75; font-weight:600; }

@@ -19,7 +19,8 @@ namespace InventorySystem.ViewModels
         public string Barcode { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Konum seçimi zorunludur.")]
-        public MoveLocation? Location { get; set; }
+        [RegularExpression("Depo|Ofis|Stok dışı", ErrorMessage = "Geçersiz konum.")]
+        public string Location { get; set; } = string.Empty; // Depo | Ofis | Stok dışı
 
         [StringLength(200)]
         public string? DeliveredBy { get; set; }   // opsiyonel: işlemi yapan/teslim eden
