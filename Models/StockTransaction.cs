@@ -26,15 +26,14 @@ namespace InventorySystem.Models
         // DB default: GETDATE() (DbContext → .HasDefaultValueSql("GETDATE()"))
         public DateTime TransactionDate { get; set; }
 
-        // Çıkışta zorunlu; girişte controller "Depo" placeholder yazar.
-        [Required(ErrorMessage = "Teslim alan kişi girilmelidir.")]
-        [StringLength(200)]
-        public string? DeliveredTo { get; set; }
+        // 🔁 NEW: target location of the move (Depo/Ofis/Stok dışı)
+        [Required, StringLength(50, ErrorMessage = "Lokasyon seçilmelidir.")]
+        public string Location { get; set; } = "Depo";
 
         [StringLength(200)]
         public string? DeliveredBy { get; set; }
 
-        [StringLength(500)]
+        [StringLength(150)]
         public string? Note { get; set; }
     }
 
