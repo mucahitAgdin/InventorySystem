@@ -59,7 +59,7 @@ namespace InventorySystem.Migrations
                     Type = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    DeliveredTo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     DeliveredBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Note = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },

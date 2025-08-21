@@ -61,6 +61,7 @@
                     <label asp-for="Location" class="form-label">Location</label>
                     <select asp-for="Location" class="form-select" id="moveLocation"
                             asp-items="Html.GetEnumSelectList<MoveLocation>()">
+                        <option value="" disabled selected hidden>Lütfen lokasyon seçiniz</option>
                                 
                     </select>
                     <span class="text-muted d-block mt-1 small">Seçenekler: depo, ofis, stok dışı</span>
