@@ -1,40 +1,30 @@
-﻿// Dosya: ViewModels/StockViewModels.cs
-// Amaç: Tekil ürün modeli — IN/OUT işlemleri "1 adet" varsayımıyla yapılır.
-// Not: Barcode uzunluğu DB ile aynı olmalı (200). Aksi halde FK/validation sorunları çıkar.
+﻿// ViewModels/StockViewModels.cs
+// PURPOSE: Single-card stock move VM. DeliveredTo removed; Location is required (depo/ofis/stok dışı).
 
 using System.ComponentModel.DataAnnotations;
-using InventorySystem.Models;
 
 namespace InventorySystem.ViewModels
 {
-    public abstract class StockVmBase
+    public enum MoveLocation
     {
-        [Required]
-        [StringLength(200)]                  // ⬅️ DB: NVARCHAR(200) ile HİZALANDI
+        Depo,
+        Ofis,
+        [Display(Name = "Stok dışı")]
+        StokDisi
+    }
+
+    public class StockMoveVm
+    {
+        [Required, StringLength(200)]
         public string Barcode { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Konum seçimi zorunludur.")]
+        public MoveLocation? Location { get; set; }
+
         [StringLength(200)]
-        public string? DeliveredBy { get; set; }  // ürünü getiren/veren kişi (opsiyonel)
+        public string? DeliveredBy { get; set; }   // opsiyonel: işlemi yapan/teslim eden
 
         [StringLength(500)]
-        public string? Note { get; set; }         // açıklama (opsiyonel)
-    }
-
-    // Stok GİRİŞ (Entry) — Depoya al
-    public class StockInVm : StockVmBase
-    {
-        public TransactionType Type => TransactionType.Entry;
-        // Entity'de StockTransaction.DeliveredTo [Required] olduğundan
-        // controller tarafında "Depo" placeholder'ı yazıyoruz.
-    }
-
-    // Stok ÇIKIŞ (Exit) — Dışarı ver
-    public class StockOutVm : StockVmBase
-    {
-        [Required(ErrorMessage = "Teslim alan kişi girilmelidir.")]
-        [StringLength(200)]
-        public string DeliveredTo { get; set; } = string.Empty;
-
-        public TransactionType Type => TransactionType.Exit;
+        public string? Note { get; set; }          // opsiyonel açıklama
     }
 }

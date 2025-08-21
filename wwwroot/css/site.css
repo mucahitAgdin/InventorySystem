@@ -22,12 +22,15 @@ body {
     font-family: var(--forvia-font);
     background: url('/images/DesktopBackground_1680x1050_Epingles_FORVIA.png') no-repeat center center fixed;
     /*background: url('/images/DesktopBackground_1680x1050_FeuxStop_FORVIA.png') no-repeat center center fixed;*/
-    /*background: url('/images/DesktopBackground_1680x1050_Lacets_FORVIA.png') no-repeat center center fixed;*//* or var(--forvia-bg) if no hero image */
+    /*background: url('/images/DesktopBackground_1680x1050_Lacets_FORVIA.png') no-repeat center center fixed;*/ /* or var(--forvia-bg) if no hero image */
     color: #333;
     margin: 0;
+    background-size: cover;
 }
 
-
+footer.footer {
+    margin-top: auto;
+}
 
 /* 🔷 Navbar başlangıçta şeffaf */
 .topbar {
