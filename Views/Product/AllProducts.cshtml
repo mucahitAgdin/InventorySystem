@@ -4,60 +4,63 @@
 @{
     ViewData["Title"] = "All Products";
     var items = Model ?? Enumerable.Empty<Product>();
-    string selectedType = ViewBag.SelectedProductType as string ?? "";
+
+    // Controller -> ViewBag dolduruyor
+    string selLoc   = ViewBag.SelectedLocation     as string ?? "";
+    string selType  = ViewBag.SelectedProductType  as string ?? "";
+    string selBrand = ViewBag.SelectedBrand        as string ?? "";
+    string selSer   = ViewBag.SelectedSerial       as string ?? "";
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="mb-0">@ViewData["Title"]</h2>
 
-    <form method="get" class="d-flex gap-2" autocomplete="off">
-        <!-- Seçilebilir + yazarken öneri: HTML5 datalist -->
-        <div class="input-group">
-            <input name="productType"
-                   class="form-control"
-                   placeholder="Type seçin veya yazın…"
-                   list="typeList"
-                   value="@selectedType" />
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="@Url.Action(ViewContext.RouteData.Values["action"]?.ToString(), "Product")"
-               class="btn btn-outline-secondary">Clear</a>
+    <!-- Birleşik filtre formu -->
+    <form method="get" class="row g-2 align-items-center" autocomplete="off">
+        <!-- Location: select (tam liste) -->
+        <div class="col-auto">
+            <select name="location" id="fltLocation" class="form-select">
+                <option value="">All locations</option>
+                <!-- JS ile LocationsJson'dan doldurulacak -->
+            </select>
         </div>
 
-        <!-- Doldurulacak seçenek havuzu -->
-        <datalist id="typeList"></datalist>
+        <!-- Type: datalist (yazarken öneri + seçilebilir) -->
+        <div class="col-auto">
+            <input name="productType"
+                   class="form-control"
+                   placeholder="Type…"
+                   list="typeList"
+                   value="@selType" />
+            <datalist id="typeList"></datalist>
+        </div>
+
+        <!-- Brand: datalist -->
+        <div class="col-auto">
+            <input name="brand"
+                   class="form-control"
+                   placeholder="Brand…"
+                   list="brandList"
+                   value="@selBrand" />
+            <datalist id="brandList"></datalist>
+        </div>
+
+        <!-- Serial: contains araması (opsiyonel datalist eklenebilir) -->
+        <div class="col-auto">
+            <input name="serial"
+                   class="form-control"
+                   placeholder="Serial contains…"
+                   value="@selSer" />
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="@Url.Action("All","Product")" class="btn btn-outline-secondary">Clear</a>
+        </div>
     </form>
 </div>
 
-@section Scripts {
-    <script>
-        /*
-          Amaç:
-          - /Product/TypesJson endpoint’inden ürün tiplerini çek.
-          - <datalist id="typeList"> içine <option> olarak bas.
-          - Böylece kullanıcı yazarken otomatik öneriler açılır; istenirse doğrudan tıklayıp seçer.
-        */
-        (function () {
-            const dl = document.getElementById('typeList');
-            if (!dl) return;
-
-            fetch('@Url.Action("TypesJson", "Product")', { credentials: 'same-origin' })
-                .then(r => r.ok ? r.json() : [])
-                .then(types => {
-                    if (!Array.isArray(types)) return;
-                    // Var olanları temizle (yeniden girişlerde tekrar eklenmesin)
-                    dl.innerHTML = '';
-                    types.forEach(t => {
-                        const opt = document.createElement('option');
-                        opt.value = t;       // datalist: value üzerinden öneri yapar
-                        dl.appendChild(opt);
-                    });
-                })
-                .catch(() => { /* sessizce geç */ });
-        })();
-    </script>
-}
-
-
+<!-- Tablo -->
 <table class="table table-striped table-hover align-middle">
     <thead>
         <tr>
@@ -75,40 +78,91 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in items)
-        {
-            <tr>
-                <td>@(item?.Name ?? "-")</td>
-                <td>@(item?.Barcode ?? "-")</td>
-                <td>
-                    @if (item?.IsInStock == true)
-                    {
-                        <span class="badge text-bg-success">Yes</span>
-                    }
-                    else
-                    {
-
-                        <span class="badge text-bg-secondary">No</span>
-                    }
-                </td>
-                <td>@(item?.CurrentHolder ?? "-")</td>
-                <td>@(item?.Location ?? "-")</td>
-                <td>@(item?.ProductType ?? "-")</td>
-                <td>@(item?.Brand ?? "-")</td>
-                <td>@(item?.Model ?? "-")</td>
-                <td>@(item?.SerialNumber ?? "-")</td>
-                <td>@(item?.DateTime?.ToString("g") ?? "-")</td>
-                <td class="text-end">
-                    <a asp-action="Edit" asp-route-id="@(item?.Id)" class="btn btn-sm btn-outline-primary">Edit</a>
-                    <form asp-action="Delete" asp-route-id="@(item?.Id)" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('Delete this product?');">
-                            Delete
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
+    @foreach (var item in items)
+    {
+        <tr>
+            <td>@(item?.Name ?? "-")</td>
+            <td>@(item?.Barcode ?? "-")</td>
+            <td>
+                @if (item?.IsInStock == true)
+                {
+                    <span class="badge text-bg-success">Yes</span>
+                }
+                else
+                {
+                    <span class="badge text-bg-secondary">No</span>
+                }
+            </td>
+            <td>@(item?.CurrentHolder ?? "-")</td>
+            <td>@(item?.Location ?? "-")</td>
+            <td>@(item?.ProductType ?? "-")</td>
+            <td>@(item?.Brand ?? "-")</td>
+            <td>@(item?.Model ?? "-")</td>
+            <td>@(item?.SerialNumber ?? "-")</td>
+            <td>@(item?.DateTime?.ToString("g") ?? "-")</td>
+            <td class="text-end">
+                <a asp-action="Edit" asp-route-id="@(item?.Id)" class="btn btn-sm btn-outline-primary">Edit</a>
+                <form asp-action="Delete" asp-route-id="@(item?.Id)" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete this product?');">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
+
+@section Scripts {
+<script>
+// ---- küçük yardımcılar ----
+const fillOptions = (selectEl, arr, selectedVal="") => {
+    if (!selectEl || !Array.isArray(arr)) return;
+    // İlk seçenek All locations (boş) olarak var; diğerlerini ekle
+    arr.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v;
+        if (selectedVal && selectedVal === v) opt.selected = true;
+        selectEl.appendChild(opt);
+    });
+    // Eğer selectedVal boş değilse, select'in değerini set et
+    if (selectedVal) selectEl.value = selectedVal;
+};
+
+const fillDatalist = (dlEl, arr) => {
+    if (!dlEl || !Array.isArray(arr)) return;
+    dlEl.innerHTML = "";
+    arr.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        dlEl.appendChild(opt);
+    });
+};
+
+(async () => {
+    // Locations
+    try {
+        const rLoc = await fetch('@Url.Action("LocationsJson","Product")', { credentials: "same-origin" });
+        const locs = rLoc.ok ? await rLoc.json() : [];
+        fillOptions(document.getElementById('fltLocation'), locs, '@selLoc');
+    } catch {}
+
+    // Types
+    try {
+        const rType = await fetch('@Url.Action("TypesJson","Product")', { credentials: "same-origin" });
+        const types = rType.ok ? await rType.json() : [];
+        fillDatalist(document.getElementById('typeList'), types);
+    } catch {}
+
+    // Brands
+    try {
+        const rBrand = await fetch('@Url.Action("BrandsJson","Product")', { credentials: "same-origin" });
+        const brands = rBrand.ok ? await rBrand.json() : [];
+        fillDatalist(document.getElementById('brandList'), brands);
+    } catch {}
+})();
+</script>
+}

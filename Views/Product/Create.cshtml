@@ -6,17 +6,16 @@
     var m = Model ?? new Product();
 }
 
-<!-- Compact glass form container -->
 <div class="form-surface">
     <div class="d-flex align-items-center justify-content-between mb-2">
         <h1 class="h4 m-0">Create Product</h1>
         <a asp-action="All" class="btn btn-outline-secondary btn-sm">Back</a>
     </div>
 
-    @Html.AntiForgeryToken()
+    <!-- DOĞRU: Artık CREATE'e post ediyor ve token FORM içinde -->
+    <form asp-action="Create" method="post" novalidate class="row g-2" autocomplete="off">
+        @Html.AntiForgeryToken()
 
-    <form asp-action="Edit" method="post" novalidate class="row g-2">
-        <input type="hidden" asp-for="Id" />
         <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
 
         <!-- ============== Kimlik / Barkod =================== -->
@@ -32,7 +31,12 @@
 
         <div class="col-md-6">
             <label asp-for="Barcode" class="form-label">Barcode</label>
-            <input asp-for="Barcode" class="form-control" placeholder="6–7 haneli barkod" value="@(m.Barcode ?? "")" />
+            <input asp-for="Barcode"
+                   class="form-control"
+                   placeholder="6–7 haneli barkod"
+                   value="@(m.Barcode ?? "")"
+                   maxlength="7"
+                   oninput="if (this.value.length>7) this.value=this.value.slice(0,7);" />
             <span asp-validation-for="Barcode" class="text-danger small"></span>
         </div>
 
@@ -78,7 +82,6 @@
 
         <div class="col-md-6">
             <label asp-for="Location" class="form-label">Location</label>
-            <!-- Sabit seçenekler: Depo / Ofis / Stok dışı -->
             <select asp-for="Location" class="form-select" required>
                 <option value="Depo">Depo</option>
                 <option value="Ofis">Ofis</option>
@@ -106,14 +109,6 @@
         <div class="col-12 mt-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Save</button>
             <a asp-action="All" class="btn btn-outline-secondary">Cancel</a>
-
-            <!-- Delete sağa yaslı -->
-            <div class="ms-auto">
-                <form asp-action="Delete" asp-route-id="@m.Id" method="post" onsubmit="return confirm('Delete this product?');">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-outline-danger">Delete</button>
-                </form>
-            </div>
         </div>
     </form>
 </div>

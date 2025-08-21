@@ -54,7 +54,7 @@ namespace InventorySystem.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            return RedirectToAction("InStockOnly", "Product");
+            return RedirectToAction("All", "Product");
         }
 
         [HttpGet]

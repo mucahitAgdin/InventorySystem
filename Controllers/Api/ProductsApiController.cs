@@ -14,9 +14,11 @@ namespace InventorySystem.Controllers.Api
         private readonly ApplicationDbContext _db;
         public ProductsController(ApplicationDbContext db) => _db = db;
 
-        // GET api/products?term=&productType=&inStockOnly=true
+        // GET api/products?term=&productType=
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] string? term, [FromQuery] string? productType, [FromQuery] bool inStockOnly = false)
+        public async Task<IActionResult> Get(
+            [FromQuery] string? term,
+            [FromQuery] string? productType)
         {
             var q = _db.Products.AsNoTracking().AsQueryable();
 
@@ -33,9 +35,6 @@ namespace InventorySystem.Controllers.Api
                     (p.Model != null && p.Model.Contains(term)) ||
                     (p.SerialNumber != null && p.SerialNumber.Contains(term)));
             }
-
-            if (inStockOnly)
-                q = q.Where(p => p.Location == "Depo");
 
             var list = await q
                 .OrderByDescending(p => p.Id)

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Serilog.Context;
 
 namespace InventorySystem.Controllers
 {
@@ -24,7 +23,14 @@ namespace InventorySystem.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // ProductController.cs
+
+        // Eski linkleri koru: /Product/AllProducts => /Product/All
+        [HttpGet]
+        public IActionResult AllProducts(string? productType, string? location, string? brand, string? serial) =>
+            RedirectToAction(nameof(All), new { productType, location, brand, serial });
+
+        // ---- Lookup kaynakları (autocomplete / dropdown) --------------------
+
         [HttpGet]
         public async Task<IActionResult> TypesJson()
         {
@@ -40,12 +46,41 @@ namespace InventorySystem.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> BrandsJson()
+        {
+            var brands = await _context.Products
+                .AsNoTracking()
+                .Where(p => p.Brand != null && p.Brand != "")
+                .Select(p => p.Brand!)
+                .Distinct()
+                .OrderBy(t => t)
+                .ToListAsync();
+
+            return Json(brands);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LocationsJson()
+        {
+            var locations = await _context.Products
+                .AsNoTracking()
+                .Where(p => p.Location != null && p.Location != "")
+                .Select(p => p.Location!)
+                .Distinct()
+                .OrderBy(t => t)
+                .ToListAsync();
+
+            return Json(locations);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ListJson()
         {
             var data = await _context.Products
                 .AsNoTracking()
                 .OrderByDescending(p => p.Id)
-                .Select(p => new {
+                .Select(p => new
+                {
                     id = p.Id,
                     name = p.Name,
                     barcode = p.Barcode,
@@ -61,42 +96,43 @@ namespace InventorySystem.Controllers
             return Json(data);
         }
 
+        // ---- Listeleme ------------------------------------------------------
 
-        // GET: /Product/All   (?productType=.. opsiyonel filtre)
-        // Tekil model: lokasyona bakmadan TÜM ürünleri getirir.
-        public async Task<IActionResult> All(string? productType = null)
+        // GET: /Product/All?location=&serial=&productType=&brand=
+        public async Task<IActionResult> All(
+            string? location = null,
+            string? serial = null,
+            string? productType = null,
+            string? brand = null)
         {
             var q = _context.Products.AsNoTracking().AsQueryable();
 
+            if (!string.IsNullOrWhiteSpace(location))
+                q = q.Where(p => p.Location == location);
+
             if (!string.IsNullOrWhiteSpace(productType))
                 q = q.Where(p => p.ProductType == productType);
 
+            if (!string.IsNullOrWhiteSpace(brand))
+                q = q.Where(p => p.Brand == brand);
+
+            if (!string.IsNullOrWhiteSpace(serial))
+            {
+                var s = serial.Trim();
+                q = q.Where(p => p.SerialNumber != null && p.SerialNumber.Contains(s));
+            }
+
             var products = await q.OrderByDescending(p => p.Id).ToListAsync();
-            ViewBag.SelectedProductType = productType;
+
+            ViewBag.SelectedLocation = location ?? "";
+            ViewBag.SelectedProductType = productType ?? "";
+            ViewBag.SelectedBrand = brand ?? "";
+            ViewBag.SelectedSerial = serial ?? "";
+
             return View("AllProducts", products);
         }
 
-        // Eski linkler 404 vermesin diye geçici yönlendirme
-        [HttpGet]
-        public IActionResult AllProducts(string? productType) =>
-            RedirectToAction(nameof(All), new { productType });
-
-        // GET: /Product/InStockOnly?productType=Monitor
-        // Depoda olan tekil ürünler + opsiyonel type filtresi
-        public async Task<IActionResult> InStockOnly(string? productType = null)
-        {
-            var q = _context.Products
-                .AsNoTracking()
-                .Where(p => p.Location == "Depo");
-
-            if (!string.IsNullOrWhiteSpace(productType))
-                q = q.Where(p => p.ProductType == productType);
-
-            var products = await q.OrderByDescending(p => p.Id).ToListAsync();
-
-            ViewBag.SelectedProductType = productType; // view’de input’u dolduracağız
-            return View("InStockOnly", products);
-        }
+        // ---- Detay / CRUD ---------------------------------------------------
 
         // GET: /Product/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -115,7 +151,6 @@ namespace InventorySystem.Controllers
         public IActionResult Create() => View();
 
         // POST: /Product/Create
-        // Tekil model: Quantity bind etmiyoruz (yok); IsInStock DB/computed.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
@@ -124,18 +159,15 @@ namespace InventorySystem.Controllers
         {
             if (input is null) return BadRequest();
 
-            // Barkod boş olamaz
             if (string.IsNullOrWhiteSpace(input.Barcode))
                 ModelState.AddModelError(nameof(input.Barcode), "Barcode is required.");
-           
+
             if (!string.IsNullOrEmpty(input.Barcode) &&
                 (input.Barcode.Length < 6 || input.Barcode.Length > 7))
             {
                 ModelState.AddModelError(nameof(input.Barcode), "Barcode must be between 6 and 7 characters.");
             }
 
-
-            // ✅ Unique kontrolleri
             if (!string.IsNullOrWhiteSpace(input.Barcode) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode))
             {
@@ -148,7 +180,6 @@ namespace InventorySystem.Controllers
                 ModelState.AddModelError(nameof(input.SerialNumber), "This serial number already exists.");
             }
 
-            // Varsayılan konum
             if (string.IsNullOrWhiteSpace(input.Location))
                 input.Location = "Depo";
 
@@ -185,7 +216,6 @@ namespace InventorySystem.Controllers
         }
 
         // POST: /Product/Edit/5
-        // Tekil model: Quantity yok; IsInStock DB/computed.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -195,7 +225,6 @@ namespace InventorySystem.Controllers
         {
             if (input is null || id != input.Id) return BadRequest();
 
-            // Unique kontrolleri (kendi kaydını hariç tut)
             if (!string.IsNullOrWhiteSpace(input.Barcode) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode && p.Id != id))
             {
@@ -207,7 +236,6 @@ namespace InventorySystem.Controllers
             {
                 ModelState.AddModelError(nameof(input.Barcode), "Barcode must be between 6 and 7 characters.");
             }
-
 
             if (!string.IsNullOrWhiteSpace(input.SerialNumber) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.SerialNumber == input.SerialNumber && p.Id != id))
@@ -223,7 +251,6 @@ namespace InventorySystem.Controllers
 
             try
             {
-                // Minimal update (attach + modified)
                 _context.Attach(input);
                 _context.Entry(input).State = EntityState.Modified;
 
@@ -272,7 +299,9 @@ namespace InventorySystem.Controllers
                 return RedirectToAction(nameof(All));
             }
         }
-        [HttpGet] public IActionResult Scan() => View();
+
+        [HttpGet]
+        public IActionResult Scan() => View();
 
         // (opsiyonel) /Product/Index → All’a yönlendirme
         public IActionResult Index() => RedirectToAction(nameof(All));
