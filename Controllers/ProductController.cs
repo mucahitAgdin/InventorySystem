@@ -81,16 +81,20 @@ namespace InventorySystem.Controllers
         public IActionResult AllProducts(string? productType) =>
             RedirectToAction(nameof(All), new { productType });
 
-        // GET: /Product/InStockOnly
-        // Depoda olan tekil ürünler (Location == "Depo")
-        public async Task<IActionResult> InStockOnly()
+        // GET: /Product/InStockOnly?productType=Monitor
+        // Depoda olan tekil ürünler + opsiyonel type filtresi
+        public async Task<IActionResult> InStockOnly(string? productType = null)
         {
-            var products = await _context.Products
+            var q = _context.Products
                 .AsNoTracking()
-                .Where(p => p.Location == "Depo")
-                .OrderByDescending(p => p.Id)
-                .ToListAsync();
+                .Where(p => p.Location == "Depo");
 
+            if (!string.IsNullOrWhiteSpace(productType))
+                q = q.Where(p => p.ProductType == productType);
+
+            var products = await q.OrderByDescending(p => p.Id).ToListAsync();
+
+            ViewBag.SelectedProductType = productType; // view’de input’u dolduracağız
             return View("InStockOnly", products);
         }
 
