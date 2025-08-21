@@ -15,159 +15,90 @@ namespace InventorySystem.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<StockController> _logger;
 
-        // StockTransaction.DeliveredTo [Required] — IN için placeholder
-        private const string DeliveredToWarehousePlaceholder = "Depo";
-
         public StockController(ApplicationDbContext context, ILogger<StockController> logger)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // -------------------- MOVE (tek sayfa) --------------------
-
+        // GET: tek sayfa
         [HttpGet]
         public IActionResult Move()
         {
-            // Move.cshtml: @model Tuple<StockInVm, StockOutVm>
-            return View(Tuple.Create(new StockInVm(), new StockOutVm()));
+            return View(new StockMoveVm());
         }
 
-        // Eski linkler bozulmasın:
+        // Legacy linkler kırılmasın
         [HttpGet] public IActionResult In() => RedirectToAction(nameof(Move));
         [HttpGet] public IActionResult Out() => RedirectToAction(nameof(Move));
 
-        // -------------------- STOCK IN (Giriş) --------------------
-
+        // POST: tek onay
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Move.cshtml'de alan adları Item1.* olduğu için prefix ile bind ediyoruz.
-        public async Task<IActionResult> In([Bind(Prefix = "Item1")] StockInVm vm)
+        public async Task<IActionResult> Confirm(StockMoveVm vm)
         {
-            // ModelState yanlışsa yine Move'a dön; OUT tarafını boş gönder.
-            if (!ModelState.IsValid)
-                return View("Move", Tuple.Create(vm, new StockOutVm()));
+            if (!ModelState.IsValid) return View("Move", vm);
 
-            var barcode = (vm.Barcode ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(barcode))
-            {
-                ModelState.AddModelError("Item1.Barcode", "Barkod zorunludur.");
-                return View("Move", Tuple.Create(vm, new StockOutVm()));
-            }
-            // İş kuralı: 6–7 uzunluk (VM 200 char izin verir ama biz iş kuralı koyuyoruz)
+            var barcode = (vm.Barcode ?? "").Trim();
             if (barcode.Length < 6 || barcode.Length > 7)
             {
-                ModelState.AddModelError("Item1.Barcode", "Barkod 6–7 karakter olmalıdır.");
-                return View("Move", Tuple.Create(vm, new StockOutVm()));
+                ModelState.AddModelError(nameof(vm.Barcode), "Barkod 6–7 karakter olmalıdır.");
+                return View("Move", vm);
             }
 
             var p = await _context.Products.FirstOrDefaultAsync(x => x.Barcode == barcode);
             if (p is null)
             {
-                ModelState.AddModelError("Item1.Barcode", "Bu barkod ile kayıtlı ürün yok.");
-                return View("Move", Tuple.Create(vm, new StockOutVm()));
-            }
-            if (string.Equals(p.Location, "Depo", StringComparison.OrdinalIgnoreCase))
-            {
-                ModelState.AddModelError("Item1.Barcode", "Bu ürün zaten depoda.");
-                return View("Move", Tuple.Create(vm, new StockOutVm()));
+                ModelState.AddModelError(nameof(vm.Barcode), "Bu barkod ile kayıtlı ürün yok.");
+                return View("Move", vm);
             }
 
-            using (LogContext.PushProperty("Op", "Stock-IN"))
+            // hedef konumu metne çevir
+            string targetLoc = vm.Location switch
+            {
+                MoveLocation.Depo => "Depo",
+                MoveLocation.Ofis => "Ofis",
+                MoveLocation.StokDisi => "Stok dışı",
+                _ => "Depo"
+            };
+
+            // Entry/Exit kuralı:
+            // - Depo = Entry (stokta)
+            // - Ofis veya Stok dışı = Exit (stok dışında)
+            var type = targetLoc == "Depo" ? TransactionType.Entry : TransactionType.Exit;
+
+            using (LogContext.PushProperty("Op", "Stock-MOVE"))
             using (LogContext.PushProperty("Barcode", barcode))
             using (LogContext.PushProperty("User", User?.Identity?.Name ?? "admin"))
             {
                 try
                 {
-                    // Ürünü depoda işaretle
-                    p.Location = "Depo";
+                    // Ürünün güncel durumunu yaz
+                    p.Location = targetLoc;
+
+                    // Ofis/Depo için CurrentHolder'ı temizlemek mantıklı;
+                    // Stok dışı senaryosunda kişi takibi istenirse ayrıyeten alan ekleriz.
                     p.CurrentHolder = null;
 
-                    // StockTransaction.DeliveredTo zorunlu → "Depo" yazıyoruz
                     await _context.StockTransaction.AddAsync(new StockTransaction
                     {
                         Barcode = barcode,
-                        Type = TransactionType.Entry,
+                        Type = type,
                         Quantity = 1,
-                        DeliveredTo = DeliveredToWarehousePlaceholder, // <-- required alan
+                        Location = targetLoc,
                         DeliveredBy = vm.DeliveredBy,
                         Note = vm.Note
                     });
 
                     await _context.SaveChangesAsync();
-
-                    TempData["Success"] = "Stok girişi kaydedildi.";
-                    return RedirectToAction("InStockOnly", "Product");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Stock IN failed for {Barcode}", barcode);
-                    TempData["Error"] = "Stok girişi sırasında beklenmeyen bir hata oluştu.";
-                    return View("Move", Tuple.Create(vm, new StockOutVm()));
-                }
-            }
-        }
-
-        // -------------------- STOCK OUT (Çıkış) --------------------
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        // Move.cshtml'de OUT alanları Item2.* — prefix ile bind
-        public async Task<IActionResult> Out([Bind(Prefix = "Item2")] StockOutVm vm)
-        {
-            if (!ModelState.IsValid)
-                return View("Move", Tuple.Create(new StockInVm(), vm));
-
-            var barcode = (vm.Barcode ?? string.Empty).Trim();
-            if (barcode.Length < 6 || barcode.Length > 7)
-            {
-                ModelState.AddModelError("Item2.Barcode", "Barkod 6–7 karakter olmalıdır.");
-                return View("Move", Tuple.Create(new StockInVm(), vm));
-            }
-
-            var p = await _context.Products.FirstOrDefaultAsync(x => x.Barcode == barcode);
-            if (p is null)
-            {
-                ModelState.AddModelError("Item2.Barcode", "Bu barkod ile kayıtlı ürün yok.");
-                return View("Move", Tuple.Create(new StockInVm(), vm));
-            }
-            if (!string.Equals(p.Location, "Depo", StringComparison.OrdinalIgnoreCase))
-            {
-                ModelState.AddModelError("Item2.Barcode", "Bu ürün depoda değil (zaten dışarıda).");
-                return View("Move", Tuple.Create(new StockInVm(), vm));
-            }
-
-            using (LogContext.PushProperty("Op", "Stock-OUT"))
-            using (LogContext.PushProperty("Barcode", barcode))
-            using (LogContext.PushProperty("DeliveredTo", vm.DeliveredTo))
-            using (LogContext.PushProperty("User", User?.Identity?.Name ?? "admin"))
-            {
-                try
-                {
-                    // Ürünü dışarıda işaretle
-                    p.Location = "Dışarıda";
-                    p.CurrentHolder = vm.DeliveredTo;
-
-                    await _context.StockTransaction.AddAsync(new StockTransaction
-                    {
-                        Barcode = barcode,
-                        Type = TransactionType.Exit,
-                        Quantity = 1,
-                        DeliveredTo = vm.DeliveredTo,  // OUT'ta zorunlu
-                        DeliveredBy = vm.DeliveredBy,
-                        Note = vm.Note
-                    });
-
-                    await _context.SaveChangesAsync();
-
-                    TempData["Success"] = "Stok çıkışı kaydedildi.";
+                    TempData["Success"] = "Hareket kaydedildi.";
                     return RedirectToAction("All", "Product");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Stock OUT failed for {Barcode}", barcode);
-                    TempData["Error"] = "Stok çıkışı sırasında beklenmeyen bir hata oluştu.";
-                    return View("Move", Tuple.Create(new StockInVm(), vm));
+                    _logger.LogError(ex, "Confirm move failed for {Barcode}", barcode);
+                    TempData["Error"] = "Kayıt sırasında beklenmeyen bir hata oluştu.";
+                    return View("Move", vm);
                 }
             }
         }

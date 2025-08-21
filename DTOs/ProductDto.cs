@@ -29,7 +29,7 @@
         public string Type { get; set; } = ""; // "Entry"/"Exit"
         public int Quantity { get; set; }
         public DateTime TransactionDate { get; set; }
-        public string? DeliveredTo { get; set; }
+        public string? Location { get; set; }
         public string? DeliveredBy { get; set; }
         public string? Note { get; set; }
     }

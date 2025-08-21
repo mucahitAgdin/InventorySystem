@@ -34,7 +34,7 @@ namespace InventorySystem.Mapping
             Type = t.Type.ToString(),
             Quantity = t.Quantity,
             TransactionDate = t.TransactionDate,
-            DeliveredTo = t.DeliveredTo,
+            Location = t.Location,
             DeliveredBy = t.DeliveredBy,
             Note = t.Note
         };
