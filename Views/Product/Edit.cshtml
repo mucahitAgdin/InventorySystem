@@ -3,90 +3,74 @@
 
 @{
     ViewData["Title"] = "Edit Product";
-    // Model null gelirse UI kırılmasın (controller zaten NotFound döndürüyor ama yine de)
     var m = Model ?? new Product();
 }
 
-<h2>Edit Product</h2>
-
-<form asp-action="Edit" method="post" novalidate>
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
-
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" value="@(m.Name ?? string.Empty)" />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="Barcode" class="form-label"></label>
-            <input asp-for="Barcode" class="form-control" value="@(m.Barcode ?? string.Empty)" />
-            <span asp-validation-for="Barcode" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-4">
-            <label asp-for="ProductType" class="form-label"></label>
-            <input asp-for="ProductType" class="form-control" value="@(m.ProductType ?? string.Empty)" />
-            <span asp-validation-for="ProductType" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-4">
-            <label asp-for="Brand" class="form-label"></label>
-            <input asp-for="Brand" class="form-control" value="@(m.Brand ?? string.Empty)" />
-            <span asp-validation-for="Brand" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="Model" class="form-label"></label>
-            <input asp-for="Model" class="form-control" value="@(m.Model ?? string.Empty)" />
-            <span asp-validation-for="Model" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="SerialNumber" class="form-label"></label>
-            <input asp-for="SerialNumber" class="form-control" value="@(m.SerialNumber ?? string.Empty)" />
-            <span asp-validation-for="SerialNumber" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="CurrentHolder" class="form-label"></label>
-            <input asp-for="CurrentHolder" class="form-control" value="@(m.CurrentHolder ?? string.Empty)" />
-            <span asp-validation-for="CurrentHolder" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="Location" class="form-label"></label>
-            <input asp-for="Location" class="form-control" value="@(m.Location ?? "Depo")" />
-            <span asp-validation-for="Location" class="text-danger"></span>
-        </div>
-
-        <div class="col-12">
-            <label asp-for="Description" class="form-label"></label>
-            <textarea asp-for="Description" class="form-control" rows="3">@((m.Description ?? string.Empty))</textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="DateTime" class="form-label"></label>
-            <input asp-for="DateTime" class="form-control"
-                   value="@(m.DateTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
-            <span asp-validation-for="DateTime" class="text-danger"></span>
-        </div>
+<div class="form-surface">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h1 class="h4 m-0">Edit Product</h1>
+        <a asp-action="All" class="btn btn-sm btn-outline-secondary">Back</a>
     </div>
 
-    <div class="mt-4 d-flex gap-2">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a asp-action="All" class="btn btn-outline-secondary">Cancel</a>
-        <form asp-action="Delete" asp-route-id="@m.Id" method="post" class="ms-auto">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-outline-danger"
-                    onclick="return confirm('Delete this product?');">
-                Delete
-            </button>
-        </form>
-    </div>
-</form>
+    <form asp-action="Edit" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+        <div class="row g-2">
+            <!-- Name -->
+            <div class="col-12 col-md-6">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="Lütfen Ürün Adını Giriniz..." />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <!-- Barcode -->
+            <div class="col-12 col-md-6">
+                <label asp-for="Barcode" class="form-label"></label>
+                <input asp-for="Barcode" class="form-control" placeholder="Lütfen Ürün'e ait demirbaş etiket kodunu giriniz." />
+                <span asp-validation-for="Barcode" class="text-danger small"></span>
+            </div>
+
+            <!-- ProductType -->
+            <div class="col-12 col-md-6">
+                <label asp-for="ProductType" class="form-label"></label>
+                <input asp-for="ProductType" class="form-control" placeholder="Ürün Tipi(Monitör, Laptop...)" />
+                <span asp-validation-for="ProductType" class="text-danger small"></span>
+            </div>
+
+            <!-- Brand -->
+            <div class="col-12 col-md-6">
+                <label asp-for="Brand" class="form-label"></label>
+                <input asp-for="Brand" class="form-control" placeholder="Marka (HP, DELL…)" />
+                <span asp-validation-for="Brand" class="text-danger small"></span>
+            </div>
+
+            <!-- Model -->
+            <div class="col-12 col-md-6">
+                <label asp-for="Model" class="form-label"></label>
+                <input asp-for="Model" class="form-control" placeholder="Model" />
+                <span asp-validation-for="Model" class="text-danger small"></span>
+            </div>
+
+            <!-- SerialNumber -->
+            <div class="col-12 col-md-6">
+                <label asp-for="SerialNumber" class="form-label"></label>
+                <input asp-for="SerialNumber" class="form-control" placeholder="Seri No" />
+                <span asp-validation-for="SerialNumber" class="text-danger small"></span>
+            </div>
+
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="All" class="btn btn-outline-secondary">Cancel</a>
+
+            <form asp-action="Delete" asp-route-id="@m.Id" method="post" class="ms-auto">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger"
+                        onclick="return confirm('Delete this product?');">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </form>
+</div>

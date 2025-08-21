@@ -19,7 +19,7 @@ namespace InventorySystem.ViewModels
         public string Barcode { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Konum seçimi zorunludur.")]
-        public MoveLocation? Location { get; set; }
+        public MoveLocation Location { get; set; }
 
         [StringLength(200)]
         public string? DeliveredBy { get; set; }   // opsiyonel: işlemi yapan/teslim eden

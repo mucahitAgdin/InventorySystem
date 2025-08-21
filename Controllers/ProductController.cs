@@ -186,7 +186,7 @@ namespace InventorySystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,Name,Barcode,CurrentHolder,Location,ProductType,Brand,Model,Description,SerialNumber,DateTime")]
+            [Bind("Id,Name,Barcode, ProductType,Brand,Model,Description,SerialNumber")]
             Product input)
         {
             if (input is null || id != input.Id) return BadRequest();

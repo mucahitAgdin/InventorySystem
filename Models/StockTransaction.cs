@@ -33,7 +33,7 @@ namespace InventorySystem.Models
         [StringLength(200)]
         public string? DeliveredBy { get; set; }
 
-        [StringLength(150)]
+        [StringLength(50)]
         public string? Note { get; set; }
     }
 

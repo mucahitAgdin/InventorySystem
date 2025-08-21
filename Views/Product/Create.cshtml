@@ -1,88 +1,119 @@
 ﻿@using InventorySystem.Models
 @model Product
+
 @{
-    ViewData["Title"] = "Create Product";
+    ViewData["Title"] = "Edit Product";
+    var m = Model ?? new Product();
 }
 
-<div class="form-surface mx-auto">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="h4 mb-0">Create Product</h1>
-        <a asp-action="All" class="btn btn-sm btn-outline-secondary">Back</a>
+<!-- Compact glass form container -->
+<div class="form-surface">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h1 class="h4 m-0">Edit Product</h1>
+        <a asp-action="All" class="btn btn-outline-secondary btn-sm">Back</a>
     </div>
 
-    <form asp-action="Create" method="post" novalidate autocomplete="off">
-        @Html.AntiForgeryToken()
+    @Html.AntiForgeryToken()
+
+    <form asp-action="Edit" method="post" novalidate class="row g-2">
+        <input type="hidden" asp-for="Id" />
         <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
 
-        <!-- Daha sıkı grid: g-2 ve form-control-sm -->
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" placeholder="Lütfen Ürün Adını Giriniz..." />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="Barcode" class="form-label"></label>
-                <input asp-for="Barcode" class="form-control" placeholder="Lütfen Ürün'e ait demirbaş etiket kodunu giriniz.'" />
-                <span asp-validation-for="Barcode" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-4">
-                <label asp-for="ProductType" class="form-label"></label>
-                <input asp-for="ProductType" class="form-control" placeholder="Ürün Tipi(Monitör, Laptop...)" />
-                <span asp-validation-for="ProductType" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-4">
-                <label asp-for="Brand" class="form-label"></label>
-                <input asp-for="Brand" class="form-control" placeholder="Marka (HP,DELL...)" />
-                <span asp-validation-for="Brand" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="Model" class="form-label"></label>
-                <input asp-for="Model" class="form-control" />
-                <span asp-validation-for="Model" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="SerialNumber" class="form-label"></label>
-                <input asp-for="SerialNumber" class="form-control" />
-                <span asp-validation-for="SerialNumber" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="CurrentHolder" class="form-label"></label>
-                <input asp-for="CurrentHolder" class="form-control" placeholder="Lütfen Ürünün Kimde olduğunu belirtiniz!!!" />
-                <span asp-validation-for="CurrentHolder" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="Location" class="form-label"></label>
-                <input asp-for="Location" class="form-control" value="@(Model?.Location ?? "Depo")" />
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
-
-            <div class="col-12">
-                <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="2" ></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="DateTime" class="form-label"></label>
-                <input asp-for="DateTime" class="form-control" placeholder="Tarih/Saat"
-                       value="@(Model?.DateTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
-                <span asp-validation-for="DateTime" class="text-danger"></span>
-            </div>
+        <!-- ============== Kimlik / Barkod =================== -->
+        <div class="col-12">
+            <div class="fw-bold text-uppercase small text-muted mb-1">Identity</div>
         </div>
 
+        <div class="col-md-6">
+            <label asp-for="Name" class="form-label">Name</label>
+            <input asp-for="Name" class="form-control" placeholder="Ürün adı…" value="@(m.Name ?? "")" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
 
+        <div class="col-md-6">
+            <label asp-for="Barcode" class="form-label">Barcode</label>
+            <input asp-for="Barcode" class="form-control" placeholder="6–7 haneli barkod" value="@(m.Barcode ?? "")" />
+            <span asp-validation-for="Barcode" class="text-danger small"></span>
+        </div>
 
-        <div class="d-flex gap-2 justify-content-end mt-3">
-            <button type="submit" class="btn btn-primary btn-sm">Save</button>
-            <a asp-action="All" class="btn btn-outline-secondary btn-sm">Cancel</a>
+        <!-- ============== Sınıflama ========================= -->
+        <div class="col-12 mt-2">
+            <div class="fw-bold text-uppercase small text-muted mb-1">Classification</div>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="ProductType" class="form-label">Product Type</label>
+            <input asp-for="ProductType" class="form-control" placeholder="Monitör, Laptop…" value="@(m.ProductType ?? "")" />
+            <span asp-validation-for="ProductType" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Brand" class="form-label">Brand</label>
+            <input asp-for="Brand" class="form-control" placeholder="HP, DELL…" value="@(m.Brand ?? "")" />
+            <span asp-validation-for="Brand" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Model" class="form-label">Model</label>
+            <input asp-for="Model" class="form-control" placeholder="Model" value="@(m.Model ?? "")" />
+            <span asp-validation-for="Model" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="SerialNumber" class="form-label">Serial Number</label>
+            <input asp-for="SerialNumber" class="form-control" placeholder="Seri no" value="@(m.SerialNumber ?? "")" />
+            <span asp-validation-for="SerialNumber" class="text-danger small"></span>
+        </div>
+
+        <!-- ============== Sahiplik / Konum ================== -->
+        <div class="col-12 mt-2">
+            <div class="fw-bold text-uppercase small text-muted mb-1">Ownership & Location</div>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="CurrentHolder" class="form-label">Current Holder</label>
+            <input asp-for="CurrentHolder" class="form-control" placeholder="Ürün kimde?" value="@(m.CurrentHolder ?? "")" />
+            <span asp-validation-for="CurrentHolder" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="Location" class="form-label">Location</label>
+            <!-- Sabit seçenekler: Depo / Ofis / Stok dışı -->
+            <select asp-for="Location" class="form-select" required>
+                <option value="Depo">Depo</option>
+                <option value="Ofis">Ofis</option>
+                <option value="Stok dışı">Stok dışı</option>
+            </select>
+            <span class="text-muted d-block mt-1 small">Seçenekler: Depo, Ofis, Stok dışı</span>
+            <span asp-validation-for="Location" class="text-danger small"></span>
+        </div>
+
+        <!-- ============== Açıklama ========================== -->
+        <div class="col-12 mt-2">
+            <label asp-for="Description" class="form-label">Description</label>
+            <textarea asp-for="Description" rows="3" class="form-control" placeholder="Açıklama…">@((m.Description ?? ""))</textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+
+        <!-- ============== Tarih ============================= -->
+        <div class="col-md-6 mt-2">
+            <label asp-for="DateTime" class="form-label">Date / Time</label>
+            <input asp-for="DateTime" class="form-control" value="@(m.DateTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
+            <span asp-validation-for="DateTime" class="text-danger small"></span>
+        </div>
+
+        <!-- ============== Actions =========================== -->
+        <div class="col-12 mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="All" class="btn btn-outline-secondary">Cancel</a>
+
+            <!-- Delete sağa yaslı -->
+            <div class="ms-auto">
+                <form asp-action="Delete" asp-route-id="@m.Id" method="post" onsubmit="return confirm('Delete this product?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger">Delete</button>
+                </form>
+            </div>
         </div>
     </form>
 </div>

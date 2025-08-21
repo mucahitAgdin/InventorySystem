@@ -60,7 +60,7 @@ namespace InventorySystem.Data
                 e.Property(x => x.Barcode).HasMaxLength(7); // ⬅ Products.Barcode ile birebir
                 e.Property(x => x.Type).HasConversion<string>().HasMaxLength(10);
                 e.Property(x => x.TransactionDate).HasDefaultValueSql("GETDATE()");
-                e.Property(x => x.Location).HasMaxLength(50).IsRequired();
+                e.Property(x => x.Location).HasConversion<string>().HasMaxLength(50);
                 e.Property(x => x.DeliveredBy).HasMaxLength(200);
                 e.Property(x => x.Note).HasMaxLength(500);
 
