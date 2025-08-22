@@ -1,31 +1,43 @@
-﻿using InventorySystem.Data;
+﻿// Program.cs
+using InventorySystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using InventorySystem.Middleware;
 
-// 🔽 eklendi
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 
+// Localization için gerekli using’ler
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC
-builder.Services.AddControllersWithViews();
+// ----------------- MVC -----------------
+builder.Services.AddControllersWithViews()
 
-// DbContext - SQL Server bağlantısı
+    // View seviyesinde IStringLocalizer kullanabilmek için
+    //   - _Layout, Razor View’lar ve TagHelper’larda @Localizer["Key"] yazabileceğiz
+    .AddViewLocalization()
+
+    // DataAnnotations (Model doğrulama mesajları) yerelleştirme
+    //   - [Required], [StringLength] gibi attribute hata mesajları .resx’ten gelecek
+    .AddDataAnnotationsLocalization();
+
+// ----------------- DbContext -----------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Session
+// ----------------- Session -----------------
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // HTTPS varsa 'Always'
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // prod HTTPS: Always
 });
 
-// 🔽 Cookie Authentication
+// ----------------- Cookie Authentication -----------------
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -35,17 +47,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.Name = "Inventory.Auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;          // intranet için ideal
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // prod HTTPS: Always
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
 
 builder.Services.AddAuthorization();
 
-// Program.cs (yalnızca Serilog konfigürasyonu satırını genişletiyoruz)
+// ----------------- Serilog -----------------
 Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext() // << LogContext.PushProperty(...) alanlarını enable eder
+    .Enrich.FromLogContext()
     .WriteTo.File(
         "Logs/log.txt",
         rollingInterval: RollingInterval.Day,
@@ -54,9 +66,26 @@ Log.Logger = new LoggerConfiguration()
             "{Message:lj} | Op={Op} Barcode={Barcode} User={User} DeliveredTo={DeliveredTo}{NewLine}{Exception}")
     .CreateLogger();
 
+// -----------------  Localization Servisleri -----------------
+// Resources klasörünün kökünü bildiriyoruz.
+//  - .resx dosyaları “/Resources” altında olacak (Controllers, Views alt ayrımlarını orada yapacağız).
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Desteklenen kültürleri tanımla (UI + formatlar)
+//  - "tr" default; "en", "fr" opsiyonları
+var supportedCultures = new[] { "tr", "en", "fr" };
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var cultures = supportedCultures.Select(c => new CultureInfo(c)).ToList();
+
+    options.DefaultRequestCulture = new RequestCulture("tr"); // varsayılan
+    options.SupportedCultures = cultures;    // sayı/tarih formatları
+    options.SupportedUICultures = cultures;  // UI metinleri (resx)
+});
+
 var app = builder.Build();
 
-// Middleware sırası
+// ----------------- Middleware Sırası -----------------
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -68,11 +97,16 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Localization middleware tam burada olmalı.
+//  - Routing’ten sonra, Session/Auth/Authorization’dan önce.
+app.UseRequestLocalization();
+
+// Oturum ve kimlik doğrulama
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 🔽 Global try-catch + log
+// Global try-catch + log
 app.UseGlobalExceptionHandling();
 
 app.MapControllerRoute(
