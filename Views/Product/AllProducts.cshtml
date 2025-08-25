@@ -1,35 +1,39 @@
 ﻿@using InventorySystem.Models
 @model IEnumerable<Product>
 
+@inject Microsoft.Extensions.Localization.IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "All Products";
+    // Sayfa başlığı (i18n destekli)
+    ViewData["Title"] = Localizer["AllProductsTitle"];
+
     var items = Model ?? Enumerable.Empty<Product>();
 
-    // Controller -> ViewBag dolduruyor
-    string selLoc   = ViewBag.SelectedLocation     as string ?? "";
-    string selType  = ViewBag.SelectedProductType  as string ?? "";
-    string selBrand = ViewBag.SelectedBrand        as string ?? "";
-    string selSer   = ViewBag.SelectedSerial       as string ?? "";
+    // Controller'dan gelen filtre seçimleri
+    string selLoc = ViewBag.SelectedLocation as string ?? "";
+    string selType = ViewBag.SelectedProductType as string ?? "";
+    string selBrand = ViewBag.SelectedBrand as string ?? "";
+    string selSer = ViewBag.SelectedSerial as string ?? "";
 }
 
+<!-- 🔹 Başlık + Filtre Formu -->
 <div class="d-flex align-items-center justify-content-between mb-3">
-    <h2 class="mb-0">@ViewData["Title"]</h2>
+    <h2 class="mb-0">@Localizer["AllProductsTitle"]</h2>
 
-    <!-- Birleşik filtre formu -->
+    <!-- 🔹 Filtre formu -->
     <form method="get" class="row g-2 align-items-center" autocomplete="off">
         <!-- Location: select (tam liste) -->
         <div class="col-auto">
             <select name="location" id="fltLocation" class="form-select">
-                <option value="">All locations</option>
+                <option value="">@Localizer["AllLocations"]</option>
                 <!-- JS ile LocationsJson'dan doldurulacak -->
             </select>
         </div>
 
-        <!-- Type: datalist (yazarken öneri + seçilebilir) -->
+        <!-- Type: datalist -->
         <div class="col-auto">
             <input name="productType"
                    class="form-control"
-                   placeholder="Type…"
+                   placeholder="@Localizer["TypePlaceholder"]"
                    list="typeList"
                    value="@selType" />
             <datalist id="typeList"></datalist>
@@ -39,130 +43,129 @@
         <div class="col-auto">
             <input name="brand"
                    class="form-control"
-                   placeholder="Brand…"
+                   placeholder="@Localizer["BrandPlaceholder"]"
                    list="brandList"
                    value="@selBrand" />
             <datalist id="brandList"></datalist>
         </div>
 
-        <!-- Serial: contains araması (opsiyonel datalist eklenebilir) -->
+        <!-- Serial: text input -->
         <div class="col-auto">
             <input name="serial"
                    class="form-control"
-                   placeholder="Serial contains…"
+                   placeholder="@Localizer["SerialPlaceholder"]"
                    value="@selSer" />
         </div>
 
+        <!-- Filter & Clear -->
         <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="@Url.Action("All","Product")" class="btn btn-outline-secondary">Clear</a>
+            <button type="submit" class="btn btn-primary">@Localizer["Filter"]</button>
+            <a href="@Url.Action("All", "Product")" class="btn btn-outline-secondary">@Localizer["Clear"]</a>
         </div>
     </form>
 </div>
 
-<!-- Tablo -->
+<!-- 🔹 Ürünler Tablosu -->
 <table class="table table-striped table-hover align-middle">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Barcode</th>
-            <th>In Stock</th>
-            <th>Holder</th>
-            <th>Location</th>
-            <th>Type</th>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Serial</th>
-            <th>Added/Updated</th>
+            <th>@Localizer["Name"]</th>
+            <th>@Localizer["Barcode"]</th>
+            <th>@Localizer["InStock"]</th>
+            <th>@Localizer["Holder"]</th>
+            <th>@Localizer["Location"]</th>
+            <th>@Localizer["Type"]</th>
+            <th>@Localizer["Brand"]</th>
+            <th>@Localizer["Model"]</th>
+            <th>@Localizer["Serial"]</th>
+            <th>@Localizer["AddedUpdated"]</th>
             <th style="width:160px"></th>
         </tr>
     </thead>
     <tbody>
-    @foreach (var item in items)
-    {
-        <tr>
-            <td>@(item?.Name ?? "-")</td>
-            <td>@(item?.Barcode ?? "-")</td>
-            <td>
-                @if (item?.IsInStock == true)
-                {
-                    <span class="badge text-bg-success">Yes</span>
-                }
-                else
-                {
-                    <span class="badge text-bg-secondary">No</span>
-                }
-            </td>
-            <td>@(item?.CurrentHolder ?? "-")</td>
-            <td>@(item?.Location ?? "-")</td>
-            <td>@(item?.ProductType ?? "-")</td>
-            <td>@(item?.Brand ?? "-")</td>
-            <td>@(item?.Model ?? "-")</td>
-            <td>@(item?.SerialNumber ?? "-")</td>
-            <td>@(item?.DateTime?.ToString("g") ?? "-")</td>
-            <td class="text-end">
-                <a asp-action="Edit" asp-route-id="@(item?.Id)" class="btn btn-sm btn-outline-primary">Edit</a>
-                <form asp-action="Delete" asp-route-id="@(item?.Id)" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('Delete this product?');">
-                        Delete
-                    </button>
-                </form>
-            </td>
-        </tr>
-    }
+        @foreach (var item in items)
+        {
+            <tr>
+                <td>@(item?.Name ?? "-")</td>
+                <td>@(item?.Barcode ?? "-")</td>
+                <td>
+                    @if (item?.IsInStock == true)
+                    {
+                        <span class="badge text-bg-success">@Localizer["Yes"]</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary">@Localizer["No"]</span>
+                    }
+                </td>
+                <td>@(item?.CurrentHolder ?? "-")</td>
+                <td>@(item?.Location ?? "-")</td>
+                <td>@(item?.ProductType ?? "-")</td>
+                <td>@(item?.Brand ?? "-")</td>
+                <td>@(item?.Model ?? "-")</td>
+                <td>@(item?.SerialNumber ?? "-")</td>
+                <td>@(item?.DateTime?.ToString("g") ?? "-")</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@(item?.Id)" class="btn btn-sm btn-outline-primary">@Localizer["Edit"]</a>
+                    <form asp-action="Delete" asp-route-id="@(item?.Id)" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('@Localizer["DeleteConfirm"]');">
+                            @Localizer["Delete"]
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
 @section Scripts {
-<script>
-// ---- küçük yardımcılar ----
-const fillOptions = (selectEl, arr, selectedVal="") => {
-    if (!selectEl || !Array.isArray(arr)) return;
-    // İlk seçenek All locations (boş) olarak var; diğerlerini ekle
-    arr.forEach(v => {
-        const opt = document.createElement('option');
-        opt.value = v;
-        opt.textContent = v;
-        if (selectedVal && selectedVal === v) opt.selected = true;
-        selectEl.appendChild(opt);
-    });
-    // Eğer selectedVal boş değilse, select'in değerini set et
-    if (selectedVal) selectEl.value = selectedVal;
-};
+    <script>
+        /*
+           Küçük JS yardımcıları (sabit kaldı)
+           Dropdown ve datalistleri ProductController’daki JSON endpointlerinden doldurur
+        */
+        const fillOptions = (selectEl, arr, selectedVal="") => {
+            if (!selectEl || !Array.isArray(arr)) return;
+            arr.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = v;
+                if (selectedVal && selectedVal === v) opt.selected = true;
+                selectEl.appendChild(opt);
+            });
+            if (selectedVal) selectEl.value = selectedVal;
+        };
 
-const fillDatalist = (dlEl, arr) => {
-    if (!dlEl || !Array.isArray(arr)) return;
-    dlEl.innerHTML = "";
-    arr.forEach(v => {
-        const opt = document.createElement('option');
-        opt.value = v;
-        dlEl.appendChild(opt);
-    });
-};
+        const fillDatalist = (dlEl, arr) => {
+            if (!dlEl || !Array.isArray(arr)) return;
+            dlEl.innerHTML = "";
+            arr.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                dlEl.appendChild(opt);
+            });
+        };
 
-(async () => {
-    // Locations
-    try {
-        const rLoc = await fetch('@Url.Action("LocationsJson","Product")', { credentials: "same-origin" });
-        const locs = rLoc.ok ? await rLoc.json() : [];
-        fillOptions(document.getElementById('fltLocation'), locs, '@selLoc');
-    } catch {}
+        (async () => {
+            try {
+                const rLoc = await fetch('@Url.Action("LocationsJson", "Product")', { credentials: "same-origin" });
+                const locs = rLoc.ok ? await rLoc.json() : [];
+                fillOptions(document.getElementById('fltLocation'), locs, '@selLoc');
+            } catch {}
 
-    // Types
-    try {
-        const rType = await fetch('@Url.Action("TypesJson","Product")', { credentials: "same-origin" });
-        const types = rType.ok ? await rType.json() : [];
-        fillDatalist(document.getElementById('typeList'), types);
-    } catch {}
+            try {
+                const rType = await fetch('@Url.Action("TypesJson", "Product")', { credentials: "same-origin" });
+                const types = rType.ok ? await rType.json() : [];
+                fillDatalist(document.getElementById('typeList'), types);
+            } catch {}
 
-    // Brands
-    try {
-        const rBrand = await fetch('@Url.Action("BrandsJson","Product")', { credentials: "same-origin" });
-        const brands = rBrand.ok ? await rBrand.json() : [];
-        fillDatalist(document.getElementById('brandList'), brands);
-    } catch {}
-})();
-</script>
+            try {
+                const rBrand = await fetch('@Url.Action("BrandsJson", "Product")', { credentials: "same-origin" });
+                const brands = rBrand.ok ? await rBrand.json() : [];
+                fillDatalist(document.getElementById('brandList'), brands);
+            } catch {}
+        })();
+    </script>
 }
