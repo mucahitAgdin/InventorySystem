@@ -1,15 +1,33 @@
 ﻿// Program.cs
 using InventorySystem.Data;
+using InventorySystem.Middleware;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
+using static Microsoft.AspNetCore.Localization.CookieRequestCultureProvider;
+using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using InventorySystem.Middleware;
-
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
-
-// Localization için gerekli using’ler
-using Microsoft.AspNetCore.Localization;
 using System.Globalization;
+
+
+var supportedCultures = new[] { "tr", "en" /* "fr" ileride */ };
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var cultures = supportedCultures.Select(c => new CultureInfo(c)).ToList();
+
+    options.DefaultRequestCulture = new RequestCulture("tr");
+    options.SupportedCultures = cultures;
+    options.SupportedUICultures = cultures;
+
+    // 🔽 Kullanıcı seçimi (cookie) > querystring > Accept-Language
+    options.RequestCultureProviders = new IRequestCultureProvider[]
+    {
+        new CookieRequestCultureProvider(),        // .AspNetCore.Culture
+        new QueryStringRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider()
+    };
+});
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,22 +84,6 @@ Log.Logger = new LoggerConfiguration()
             "{Message:lj} | Op={Op} Barcode={Barcode} User={User} DeliveredTo={DeliveredTo}{NewLine}{Exception}")
     .CreateLogger();
 
-// -----------------  Localization Servisleri -----------------
-// Resources klasörünün kökünü bildiriyoruz.
-//  - .resx dosyaları “/Resources” altında olacak (Controllers, Views alt ayrımlarını orada yapacağız).
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-
-// Desteklenen kültürleri tanımla (UI + formatlar)
-//  - "tr" default; "en", "fr" opsiyonları
-var supportedCultures = new[] { "tr", "en", "fr" };
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var cultures = supportedCultures.Select(c => new CultureInfo(c)).ToList();
-
-    options.DefaultRequestCulture = new RequestCulture("tr"); // varsayılan
-    options.SupportedCultures = cultures;    // sayı/tarih formatları
-    options.SupportedUICultures = cultures;  // UI metinleri (resx)
-});
 
 var app = builder.Build();
 
