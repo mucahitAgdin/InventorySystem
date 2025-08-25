@@ -1,6 +1,7 @@
 ﻿@model InventorySystem.Models.Admin
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Admin Giriş";
+    ViewData["Title"] = Localizer["Title_Login"];
     Layout = "~/Views/Shared/_AdminLayout.cshtml"; // mevcut yapıyı bozmuyoruz
 }
 
@@ -58,48 +59,46 @@
     </style>
 }
 
-<div class="container my-4 my-md-5">
-    <div class="login-hero p-3 p-md-4">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-auto">
+<div class="login-hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <div class="login-card p-4 p-md-5">
+                    <h2 class="text-center mb-4 fw-bold login-title">
+                        <img src="~/images/F_logo_blue.png" alt="FORVIA" height="60" />
+                    </h2>
 
-                    <!-- Login Kartı: sadece görünüm düzenlendi -->
-                    <div class="login-card p-4 p-md-5">
-                        <h2 class="text-center mb-4 fw-bold login-title"> <img src="~/images/F_logo_blue.png"  alt="FORVIA" height="60"/></h2>
+                    <form asp-action="Login" method="post" novalidate>
+                        @Html.AntiForgeryToken()
 
-                        <!-- backend yapısını bozmaz: antiforgery eklemek zorunlu ise hazır dursun -->
-                        <form asp-action="Login" method="post" novalidate>
-                            @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="Username" class="form-label fw-semibold">@Localizer["Label_Username"]</label>
+                            <input asp-for="Username" class="form-control" id="Username"
+                                   placeholder="@Localizer["Ph_Username"]" autofocus />
+                            <span asp-validation-for="Username" class="text-danger small"></span>
+                        </div>
 
-                            <div class="mb-3">
-                                <label asp-for="Username" class="form-label fw-semibold"></label>
-                                <input asp-for="Username" class="form-control" placeholder="Kullanıcı adı" autofocus />
-                                <span asp-validation-for="Username" class="text-danger small"></span>
-                            </div>
+                        <div class="mb-3">
+                            <label for="Password" class="form-label fw-semibold">@Localizer["Label_Password"]</label>
+                            <input asp-for="Password" type="password" class="form-control" id="Password"
+                                   placeholder="@Localizer["Ph_Password"]" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
 
-                            <div class="mb-3">
-                                <label asp-for="Password" class="form-label fw-semibold"></label>
-                                <input asp-for="Password" type="password" class="form-control" placeholder="Şifre" />
-                                <span asp-validation-for="Password" class="text-danger small"></span>
-                            </div>
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger py-2 small mb-3">@ViewBag.Error</div>
+                        }
 
-                            @if (ViewBag.Error != null)
-                            {
-                                <div class="alert alert-danger py-2 small mb-3">@ViewBag.Error</div>
-                            }
-
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary py-2">Giriş Yap</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <p class="text-center mt-3 mb-0 login-help small">
-                        © @DateTime.Now.Year · FORVIA visual identity compliant
-                    </p>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary py-2">@Localizer["Btn_Login"]</button>
+                        </div>
+                    </form>
+                </div>
+                <p class="text-center mt-3 mb-0 small text-muted">
+                    © @DateTime.Now.Year · @Localizer["Footer_Compliance"]
+                </p>
                 </div>
             </div>
         </div>
     </div>
-</div>
