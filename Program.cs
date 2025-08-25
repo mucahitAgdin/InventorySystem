@@ -1,45 +1,21 @@
-﻿// Program.cs
+﻿// Program.cs  — minimal, öğretici ve Admin kapsamını bozmadan
 using InventorySystem.Data;
 using InventorySystem.Middleware;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
-using static Microsoft.AspNetCore.Localization.CookieRequestCultureProvider;
 using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options; // UseRequestLocalization için DI’dan options çekmek
 using Serilog;
 using System.Globalization;
+// using System.Linq; // (genelde implicit, gerekirse aç)
 
-
-var supportedCultures = new[] { "tr", "en" /* "fr" ileride */ };
-
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var cultures = supportedCultures.Select(c => new CultureInfo(c)).ToList();
-
-    options.DefaultRequestCulture = new RequestCulture("tr");
-    options.SupportedCultures = cultures;
-    options.SupportedUICultures = cultures;
-
-    // 🔽 Kullanıcı seçimi (cookie) > querystring > Accept-Language
-    options.RequestCultureProviders = new IRequestCultureProvider[]
-    {
-        new CookieRequestCultureProvider(),        // .AspNetCore.Culture
-        new QueryStringRequestCultureProvider(),
-        new AcceptLanguageHeaderRequestCultureProvider()
-    };
-});
-
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args); // 🔴 ÖNCE builder’ı oluştur
 
 // ----------------- MVC -----------------
 builder.Services.AddControllersWithViews()
-
-    // View seviyesinde IStringLocalizer kullanabilmek için
-    //   - _Layout, Razor View’lar ve TagHelper’larda @Localizer["Key"] yazabileceğiz
     .AddViewLocalization()
-
-    // DataAnnotations (Model doğrulama mesajları) yerelleştirme
-    //   - [Required], [StringLength] gibi attribute hata mesajları .resx’ten gelecek
     .AddDataAnnotationsLocalization();
 
 // ----------------- DbContext -----------------
@@ -52,7 +28,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // prod HTTPS: Always
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // prod: Always
 });
 
 // ----------------- Cookie Authentication -----------------
@@ -80,10 +56,30 @@ Log.Logger = new LoggerConfiguration()
         "Logs/log.txt",
         rollingInterval: RollingInterval.Day,
         outputTemplate:
-            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] " +
-            "{Message:lj} | Op={Op} Barcode={Barcode} User={User} DeliveredTo={DeliveredTo}{NewLine}{Exception}")
+            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} | Op={Op} Barcode={Barcode} User={User} DeliveredTo={DeliveredTo}{NewLine}{Exception}")
     .CreateLogger();
 
+// ----------------- Localization Servisleri -----------------
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Desteklenen kültürler (UI + format)
+var supportedCultures = new[] { "tr", "en" }; // şimdilik Admin için TR/EN
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var cultures = supportedCultures.Select(c => new CultureInfo(c)).ToList();
+
+    options.DefaultRequestCulture = new RequestCulture("tr");
+    options.SupportedCultures = cultures;    // sayı-tarih
+    options.SupportedUICultures = cultures;  // .resx UI metinleri
+
+    // Kullanıcı seçimi öncelikli: Cookie > QueryString > Accept-Language
+    options.RequestCultureProviders = new IRequestCultureProvider[]
+    {
+        new CookieRequestCultureProvider(),
+        new QueryStringRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider()
+    };
+});
 
 var app = builder.Build();
 
@@ -99,18 +95,19 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Localization middleware tam burada olmalı.
-//  - Routing’ten sonra, Session/Auth/Authorization’dan önce.
-app.UseRequestLocalization();
+// Localization: DI’dan ayarları çek ve uygula
+var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
+app.UseRequestLocalization(locOptions.Value);
 
 // Oturum ve kimlik doğrulama
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Global try-catch + log
+// Global try-catch + log (senin custom middleware’in)
 app.UseGlobalExceptionHandling();
 
+// Default route: şimdilik Admin/Login
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Admin}/{action=Login}/{id?}");

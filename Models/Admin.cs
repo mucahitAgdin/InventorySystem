@@ -3,18 +3,19 @@
 namespace InventorySystem.Models
 {
     /// <summary>
-    /// Sadece admin için kullanılacak kullanıcı modeli.
-    /// Şifre hash'leme ve kontrol ileride eklenecek.
+    /// Admin-only user model.
+    /// Password hashing/verification will be added in a later patch.
     /// </summary>
     public class Admin
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Kullanıcı adı zorunludur.")]
-        [MaxLength(50)]
+        // Leave messages to i18n (resx). We only specify the rules here.
+        [Required]                  // message will come from localization resources
+        [MaxLength(50)]             // message will come from localization resources
         public required string Username { get; set; }
 
-        [Required(ErrorMessage = "Şifre zorunludur.")]
+        [Required]                  // message will come from localization resources
         [DataType(DataType.Password)]
         public required string Password { get; set; }
     }

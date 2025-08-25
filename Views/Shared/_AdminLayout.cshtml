@@ -1,8 +1,12 @@
-﻿@using Microsoft.AspNetCore.Localization
+﻿@* _AdminLayout.cshtml — FORVIA styled, structure-preserving + i18n switch *@
+@using Microsoft.AspNetCore.Localization
 @using Microsoft.AspNetCore.Http
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
 @{
-    Layout = null; // bu zaten kök layout
+    Layout = null;
+
+    // Aktif UI dili (tr/en)
     var rqf = Context.Features.Get<IRequestCultureFeature>();
     var current = rqf?.RequestCulture.UICulture.TwoLetterISOLanguageName ?? "tr";
 }
@@ -12,42 +16,195 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Admin</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    @RenderSection("Styles", required: false)
+    <title>@ViewData["Title"] - InventorySystem Admin</title>
+
+    <!-- Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
     <style>
-        :root{
-            --forvia-blue:#0024D3;
+        /* ---- FORVIA Design Tokens ---- */
+        :root {
+            --forvia-blue: #0024D3;
+            --forvia-blue-2: #00A9EB;
+            --text: #212121;
         }
-        .nav-brand { font-weight: 800; letter-spacing:.3px; }
+
+        /* Sayfa scroll’u kilitle (sadece Admin layout) */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
+        body {
+            font-family: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background:
+            /* üstte hafif koyu overlay */
+            linear-gradient(0deg, rgba(0,0,0,.28), rgba(0,0,0,.28)), url('/images/DesktopBackground_1680x1050_Epingles_FORVIA.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0b0b0f;
+        }
+
+        /* Top brand (logo ortada ve büyük) */
+        .brand-strip {
+            padding: 22px 0 8px;
+            text-align: center;
+        }
+
+            .brand-strip .brand {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: .5rem;
+                text-decoration: none;
+            }
+
+                .brand-strip .brand img {
+                    height: 64px;
+                    max-width: 80vw;
+                }
+
+        /* İçerik alanı */
+        main {
+            width: 100%;
+            margin: 8px auto 16px;
+            padding: 0;
+            background: transparent;
+            flex: 1 0 auto;
+        }
+
+        /* Kart (blur) — dar ve ortada */
+        .admin-surface {
+            max-width: 560px;
+            margin: 0 auto;
+            border: 1px solid rgba(0,0,0,.06);
+            border-radius: 18px;
+            box-shadow: 0 18px 60px rgba(0,0,0,.18);
+            padding: 1.25rem 1.25rem;
+            backdrop-filter: blur(3px);
+            background: rgba(255,255,255,.08); /* şeffaflık: görünüm aynı kalsın */
+        }
+
+            .admin-surface .form-control:focus,
+            .admin-surface .form-select:focus {
+                border-color: var(--forvia-blue-2);
+                box-shadow: 0 0 0 .25rem rgba(0,169,235,.15);
+            }
+
+            .admin-surface .btn-primary {
+                background: var(--forvia-blue);
+                border-color: var(--forvia-blue);
+                font-weight: 700;
+                letter-spacing: .2px;
+            }
+
+                .admin-surface .btn-primary:hover {
+                    background: #001db0;
+                    border-color: #001db0;
+                }
+
+        footer.footer {
+            color: #ffffffd9;
+        }
+
+            footer.footer a {
+                color: #fff;
+                text-decoration: underline;
+            }
+
+                footer.footer a:hover {
+                    opacity: .85;
+                }
+
+        /* Toast-like TempData alerts */
+        .fx-alert {
+            position: fixed;
+            right: 1rem;
+            top: 1rem;
+            z-index: 1080;
+            min-width: 260px;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25);
+        }
+
+        /* Yumuşak dış boşluk */
+        .main-pad {
+            padding: clamp(10px, 2vw, 20px);
+        }
+
+        /* Dil anahtarı: UI akışını bozmamak için fixed sağ üst */
+        .lang-switcher {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1200;
+            backdrop-filter: blur(6px);
+        }
+
+            .lang-switcher select {
+                min-width: 120px;
+            }
     </style>
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom">
-        <div class="container">
-            <span class="navbar-brand nav-brand">ADMIN</span>
+<body>
+    <!-- Dil seçici (fixed) — UI düzenini değiştirmez -->
+    <div class="lang-switcher">
+        <form asp-controller="Language" asp-action="Set" method="post" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+            <select name="culture" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="tr" selected="@(current == "tr" ? "selected" : null)">Türkçe</option>
+                <option value="en" selected="@(current == "en" ? "selected" : null)">English</option>
+            </select>
+            <noscript><button class="btn btn-sm btn-primary">@Localizer["ChangeLanguage"]</button></noscript>
+        </form>
+    </div>
 
-            <form asp-controller="Language" asp-action="Set" method="post" class="d-flex ms-auto">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                <select name="culture" class="form-select form-select-sm me-2" onchange="this.form.submit()">
-                    <option value="tr" selected=@(current=="tr" ? "selected" : "")>Türkçe</option>
-                    <option value="en" selected=@(current=="en" ? "selected" : "")>English</option>
-                </select>
-                <noscript><button class="btn btn-sm btn-primary">@Localizer["ChangeLanguage"]</button></noscript>
-            </form>
-        </div>
-    </nav>
+    <!-- Logo: ortada ve büyük -->
+    <div class="container brand-strip">
+        <a class="brand" asp-controller="Admin" asp-action="Login">
+            <img src="~/images/faurecia_inspiring_blue.png" alt="FORVIA Faurecia" />
+        </a>
+    </div>
 
-    <main class="container my-4">
-        @RenderBody()
-    </main>
+    <div class="main-pad">
+        <main role="main">
+            <div class="admin-surface">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
 
-    <footer class="border-top py-3 text-center small text-muted">
-        © @DateTime.Now.Year — @Localizer["Footer_Compliance"]
+    <footer class="footer text-center small mt-auto py-3">
+        &copy; @DateTime.Now.Year - InventorySystem -
+        <a asp-controller="Home" asp-action="Privacy">@Localizer["Privacy", "Gizlilik"]</a>
     </footer>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    @RenderSection("Scripts", required: false)
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    @* TempData alerts (stil korunarak) *@
+    @if (TempData["Success"] is string s && !string.IsNullOrWhiteSpace(s))
+    {
+        <div class="alert alert-success alert-dismissible fade show fx-alert" role="alert">
+            @s
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is string e && !string.IsNullOrWhiteSpace(e))
+    {
+        <div class="alert alert-danger alert-dismissible fade show fx-alert" role="alert">
+            @e
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 </body>
 </html>

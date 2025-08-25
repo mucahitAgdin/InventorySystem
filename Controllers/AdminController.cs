@@ -1,13 +1,14 @@
 ﻿using InventorySystem.Data;
 using InventorySystem.Models;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Localization;   // 🔹 i18n for controller messages
 using Serilog;
-// 🔽 eklendi
 using System.Security.Claims;
 
 namespace InventorySystem.Controllers
@@ -15,16 +16,18 @@ namespace InventorySystem.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IStringLocalizer<AdminController> _localizer;
+        private readonly IStringLocalizer<AdminController> _localizer; // 🔹 injected
 
-        public AdminController(ApplicationDbContext context, IStringLocalizer<AdminController> localizer)
+        public AdminController(
+            ApplicationDbContext context,
+            IStringLocalizer<AdminController> localizer)
         {
             _context = context;
             _localizer = localizer;
         }
 
         [HttpGet]
-        [AllowAnonymous] // 🔽 login sayfası anonim erişilebilir
+        [AllowAnonymous] // login page should be accessible anonymously
         public IActionResult Login() => View();
 
         [HttpPost]
@@ -32,19 +35,22 @@ namespace InventorySystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Admin model)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+                return View(model);
 
+            // NOTE: Plain-text password check for now.
+            // Next patch: switch to hashed passwords + salt.
             var admin = await _context.Admins
                 .FirstOrDefaultAsync(a => a.Username == model.Username && a.Password == model.Password);
 
             if (admin == null)
             {
-                // 🔽 resx anahtarı: InvalidCredentials
+                // i18n: use resx key "InvalidCredentials"
                 ViewBag.Error = _localizer["InvalidCredentials"];
                 return View(model);
             }
 
-            // ✅ Cookie tabanlı oturum
+            // ✅ Cookie-based auth
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, admin.Username),
@@ -60,7 +66,7 @@ namespace InventorySystem.Controllers
         }
 
         [HttpGet]
-        [Authorize] // 🔽 sadece oturum sahipleri çıkış yapabilsin
+        [Authorize] // only authenticated users can sign out
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
