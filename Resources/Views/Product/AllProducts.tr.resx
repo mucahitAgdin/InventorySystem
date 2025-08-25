@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="AllProductsTitle" xml:space="preserve">
+    <value>Tüm Ürünler</value>
+  </data>
+	<data name="AllLocations" xml:space="preserve">
+    <value>Tüm Lokasyonlar</value>
+  </data>
+	<data name="TypePlaceholder" xml:space="preserve">
+    <value>Ürün tipi…</value>
+  </data>
+	<data name="BrandPlaceholder" xml:space="preserve">
+    <value>Marka…</value>
+  </data>
+	<data name="SerialPlaceholder" xml:space="preserve">
+    <value>Seri no içeriyor…</value>
+  </data>
+	<data name="Filter" xml:space="preserve">
+    <value>Filtrele</value>
+  </data>
+	<data name="Clear" xml:space="preserve">
+    <value>Temizle</value>
+  </data>
+
+	<!-- Tablo başlıkları -->
+	<data name="Name" xml:space="preserve"><value>İsim</value></data>
+	<data name="Barcode" xml:space="preserve"><value>Barkod</value></data>
+	<data name="InStock" xml:space="preserve"><value>Stokta mı?</value></data>
+	<data name="Holder" xml:space="preserve"><value>Kime Ait</value></data>
+	<data name="Location" xml:space="preserve"><value>Lokasyon</value></data>
+	<data name="Type" xml:space="preserve"><value>Tip</value></data>
+	<data name="Brand" xml:space="preserve"><value>Marka</value></data>
+	<data name="Model" xml:space="preserve"><value>Model</value></data>
+	<data name="Serial" xml:space="preserve"><value>Seri No</value></data>
+	<data name="AddedUpdated" xml:space="preserve"><value>Eklendi / Güncellendi</value></data>
+
+	<!-- Aksiyonlar -->
+	<data name="Yes" xml:space="preserve"><value>Evet</value></data>
+	<data name="No" xml:space="preserve"><value>Hayır</value></data>
+	<data name="Edit" xml:space="preserve"><value>Düzenle</value></data>
+	<data name="Delete" xml:space="preserve"><value>Sil</value></data>
+	<data name="DeleteConfirm" xml:space="preserve"><value>Bu ürünü silmek istediğinize emin misiniz?</value></data>
+</root>
