@@ -1,24 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using InventorySystem.Data;
+﻿using InventorySystem.Data;
 using InventorySystem.Models;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-
-// 🔽 eklendi
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
+using Serilog;
+// 🔽 eklendi
+using System.Security.Claims;
 
 namespace InventorySystem.Controllers
 {
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IStringLocalizer<AdminController> _localizer;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, IStringLocalizer<AdminController> localizer)
         {
             _context = context;
+            _localizer = localizer;
         }
 
         [HttpGet]
@@ -26,19 +28,19 @@ namespace InventorySystem.Controllers
         public IActionResult Login() => View();
 
         [HttpPost]
-        [AllowAnonymous] // 🔽 post da anonim olmalı
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Admin model)
         {
             if (!ModelState.IsValid) return View(model);
 
-            // ⚠️ Şimdilik düz şifre – sonraki patch’te hash’e geçeceğiz
             var admin = await _context.Admins
                 .FirstOrDefaultAsync(a => a.Username == model.Username && a.Password == model.Password);
 
             if (admin == null)
             {
-                ViewBag.Error = "Kullanıcı adı veya şifre hatalı.";
+                // 🔽 resx anahtarı: InvalidCredentials
+                ViewBag.Error = _localizer["InvalidCredentials"];
                 return View(model);
             }
 
