@@ -1,7 +1,7 @@
 ﻿@using InventorySystem.Models
 @model IEnumerable<Product>
 
-@inject Microsoft.Extensions.Localization.IViewLocalizer Localizer
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     // Sayfa başlığı (i18n destekli)
     ViewData["Title"] = Localizer["AllProductsTitle"];
@@ -62,6 +62,7 @@
             <button type="submit" class="btn btn-primary">@Localizer["Filter"]</button>
             <a href="@Url.Action("All", "Product")" class="btn btn-outline-secondary">@Localizer["Clear"]</a>
         </div>
+
     </form>
 </div>
 
