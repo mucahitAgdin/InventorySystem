@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="Title_Login" xml:space="preserve"><value>Admin Giriş</value></data>
+	<data name="Label_Username" xml:space="preserve"><value>Kullanıcı Adı</value></data>
+	<data name="Label_Password" xml:space="preserve"><value>Şifre</value></data>
+	<data name="Ph_Username" xml:space="preserve"><value>Kullanıcı adı</value></data>
+	<data name="Ph_Password" xml:space="preserve"><value>Şifre</value></data>
+	<data name="Btn_Login" xml:space="preserve"><value>Giriş Yap</value></data>
+	<data name="Footer_Compliance" xml:space="preserve"><value>FORVIA görsel kimliği ile uyumlu</value></data>
+</root>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="Title_Login" xml:space="preserve"><value>Admin Login</value></data>
+	<data name="Label_Username" xml:space="preserve"><value>Username</value></data>
+	<data name="Label_Password" xml:space="preserve"><value>Password</value></data>
+	<data name="Ph_Username" xml:space="preserve"><value>Username</value></data>
+	<data name="Ph_Password" xml:space="preserve"><value>Password</value></data>
+	<data name="Btn_Login" xml:space="preserve"><value>Sign in</value></data>
+	<data name="Footer_Compliance" xml:space="preserve"><value>FORVIA visual identity compliant</value></data>
+</root>
