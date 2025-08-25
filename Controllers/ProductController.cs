@@ -1,42 +1,50 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using InventorySystem.Data;
+﻿using InventorySystem.Data;
 using InventorySystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace InventorySystem.Controllers
 {
-    // Yalnızca Admin erişsin
+    // 🔒 Yalnızca Admin rolüne izin ver
     [Authorize(Roles = "Admin")]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(ApplicationDbContext context, ILogger<ProductController> logger)
+        // 🌍 Çoklu dil desteği için localizer
+        private readonly IStringLocalizer<ProductController> _localizer;
+
+        // Constructor → Dependency Injection
+        public ProductController(ApplicationDbContext context,
+                                 ILogger<ProductController> logger,
+                                 IStringLocalizer<ProductController> localizer)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
 
-
-        // Eski linkleri koru: /Product/AllProducts => /Product/All
+        // ---- Routing uyumluluğu --------------------------------------------
+        // Eski linkleri koru: /Product/AllProducts → /Product/All
         [HttpGet]
         public IActionResult AllProducts(string? productType, string? location, string? brand, string? serial) =>
             RedirectToAction(nameof(All), new { productType, location, brand, serial });
 
-        // ---- Lookup kaynakları (autocomplete / dropdown) --------------------
+        // ---- JSON kaynakları (autocomplete / dropdown) ----------------------
 
         [HttpGet]
         public async Task<IActionResult> TypesJson()
         {
             var types = await _context.Products
                 .AsNoTracking()
-                .Where(p => p.ProductType != null && p.ProductType != "")
+                .Where(p => !string.IsNullOrEmpty(p.ProductType))
                 .Select(p => p.ProductType!)
                 .Distinct()
                 .OrderBy(t => t)
@@ -50,7 +58,7 @@ namespace InventorySystem.Controllers
         {
             var brands = await _context.Products
                 .AsNoTracking()
-                .Where(p => p.Brand != null && p.Brand != "")
+                .Where(p => !string.IsNullOrEmpty(p.Brand))
                 .Select(p => p.Brand!)
                 .Distinct()
                 .OrderBy(t => t)
@@ -64,7 +72,7 @@ namespace InventorySystem.Controllers
         {
             var locations = await _context.Products
                 .AsNoTracking()
-                .Where(p => p.Location != null && p.Location != "")
+                .Where(p => !string.IsNullOrEmpty(p.Location))
                 .Select(p => p.Location!)
                 .Distinct()
                 .OrderBy(t => t)
@@ -98,7 +106,6 @@ namespace InventorySystem.Controllers
 
         // ---- Listeleme ------------------------------------------------------
 
-        // GET: /Product/All?location=&serial=&productType=&brand=
         public async Task<IActionResult> All(
             string? location = null,
             string? serial = null,
@@ -134,7 +141,6 @@ namespace InventorySystem.Controllers
 
         // ---- Detay / CRUD ---------------------------------------------------
 
-        // GET: /Product/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id is null) return BadRequest();
@@ -147,10 +153,8 @@ namespace InventorySystem.Controllers
             return View(product);
         }
 
-        // GET: /Product/Create
         public IActionResult Create() => View();
 
-        // POST: /Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
@@ -159,6 +163,7 @@ namespace InventorySystem.Controllers
         {
             if (input is null) return BadRequest();
 
+            // Basit validasyon örnekleri (sabit metinler i18n yapılmadı → ModelState default kalsın)
             if (string.IsNullOrWhiteSpace(input.Barcode))
                 ModelState.AddModelError(nameof(input.Barcode), "Barcode is required.");
 
@@ -193,18 +198,19 @@ namespace InventorySystem.Controllers
             {
                 await _context.Products.AddAsync(input);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Product created successfully.";
+
+                // 🌍 Lokalize mesaj
+                TempData["Success"] = _localizer["CreateSuccess"];
                 return RedirectToAction(nameof(All));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Create Product failed for {@Input}", input);
-                TempData["Error"] = "An error occurred while creating the product.";
+                TempData["Error"] = _localizer["CreateError"];
                 return View(input);
             }
         }
 
-        // GET: /Product/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id is null) return BadRequest();
@@ -215,7 +221,6 @@ namespace InventorySystem.Controllers
             return View(product);
         }
 
-        // POST: /Product/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -225,6 +230,7 @@ namespace InventorySystem.Controllers
         {
             if (input is null || id != input.Id) return BadRequest();
 
+            // Benzersizlik ve uzunluk validasyonları
             if (!string.IsNullOrWhiteSpace(input.Barcode) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode && p.Id != id))
             {
@@ -253,9 +259,9 @@ namespace InventorySystem.Controllers
             {
                 _context.Attach(input);
                 _context.Entry(input).State = EntityState.Modified;
-
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Product updated successfully.";
+
+                TempData["Success"] = _localizer["UpdateSuccess"];
                 return RedirectToAction(nameof(All));
             }
             catch (DbUpdateConcurrencyException cex)
@@ -264,18 +270,17 @@ namespace InventorySystem.Controllers
                     return NotFound();
 
                 _logger.LogError(cex, "Concurrency error on Edit for Id={Id}", id);
-                TempData["Error"] = "Concurrency error while updating the product.";
+                TempData["Error"] = _localizer["UpdateConcurrencyError"];
                 return View(input);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Edit Product failed for Id={Id}", id);
-                TempData["Error"] = "An error occurred while updating the product.";
+                TempData["Error"] = _localizer["UpdateError"];
                 return View(input);
             }
         }
 
-        // POST: /Product/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int? id)
@@ -289,13 +294,14 @@ namespace InventorySystem.Controllers
 
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Product deleted.";
+
+                TempData["Success"] = _localizer["DeleteSuccess"];
                 return RedirectToAction(nameof(All));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Delete Product failed for Id={Id}", id);
-                TempData["Error"] = "An error occurred while deleting the product.";
+                TempData["Error"] = _localizer["DeleteError"];
                 return RedirectToAction(nameof(All));
             }
         }
@@ -303,7 +309,6 @@ namespace InventorySystem.Controllers
         [HttpGet]
         public IActionResult Scan() => View();
 
-        // (opsiyonel) /Product/Index → All’a yönlendirme
         public IActionResult Index() => RedirectToAction(nameof(All));
     }
 }

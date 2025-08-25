@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="CreateSuccess" xml:space="preserve">
+    <value>Ürün başarıyla oluşturuldu.</value>
+  </data>
+	<data name="CreateError" xml:space="preserve">
+    <value>Ürün oluşturulurken bir hata meydana geldi.</value>
+  </data>
+	<data name="UpdateSuccess" xml:space="preserve">
+    <value>Ürün başarıyla güncellendi.</value>
+  </data>
+	<data name="UpdateConcurrencyError" xml:space="preserve">
+    <value>Ürün güncellenirken eşzamanlılık hatası oluştu.</value>
+  </data>
+	<data name="UpdateError" xml:space="preserve">
+    <value>Ürün güncellenirken bir hata meydana geldi.</value>
+  </data>
+	<data name="DeleteSuccess" xml:space="preserve">
+    <value>Ürün başarıyla silindi.</value>
+  </data>
+	<data name="DeleteError" xml:space="preserve">
+    <value>Ürün silinirken bir hata meydana geldi.</value>
+  </data>
+</root>

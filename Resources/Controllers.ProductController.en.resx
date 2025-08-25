@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="CreateSuccess" xml:space="preserve">
+    <value>Product created successfully.</value>
+  </data>
+	<data name="CreateError" xml:space="preserve">
+    <value>An error occurred while creating the product.</value>
+  </data>
+	<data name="UpdateSuccess" xml:space="preserve">
+    <value>Product updated successfully.</value>
+  </data>
+	<data name="UpdateConcurrencyError" xml:space="preserve">
+    <value>Concurrency error while updating the product.</value>
+  </data>
+	<data name="UpdateError" xml:space="preserve">
+    <value>An error occurred while updating the product.</value>
+  </data>
+	<data name="DeleteSuccess" xml:space="preserve">
+    <value>Product deleted.</value>
+  </data>
+	<data name="DeleteError" xml:space="preserve">
+    <value>An error occurred while deleting the product.</value>
+  </data>
+</root>
