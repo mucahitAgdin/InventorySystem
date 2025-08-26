@@ -1,25 +1,48 @@
 ﻿// site.js
+// site.js
 const navbar = document.querySelector('.topbar');
-const logoImg = document.querySelector('.navbar-brand img');
+// hem klasik marka hem de merkezdeki logo için geniş arama
+const logoImg = document.querySelector('.navbar-brand img, .navbar-center-logo img');
 
-if (navbar && logoImg) {
-    const whiteLogo = '/images/faurecia_inspiring_white.png';
-    const blueLogo = '/images/faurecia_inspiring_blue.png';
+const WHITE_LOGO = '/images/faurecia_inspiring_white.png';
+const BLUE_LOGO  = '/images/faurecia_inspiring_blue.png';
 
-    // Başlangıç: şeffaf navbar ise beyaz logo
-    if (!navbar.classList.contains('active')) {
-        logoImg.src = whiteLogo;
+function setLogo(src) {
+  if (logoImg) logoImg.src = src;
+}
+
+// Başlangıç: transparent navbar ise beyaz logo
+if (navbar) {
+  if (!navbar.classList.contains('active')) {
+    setLogo(WHITE_LOGO);
+  }
+
+  // Hover ile aktif/pasif
+  navbar.addEventListener('mouseenter', () => {
+    navbar.classList.add('active');
+    setLogo(BLUE_LOGO);   // beyaz zemin -> mavi logo
+  });
+
+  navbar.addEventListener('mouseleave', () => {
+    // Eğer scroll ile aktif tutulmuyorsa çıkar
+    if (window.scrollY < 20) {
+      navbar.classList.remove('active');
+      setLogo(WHITE_LOGO); // koyu/şeffaf zemin -> beyaz logo
     }
+  });
 
-    navbar.addEventListener('mouseenter', () => {
-        navbar.classList.add('active');
-        logoImg.src = blueLogo; // beyaz zemin -> mavi logo
-    });
-
-    navbar.addEventListener('mouseleave', () => {
-        navbar.classList.remove('active');
-        logoImg.src = whiteLogo; // koyu/şeffaf zemin -> beyaz logo
-    });
+  // Opsiyonel: sayfa kayınca header beyazda kalsın
+  const onScroll = () => {
+    if (window.scrollY >= 20) {
+      navbar.classList.add('active');
+      setLogo(BLUE_LOGO);
+    } else {
+      navbar.classList.remove('active');
+      setLogo(WHITE_LOGO);
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // ilk yüklemede durumu ayarla
 }
 
 // ===================== Product Picker (In/Out sayfaları) =====================
