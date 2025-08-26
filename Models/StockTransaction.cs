@@ -1,6 +1,6 @@
 ﻿// Dosya: Models/StockTransaction.cs
-// Amaç: IN/OUT hareket logu. TransactionType enum, Quantity=1 (tekil hareket).
-// TransactionDate DB’de GETDATE() default (DbContext’te HasDefaultValueSql).
+// Amaç: IN/OUT hareket logu. i18n: DataAnnotations mesajlarını resource anahtarlarıyla kullan.
+// Not: AddDataAnnotationsLocalization() açık olmalı. Anahtarlar Resources/Models.StockTransaction.{lang}.resx’ten gelir.
 
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -11,29 +11,36 @@ namespace InventorySystem.Models
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Barkod zorunludur.")]
-        [StringLength(7, MinimumLength = 6, ErrorMessage = "Barkod 6 ile 7 karakter arasında olmalıdır.")]
+        // Display(Name) -> alan etiketi; ErrorMessage -> resource key (gerçek metin .resx’te)
+        [Display(Name = "Barcode")]
+        [Required(ErrorMessage = "BarcodeRequired")]
+        [StringLength(7, MinimumLength = 6, ErrorMessage = "BarcodeLength")]
         public string Barcode { get; set; } = string.Empty;
 
-        [Required(ErrorMessage ="Type zorunludur")]
+        [Display(Name = "Type")]
+        [Required(ErrorMessage = "TypeRequired")]
         public TransactionType Type { get; set; }    // Entry / Exit
 
-        // Tekil modelde hep 1 yazıyoruz (controller set ediyor).
-        [Required(ErrorMessage = "Miktar girilmelidir.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Miktar en az 1 olmalıdır.")]
+        [Display(Name = "Quantity")]
+        [Required(ErrorMessage = "QuantityRequired")]
+        [Range(1, int.MaxValue, ErrorMessage = "QuantityMin")]
         public int Quantity { get; set; }
 
-        // DB default: GETDATE() (DbContext → .HasDefaultValueSql("GETDATE()"))
+        [Display(Name = "TransactionDate")]
         public DateTime TransactionDate { get; set; }
 
         // 🔁 NEW: target location of the move (Depo/Ofis/Stok dışı)
-        [Required, StringLength(50, ErrorMessage = "Lokasyon seçilmelidir.")]
+        [Display(Name = "Location")]
+        [Required(ErrorMessage = "LocationRequired")]
+        [StringLength(50, ErrorMessage = "LocationRequired")]
         public string Location { get; set; } = "Depo";
 
-        [StringLength(200)]
+        [Display(Name = "DeliveredBy")]
+        [StringLength(200, ErrorMessage = "DeliveredByLength")]
         public string? DeliveredBy { get; set; }
 
-        [StringLength(50)]
+        [Display(Name = "Note")]
+        [StringLength(50, ErrorMessage = "NoteLength")]
         public string? Note { get; set; }
     }
 
