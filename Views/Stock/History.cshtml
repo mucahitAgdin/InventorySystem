@@ -1,4 +1,8 @@
-﻿@using InventorySystem.Models
+﻿@* File: Views/Stock/History.cshtml
+   Purpose: Transaction history table with optional barcode filter.
+   i18n: Uses IViewLocalizer with Resources/Views/Stock/History.{culture}.resx
+*@
+@using InventorySystem.Models
 @model IEnumerable<StockTransaction>
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
@@ -31,10 +35,9 @@
     <tbody>
         @foreach (var t in items)
         {
-            // Satır rengi i18n anahtarları sadece class adı için; değerler resx'te tutuluyor.
             var rowClass = t.Type == TransactionType.Exit
-            ? Localizer["RowClassExit"].Value
-            : Localizer["RowClassEntry"].Value;
+            ? Localizer["RowClassExit"].Value   // e.g., "table-warning"
+            : Localizer["RowClassEntry"].Value; // e.g., "table-light"
 
             <tr class="@rowClass">
                 <td>@t.Id</td>
