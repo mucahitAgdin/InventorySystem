@@ -1,39 +1,44 @@
 ﻿@using InventorySystem.Models
 @model Product
 
+@* Çoklu dil: View içi metinler için IViewLocalizer *@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "Create Product";
+    // Sayfa başlığı da i18n
+    ViewData["Title"] = Localizer["CreateTitle"];
     var m = Model ?? new Product();
 }
 
 <div class="form-surface">
     <div class="d-flex align-items-center justify-content-between mb-2">
-        <h1 class="h4 m-0">Create Product</h1>
-        <a asp-action="All" class="btn btn-outline-secondary btn-sm">Back</a>
+        <h1 class="h4 m-0">@Localizer["CreateTitle"]</h1>
+        <a asp-action="All" class="btn btn-outline-secondary btn-sm">@Localizer["Back"]</a>
     </div>
 
-    <!-- DOĞRU: Artık CREATE'e post ediyor ve token FORM içinde -->
+    <!-- Not: AntiForgery token form içinde olmalı -->
     <form asp-action="Create" method="post" novalidate class="row g-2" autocomplete="off">
         @Html.AntiForgeryToken()
 
+        <!-- ModelState özetini göster -->
         <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
 
         <!-- ============== Kimlik / Barkod =================== -->
         <div class="col-12">
-            <div class="fw-bold text-uppercase small text-muted mb-1">Identity</div>
+            <div class="fw-bold text-uppercase small text-muted mb-1">@Localizer["SectionIdentity"]</div>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="Name" class="form-label">Name</label>
-            <input asp-for="Name" class="form-control" placeholder="Ürün adı…" value="@(m.Name ?? "")" />
+            <label asp-for="Name" class="form-label">@Localizer["Name"]</label>
+            <input asp-for="Name" class="form-control" placeholder="@Localizer["PhName"]" value="@(m.Name ?? "")" />
             <span asp-validation-for="Name" class="text-danger small"></span>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="Barcode" class="form-label">Barcode</label>
+            <label asp-for="Barcode" class="form-label">@Localizer["Barcode"]</label>
             <input asp-for="Barcode"
                    class="form-control"
-                   placeholder="6–7 haneli barkod"
+                   placeholder="@Localizer["PhBarcode"]"
                    value="@(m.Barcode ?? "")"
                    maxlength="7"
                    oninput="if (this.value.length>7) this.value=this.value.slice(0,7);" />
@@ -42,73 +47,74 @@
 
         <!-- ============== Sınıflama ========================= -->
         <div class="col-12 mt-2">
-            <div class="fw-bold text-uppercase small text-muted mb-1">Classification</div>
+            <div class="fw-bold text-uppercase small text-muted mb-1">@Localizer["SectionClassification"]</div>
         </div>
 
         <div class="col-md-4">
-            <label asp-for="ProductType" class="form-label">Product Type</label>
-            <input asp-for="ProductType" class="form-control" placeholder="Monitör, Laptop…" value="@(m.ProductType ?? "")" />
+            <label asp-for="ProductType" class="form-label">@Localizer["Type"]</label>
+            <input asp-for="ProductType" class="form-control" placeholder="@Localizer["PhType"]" value="@(m.ProductType ?? "")" />
             <span asp-validation-for="ProductType" class="text-danger small"></span>
         </div>
 
         <div class="col-md-4">
-            <label asp-for="Brand" class="form-label">Brand</label>
-            <input asp-for="Brand" class="form-control" placeholder="HP, DELL…" value="@(m.Brand ?? "")" />
+            <label asp-for="Brand" class="form-label">@Localizer["Brand"]</label>
+            <input asp-for="Brand" class="form-control" placeholder="@Localizer["PhBrand"]" value="@(m.Brand ?? "")" />
             <span asp-validation-for="Brand" class="text-danger small"></span>
         </div>
 
         <div class="col-md-4">
-            <label asp-for="Model" class="form-label">Model</label>
-            <input asp-for="Model" class="form-control" placeholder="Model" value="@(m.Model ?? "")" />
+            <label asp-for="Model" class="form-label">@Localizer["Model"]</label>
+            <input asp-for="Model" class="form-control" placeholder="@Localizer["PhModel"]" value="@(m.Model ?? "")" />
             <span asp-validation-for="Model" class="text-danger small"></span>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="SerialNumber" class="form-label">Serial Number</label>
-            <input asp-for="SerialNumber" class="form-control" placeholder="Seri no" value="@(m.SerialNumber ?? "")" />
+            <label asp-for="SerialNumber" class="form-label">@Localizer["Serial"]</label>
+            <input asp-for="SerialNumber" class="form-control" placeholder="@Localizer["PhSerial"]" value="@(m.SerialNumber ?? "")" />
             <span asp-validation-for="SerialNumber" class="text-danger small"></span>
         </div>
 
         <!-- ============== Sahiplik / Konum ================== -->
         <div class="col-12 mt-2">
-            <div class="fw-bold text-uppercase small text-muted mb-1">Ownership & Location</div>
+            <div class="fw-bold text-uppercase small text-muted mb-1">@Localizer["SectionOwnership"]</div>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="CurrentHolder" class="form-label">Current Holder</label>
-            <input asp-for="CurrentHolder" class="form-control" placeholder="Ürün kimde?" value="@(m.CurrentHolder ?? "")" />
+            <label asp-for="CurrentHolder" class="form-label">@Localizer["Holder"]</label>
+            <input asp-for="CurrentHolder" class="form-control" placeholder="@Localizer["PhHolder"]" value="@(m.CurrentHolder ?? "")" />
             <span asp-validation-for="CurrentHolder" class="text-danger small"></span>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="Location" class="form-label">Location</label>
+            <label asp-for="Location" class="form-label">@Localizer["Location"]</label>
             <select asp-for="Location" class="form-select" required>
-                <option value="Depo">Depo</option>
-                <option value="Ofis">Ofis</option>
-                <option value="Stok dışı">Stok dışı</option>
+                <!-- Not: Seçenek değerlerini iş kurallarınız TR tutuyor; metni i18n yapmak isterseniz value sabit kalır, option label Localizer ile yazılabilir -->
+                <option value="Depo">@Localizer["OptDepot"]</option>
+                <option value="Ofis">@Localizer["OptOffice"]</option>
+                <option value="Stok dışı">@Localizer["OptOutOfStock"]</option>
             </select>
-            <span class="text-muted d-block mt-1 small">Seçenekler: Depo, Ofis, Stok dışı</span>
+            <span class="text-muted d-block mt-1 small">@Localizer["LocationHint"]</span>
             <span asp-validation-for="Location" class="text-danger small"></span>
         </div>
 
         <!-- ============== Açıklama ========================== -->
         <div class="col-12 mt-2">
-            <label asp-for="Description" class="form-label">Description</label>
-            <textarea asp-for="Description" rows="3" class="form-control" placeholder="Açıklama…">@((m.Description ?? ""))</textarea>
+            <label asp-for="Description" class="form-label">@Localizer["Description"]</label>
+            <textarea asp-for="Description" rows="3" class="form-control" placeholder="@Localizer["PhDescription"]">@((m.Description ?? ""))</textarea>
             <span asp-validation-for="Description" class="text-danger small"></span>
         </div>
 
         <!-- ============== Tarih ============================= -->
         <div class="col-md-6 mt-2">
-            <label asp-for="DateTime" class="form-label">Date / Time</label>
+            <label asp-for="DateTime" class="form-label">@Localizer["DateTime"]</label>
             <input asp-for="DateTime" class="form-control" value="@(m.DateTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
             <span asp-validation-for="DateTime" class="text-danger small"></span>
         </div>
 
         <!-- ============== Actions =========================== -->
         <div class="col-12 mt-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a asp-action="All" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">@Localizer["Save"]</button>
+            <a asp-action="All" class="btn btn-outline-secondary">@Localizer["Cancel"]</a>
         </div>
     </form>
 </div>
