@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="CreateTitle">
+		<value>Ürün Ekle</value>
+	</data>
+	<data name="Back">
+		<value>Geri</value>
+	</data>
+	<data name="SectionIdentity">
+		<value>Kimlik</value>
+	</data>
+	<data name="SectionClassification">
+		<value>Sınıflama</value>
+	</data>
+	<data name="SectionOwnership">
+		<value>Sahiplik &amp; Konum</value>
+	</data>
+
+	<data name="Name">
+		<value>İsim</value>
+	</data>
+	<data name="Barcode">
+		<value>Barkod</value>
+	</data>
+	<data name="Type">
+		<value>Tip</value>
+	</data>
+	<data name="Brand">
+		<value>Marka</value>
+	</data>
+	<data name="Model">
+		<value>Model</value>
+	</data>
+	<data name="Serial">
+		<value>Seri No</value>
+	</data>
+	<data name="Holder">
+		<value>Kime Ait</value>
+	</data>
+	<data name="Location">
+		<value>Lokasyon</value>
+	</data>
+	<data name="Description">
+		<value>Açıklama</value>
+	</data>
+	<data name="DateTime">
+		<value>Tarih / Saat</value>
+	</data>
+	<data name="Save">
+		<value>Kaydet</value>
+	</data>
+	<data name="Cancel">
+		<value>İptal</value>
+	</data>
+
+	<data name="OptDepot">
+		<value>Depo</value>
+	</data>
+	<data name="OptOffice">
+		<value>Ofis</value>
+	</data>
+	<data name="OptOutOfStock">
+		<value>Stok dışı</value>
+	</data>
+	<data name="LocationHint">
+		<value>Seçenekler: Depo, Ofis, Stok dışı</value>
+	</data>
+
+	<!-- Placeholders -->
+	<data name="PhName">
+		<value>Ürün adı…</value>
+	</data>
+	<data name="PhBarcode">
+		<value>6–7 haneli barkod…</value>
+	</data>
+	<data name="PhType">
+		<value>Örn: Monitör, Laptop…</value>
+	</data>
+	<data name="PhBrand">
+		<value>Örn: HP, DELL…</value>
+	</data>
+	<data name="PhModel">
+		<value>Model</value>
+	</data>
+	<data name="PhSerial">
+		<value>Seri no…</value>
+	</data>
+	<data name="PhHolder">
+		<value>Ürün kimde?</value>
+	</data>
+	<data name="PhLocation">
+		<value>Örn: Depo</value>
+	</data>
+	<data name="PhDescription">
+		<value>Açıklama…</value>
+	</data>
+</root>

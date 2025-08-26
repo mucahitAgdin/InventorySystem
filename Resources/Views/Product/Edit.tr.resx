@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="EditTitle">
+		<value>Ürünü Düzenle</value>
+	</data>
+	<data name="Back">
+		<value>Geri</value>
+	</data>
+	<data name="Name">
+		<value>İsim</value>
+	</data>
+	<data name="Barcode">
+		<value>Barkod</value>
+	</data>
+	<data name="Type">
+		<value>Tip</value>
+	</data>
+	<data name="Brand">
+		<value>Marka</value>
+	</data>
+	<data name="Model">
+		<value>Model</value>
+	</data>
+	<data name="Serial">
+		<value>Seri No</value>
+	</data>
+	<data name="Save">
+		<value>Kaydet</value>
+	</data>
+	<data name="Cancel">
+		<value>İptal</value>
+	</data>
+	<data name="Delete">
+		<value>Sil</value>
+	</data>
+	<data name="DeleteConfirm">
+		<value>Bu ürünü silmek istediğinize emin misiniz?</value>
+	</data>
+
+	<data name="PhType">
+		<value>Ürün Tipi (Monitör, Laptop…)</value>
+	</data>
+	<data name="PhBrand">
+		<value>Marka (HP, DELL…)</value>
+	</data>
+	<data name="PhModel">
+		<value>Model</value>
+	</data>
+	<data name="PhSerial">
+		<value>Seri No</value>
+	</data>
+
+	<data name="ReadonlyNameHint">
+		<value>Bu alan değiştirilemez.</value>
+	</data>
+	<data name="ReadonlyBarcodeHint">
+		<value>Barkod değiştirilemez.</value>
+	</data>
+</root>

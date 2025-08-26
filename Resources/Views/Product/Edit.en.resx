@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="EditTitle">
+		<value>Edit Product</value>
+	</data>
+	<data name="Back">
+		<value>Back</value>
+	</data>
+	<data name="Name">
+		<value>Name</value>
+	</data>
+	<data name="Barcode">
+		<value>Barcode</value>
+	</data>
+	<data name="Type">
+		<value>Type</value>
+	</data>
+	<data name="Brand">
+		<value>Brand</value>
+	</data>
+	<data name="Model">
+		<value>Model</value>
+	</data>
+	<data name="Serial">
+		<value>Serial</value>
+	</data>
+	<data name="Save">
+		<value>Save</value>
+	</data>
+	<data name="Cancel">
+		<value>Cancel</value>
+	</data>
+	<data name="Delete">
+		<value>Delete</value>
+	</data>
+	<data name="DeleteConfirm">
+		<value>Delete this product?</value>
+	</data>
+
+	<data name="PhType">
+		<value>Product Type (Monitor, Laptop…)</value>
+	</data>
+	<data name="PhBrand">
+		<value>Brand (HP, DELL…)</value>
+	</data>
+	<data name="PhModel">
+		<value>Model</value>
+	</data>
+	<data name="PhSerial">
+		<value>Serial No</value>
+	</data>
+
+	<data name="ReadonlyNameHint">
+		<value>This field is read-only.</value>
+	</data>
+	<data name="ReadonlyBarcodeHint">
+		<value>Barcode is read-only.</value>
+	</data>
+</root>
