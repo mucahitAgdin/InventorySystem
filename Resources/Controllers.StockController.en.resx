@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="InvalidBarcodeLen" xml:space="preserve">
+    <value>Barcode must be 6–7 characters.</value>
+  </data>
+	<data name="ProductNotFound" xml:space="preserve">
+    <value>No product found with this barcode.</value>
+  </data>
+	<data name="MoveSuccess" xml:space="preserve">
+    <value>Transaction has been saved.</value>
+  </data>
+	<data name="MoveError" xml:space="preserve">
+    <value>An unexpected error occurred while saving.</value>
+  </data>
+</root>

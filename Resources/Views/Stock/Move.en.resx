@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="PageTitle">
+		<value>Stock Movement</value>
+	</data>
+	<data name="Header">
+		<value>Stock In / Out</value>
+	</data>
+	<data name="LookupHelp">
+		<value>Zebra DS3678 (HID) sends Enter at the end of scanning.</value>
+	</data>
+	<data name="ConfirmTransaction">
+		<value>Confirm Transaction</value>
+	</data>
+	<data name="BarcodePlaceholder">
+		<value>Please scan or type the barcode</value>
+	</data>
+	<data name="LocationLabel">
+		<value>Location</value>
+	</data>
+	<data name="LocationPlaceholder">
+		<value>Please select a location</value>
+	</data>
+	<data name="LocationHelp">
+		<value>Options: depot, office, out of stock</value>
+	</data>
+	<data name="DeliveredByLabel">
+		<value>Performed By (optional)</value>
+	</data>
+	<data name="NoteLabel">
+		<value>Note (optional)</value>
+	</data>
+</root>

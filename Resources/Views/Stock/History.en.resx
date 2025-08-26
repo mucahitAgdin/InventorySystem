@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="PageTitle">
+		<value>History</value>
+	</data>
+	<data name="Filter">
+		<value>Filter</value>
+	</data>
+	<data name="Clear">
+		<value>Clear</value>
+	</data>
+	<data name="ThId">
+		<value>#</value>
+	</data>
+	<data name="ThBarcode">
+		<value>Barcode</value>
+	</data>
+	<data name="ThType">
+		<value>Type</value>
+	</data>
+	<data name="ThQty">
+		<value>Quantity</value>
+	</data>
+	<data name="ThDeliveredBy">
+		<value>Delivered By</value>
+	</data>
+	<data name="ThNote">
+		<value>Note</value>
+	</data>
+	<data name="ThDate">
+		<value>Date</value>
+	</data>
+</root>

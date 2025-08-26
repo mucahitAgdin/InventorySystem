@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="PageTitle">
+		<value>Stok Hareketi</value>
+	</data>
+	<data name="Header">
+		<value>Stok Giriş / Çıkış</value>
+	</data>
+	<data name="LookupHelp">
+		<value>Zebra DS3678 (HID) tarayıcı okutma sonunda Enter gönderir.</value>
+	</data>
+	<data name="ConfirmTransaction">
+		<value>İşlemi Onayla</value>
+	</data>
+	<data name="BarcodePlaceholder">
+		<value>Lütfen barkodu okutun veya yazın</value>
+	</data>
+	<data name="LocationLabel">
+		<value>Lokasyon</value>
+	</data>
+	<data name="LocationPlaceholder">
+		<value>Lütfen lokasyon seçiniz</value>
+	</data>
+	<data name="LocationHelp">
+		<value>Seçenekler: depo, ofis, stok dışı</value>
+	</data>
+	<data name="DeliveredByLabel">
+		<value>İşlemi Yapan (opsiyonel)</value>
+	</data>
+	<data name="NoteLabel">
+		<value>Not (opsiyonel)</value>
+	</data>
+</root>

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="PageTitle">
+		<value>Barkod Oku &amp; Sorgula</value>
+	</data>
+	<data name="Header">
+		<value>Scan &amp; Lookup</value>
+	</data>
+	<data name="LookupHelp">
+		<value>Zebra DS3678 (HID): Okutma sonunda Enter gönderir.</value>
+	</data>
+	<data name="BtnLookup">
+		<value>Sorgula</value>
+	</data>
+	<data name="BtnMarkIn">
+		<value>Depoya Giriş İşaretle</value>
+	</data>
+	<data name="BtnMarkOut">
+		<value>Çıkış İşaretle</value>
+	</data>
+	<data name="DeliveredTo">
+		<value>Teslim Alan</value>
+	</data>
+	<data name="DeliveredBy">
+		<value>Teslim Eden</value>
+	</data>
+	<data name="Note">
+		<value>Not (opsiyonel)</value>
+	</data>
+	<data name="BtnConfirmOut">
+		<value>Çıkışı Onayla</value>
+	</data>
+	<data name="PlaceholderScan">
+		<value>Focus buradayken barkodu okutun…</value>
+	</data>
+</root>

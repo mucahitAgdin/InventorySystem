@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="PageTitle">
+		<value>Scan &amp; Lookup</value>
+	</data>
+	<data name="Header">
+		<value>Scan &amp; Lookup</value>
+	</data>
+	<data name="LookupHelp">
+		<value>Zebra DS3678 (HID): Sends Enter after scanning.</value>
+	</data>
+	<data name="BtnLookup">
+		<value>Lookup</value>
+	</data>
+	<data name="BtnMarkIn">
+		<value>Mark as IN (to Depot)</value>
+	</data>
+	<data name="BtnMarkOut">
+		<value>Mark as OUT</value>
+	</data>
+	<data name="DeliveredTo">
+		<value>Delivered To (person/unit)</value>
+	</data>
+	<data name="DeliveredBy">
+		<value>Delivered By</value>
+	</data>
+	<data name="Note">
+		<value>Note (optional)</value>
+	</data>
+	<data name="BtnConfirmOut">
+		<value>Confirm OUT</value>
+	</data>
+	<data name="PlaceholderScan">
+		<value>When focused, scan the barcode…</value>
+	</data>
+</root>

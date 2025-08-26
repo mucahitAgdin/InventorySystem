@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="PageTitle">
+		<value>Geçmiş</value>
+	</data>
+	<data name="Filter">
+		<value>Filtrele</value>
+	</data>
+	<data name="Clear">
+		<value>Temizle</value>
+	</data>
+	<data name="ThId">
+		<value>#</value>
+	</data>
+	<data name="ThBarcode">
+		<value>Barkod</value>
+	</data>
+	<data name="ThType">
+		<value>Tür</value>
+	</data>
+	<data name="ThQty">
+		<value>Miktar</value>
+	</data>
+	<data name="ThDeliveredBy">
+		<value>Veren</value>
+	</data>
+	<data name="ThNote">
+		<value>Açıklama</value>
+	</data>
+	<data name="ThDate">
+		<value>Tarih</value>
+	</data>
+</root>
