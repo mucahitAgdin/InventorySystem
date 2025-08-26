@@ -1,29 +1,50 @@
-﻿@{
-    ViewData["Title"] = "Scan & Lookup";
-    Layout = "_Layout"; // genel layout
+﻿@* Views/Stock/Scan.cshtml
+   Purpose:
+   - Scan & lookup page for barcode-based operations.
+   - Uses IViewLocalizer to pull strings from:
+     Resources/Views/Stock/Scan.{culture}.resx
+   Notes:
+   - NO structural changes beyond i18n; keeps your existing hidden forms and js hooks.
+   - Keep Program.cs i18n setup (AddViewLocalization, AddDataAnnotationsLocalization).
+*@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    // Page title comes from view resource file
+    ViewData["Title"] = Localizer["PageTitle"];
+    Layout = "_Layout"; // keep global layout
 }
 
 <div class="container py-4">
-    <h2 class="mb-3">Scan & Lookup</h2>
+    <h2 class="mb-3">@Localizer["Header"]</h2>
 
-    <!-- 🔹 HID tarayıcı klavye gibi yazar, Enter ile biter -->
+    <!-- 🔹 HID scanners type like a keyboard and send Enter at the end -->
     <form id="scanForm" class="mb-3" autocomplete="off">
+        @* Anti-forgery token for any future POST the JS may perform *@
         @Html.AntiForgeryToken()
+
         <div class="input-group input-group-lg">
-            <input id="barcodeInput" class="form-control"
-                   placeholder="Focus buradayken barkodu okutun…"
-                   autocomplete="off" autofocus />
-            <button class="btn btn-primary" type="submit">Lookup</button>
+            <input id="barcodeInput"
+                   class="form-control"
+                   placeholder="@Localizer["PlaceholderScan"]"
+                   autocomplete="off"
+                   autofocus />
+            <button class="btn btn-primary" type="submit">
+                @Localizer["BtnLookup"]
+            </button>
         </div>
-        <small class="text-muted">Zebra DS3678 (HID): Okutma sonunda Enter gönderir.</small>
+        <small class="text-muted d-block mt-1">
+            @Localizer["LookupHelp"]
+        </small>
     </form>
 
-    <!-- 🔹 Sonuç kartı -->
+    <!-- 🔹 Result panel (filled by scanner.js after /api/barcodes/lookup) -->
     <div id="resultPanel" class="d-none">
         <div class="card shadow-sm">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
+                        <!-- These containers are populated by JS -->
                         <h4 id="pName" class="mb-1"></h4>
                         <div id="pMeta" class="text-muted small"></div>
                         <div id="pSerial" class="mt-1 small"></div>
@@ -32,42 +53,50 @@
                 </div>
 
                 <hr />
-                <!-- 🔹 Mevcut /Stock/In ve /Stock/Out POST'larına submit -->
+
+                <!-- 🔹 Existing flows to mark IN or OUT (buttons enabled by JS) -->
                 <div class="row g-2">
                     <div class="col-md-6">
                         <button id="btnIn" class="btn btn-success w-100" disabled>
-                            Mark as IN (to Depot)
+                            @Localizer["BtnMarkIn"]
                         </button>
                     </div>
                     <div class="col-md-6">
                         <button id="btnOut" class="btn btn-warning w-100" disabled>
-                            Mark as OUT
+                            @Localizer["BtnMarkOut"]
                         </button>
                     </div>
                 </div>
 
-                <!-- OUT için ek alanlar -->
+                <!-- 🔹 Extra fields for OUT flow (revealed by JS when needed) -->
                 <div id="outForm" class="mt-3 d-none">
                     <div class="row g-2">
                         <div class="col-md-4">
-                            <input id="deliveredTo" class="form-control" placeholder="Delivered To (person/unit)" />
+                            <input id="deliveredTo" class="form-control"
+                                   placeholder="@Localizer["DeliveredTo"]" />
                         </div>
                         <div class="col-md-4">
-                            <input id="deliveredBy" class="form-control" placeholder="Delivered By" />
+                            <input id="deliveredBy" class="form-control"
+                                   placeholder="@Localizer["DeliveredBy"]" />
                         </div>
                         <div class="col-md-4">
-                            <input id="note" class="form-control" placeholder="Note (optional)" />
+                            <input id="note" class="form-control"
+                                   placeholder="@Localizer["Note"]" />
                         </div>
                     </div>
-                    <button id="btnOutConfirm" class="btn btn-warning mt-2">Confirm OUT</button>
+                    <button id="btnOutConfirm" class="btn btn-warning mt-2">
+                        @Localizer["BtnConfirmOut"]
+                    </button>
                 </div>
 
+                <!-- 🔹 JS feedback area (alerts, errors, success notes) -->
                 <div id="alerts" class="mt-3"></div>
             </div>
         </div>
     </div>
 
-    <!-- 🔹 Gizli formlar (mevcut controller’lara post) -->
+    <!-- 🔹 Hidden forms (keep as-is to post into existing controller actions) -->
+    @* IN: posts to /Stock/In (legacy flow kept for compatibility) *@
     <form id="formIn" method="post" action="/Stock/In" class="d-none">
         @Html.AntiForgeryToken()
         <input name="Barcode" />
@@ -75,6 +104,7 @@
         <input name="Note" />
     </form>
 
+    @* OUT: posts to /Stock/Out (legacy flow kept for compatibility) *@
     <form id="formOut" method="post" action="/Stock/Out" class="d-none">
         @Html.AntiForgeryToken()
         <input name="Barcode" />
@@ -85,5 +115,11 @@
 </div>
 
 @section Scripts {
+    @* scanner.js handles:
+       - debounce & Enter key
+       - /api/barcodes/lookup
+       - filling #resultPanel and enabling buttons
+       - submitting hidden forms for IN/OUT
+     *@
     <script src="~/js/scanner.js" asp-append-version="true"></script>
 }
