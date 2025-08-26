@@ -1,6 +1,7 @@
-﻿// Dosya: Models/StockTransaction.cs
-// Amaç: IN/OUT hareket logu. i18n: DataAnnotations mesajlarını resource anahtarlarıyla kullan.
-// Not: AddDataAnnotationsLocalization() açık olmalı. Anahtarlar Resources/Models.StockTransaction.{lang}.resx’ten gelir.
+﻿// File: Models/StockTransaction.cs
+// Purpose: IN/OUT transaction log.
+// i18n: Display/Validation messages are resource keys. Actual texts come from
+//       Resources/Models.StockTransaction.{culture}.resx via AddDataAnnotationsLocalization().
 
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +12,7 @@ namespace InventorySystem.Models
     {
         public int Id { get; set; }
 
-        // Display(Name) -> alan etiketi; ErrorMessage -> resource key (gerçek metin .resx’te)
+        // Display(Name) is a resource key; ErrorMessage values are also resource keys.
         [Display(Name = "Barcode")]
         [Required(ErrorMessage = "BarcodeRequired")]
         [StringLength(7, MinimumLength = 6, ErrorMessage = "BarcodeLength")]
@@ -27,9 +28,9 @@ namespace InventorySystem.Models
         public int Quantity { get; set; }
 
         [Display(Name = "TransactionDate")]
-        public DateTime TransactionDate { get; set; }
+        public DateTime TransactionDate { get; set; }  // Db default via HasDefaultValueSql("GETDATE()")
 
-        // 🔁 NEW: target location of the move (Depo/Ofis/Stok dışı)
+        // Target location (Depot/Office/Out-of-Stock). We keep the persisted text as TR domain value for now.
         [Display(Name = "Location")]
         [Required(ErrorMessage = "LocationRequired")]
         [StringLength(50, ErrorMessage = "LocationRequired")]
