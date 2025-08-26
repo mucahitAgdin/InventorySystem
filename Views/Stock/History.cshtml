@@ -1,37 +1,42 @@
 ﻿@using InventorySystem.Models
 @model IEnumerable<StockTransaction>
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Geçmiş";
+    ViewData["Title"] = Localizer["PageTitle"];
     var items = Model ?? Enumerable.Empty<StockTransaction>();
     string bc = ViewBag.Barcode as string ?? "";
 }
-<h2>Geçmiş</h2>
+
+<h2>@Localizer["PageTitle"]</h2>
 
 <form method="get" class="d-flex gap-2 mb-3">
-    <input name="barcode" class="form-control" placeholder="Barkod filtrele…" value="@bc" />
-    <button type="submit" class="btn btn-primary">Filtrele</button>
-    <a asp-action="History" class="btn btn-outline-secondary">Temizle</a>
+    <input name="barcode" class="form-control" placeholder="@Localizer["ThBarcode"]…" value="@bc" />
+    <button type="submit" class="btn btn-primary">@Localizer["Filter"]</button>
+    <a asp-action="History" class="btn btn-outline-secondary">@Localizer["Clear"]</a>
 </form>
 
 <table class="table table-striped table-hover align-middle">
     <thead>
         <tr>
-            <th>#</th>
-            <th>Barkod</th>
-            <th>Tür</th>
-            <th>Miktar</th>
-            <th>Alan</th>
-            <th>Veren</th>
-            <th>Açıklama</th>
-            <th>Tarih</th>
+            <th>@Localizer["ThId"]</th>
+            <th>@Localizer["ThBarcode"]</th>
+            <th>@Localizer["ThType"]</th>
+            <th>@Localizer["ThQty"]</th>
+            <th>@Localizer["ThDeliveredBy"]</th>
+            <th>@Localizer["ThNote"]</th>
+            <th>@Localizer["ThDate"]</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var t in items)
         {
-            <!-- enum karşılaştırma -->
-            <tr class="@(t.Type == TransactionType.Exit ? "table-warning" : "table-light")">
+            // Satır rengi i18n anahtarları sadece class adı için; değerler resx'te tutuluyor.
+            var rowClass = t.Type == TransactionType.Exit
+            ? Localizer["RowClassExit"].Value
+            : Localizer["RowClassEntry"].Value;
+
+            <tr class="@rowClass">
                 <td>@t.Id</td>
                 <td>@t.Barcode</td>
                 <td>@t.Type</td>
