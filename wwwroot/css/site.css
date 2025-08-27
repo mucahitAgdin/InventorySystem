@@ -1,4 +1,16 @@
-﻿:root {
+﻿/* ===================================================================
+   FORVIA InventorySystem — site.css (full)
+   - Mobile jank fix (bg fixed -> scroll)
+   - Navbar readability on phones
+   - Table horizontal scroll on small screens
+   - Language switch pinned to top-right on desktop
+   - Glass surfaces + brand tokens
+   =================================================================== */
+
+/* ------------------------------
+   🎨 Brand Tokens / CSS Variables
+   ------------------------------ */
+:root {
     /* Primary */
     --forvia-blue: #0024D3; /* Ana aksan ve CTA'lar */
     --forvia-light-blue: #00A9EB; /* İkincil CTA/hover */
@@ -13,47 +25,63 @@
     --forvia-teal: #00A8BF; /* info/nötr vurgu */
     /* Marka gradient (opsiyonel arka plan şeritleri) */
     --forvia-blue-grad: linear-gradient(135deg,#0024D3, #00A9EB);
+    /* MOVE sayfası renkleri */
+    --forvia-success: #00B48F; /* IN — success */
+    --forvia-danger: #F06473; /* OUT — danger  */
+    /* MOVE görünürlük */
+    --move-shadow: 0 14px 32px rgba(0,0,0,.16);
+    --move-ring: 0 0 0 .25rem rgba(0,169,235,.18); /* forvia-light-blue halkası */
 }
 
-/* 🔤 Genel yazı tipi ve arkaplan */
-/* load Open Sans in _Layout.cshtml head: <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap" rel="stylesheet"> */
+/* ---------------------------------
+   🔤 Global Typography & Background
+   --------------------------------- */
+/* _Layout.cshtml head içinde:
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap" rel="stylesheet"> */
+html, body {
+    height: 100%;
+}
 
 body {
     font-family: var(--forvia-font);
     background: url('/images/DesktopBackground_1680x1050_Epingles_FORVIA.png') no-repeat center center fixed;
-    /*background: url('/images/DesktopBackground_1680x1050_FeuxStop_FORVIA.png') no-repeat center center fixed;*/
-    /*background: url('/images/DesktopBackground_1680x1050_Lacets_FORVIA.png') no-repeat center center fixed;*/ /* or var(--forvia-bg) if no hero image */
+    /* alternatifler:
+  background: url('/images/DesktopBackground_1680x1050_FeuxStop_FORVIA.png') no-repeat center center fixed;
+  background: url('/images/DesktopBackground_1680x1050_Lacets_FORVIA.png') no-repeat center center fixed;
+  */
     color: #333;
     margin: 0;
     background-size: cover;
 }
 
-/* 🔷 Navbar başlangıçta şeffaf */
+/* --------------------
+   🔷 Top Navbar (Topbar)
+   -------------------- */
 .topbar {
-    background-color: transparent;
+    background-color: transparent; /* başlangıçta şeffaf */
     padding: 0.75rem 1rem;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     transition: background-color 0.3s ease, color 0.3s ease;
-    position: relative; z-index: 1000; 
-
+    position: relative;
+    z-index: 1000;
 }
 
-    /* 🧭 Navbar aktif olduğunda (mouse gelince) arkaplan beyaz olur */
+    /* aktif olduğunda (scroll/hover) arka plan beyaz */
     .topbar.active {
-        background-color: white;
+        background-color: #fff;
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    /* 🔗 Navbar linkleri - şeffafken beyaz, aktifken mavi */
+    /* linkler: şeffaf iken beyaz, aktifken mavi */
     .topbar .nav-link {
         position: relative;
-        color: white;
+        color: #fff;
         font-weight: 600;
         padding: 0.5rem 1rem;
         transition: color 0.3s ease;
     }
 
-        /* 🟦 Navbar link hover – mavi alt çizgi efekti */
+        /* hover alt çizgi efekti */
         .topbar .nav-link::after {
             content: "";
             position: absolute;
@@ -71,12 +99,12 @@ body {
             transform: scaleX(1);
         }
 
-    /* 🧢 Navbar aktif olduğunda link rengi mavi olur */
+    /* aktif olduğunda link rengi mavi */
     .topbar.active .nav-link {
         color: var(--forvia-blue) !important;
     }
 
-    /* 🧭 Navbar öğeleri ortalanır */
+    /* navbar öğeleri ortalanır */
     .topbar .navbar-nav {
         margin: 0 auto;
         display: flex;
@@ -84,7 +112,9 @@ body {
         align-items: center;
     }
 
-/* 📌 FORVIA Logosu ve yazısı */
+/* -------------------------------
+   📌 FORVIA Logo + Subheading text
+   ------------------------------- */
 .navbar-center-logo {
     display: flex;
     flex-direction: column;
@@ -95,41 +125,38 @@ body {
 
     .navbar-center-logo img {
         height: 36px;
-        margin-bottom: 0.25rem;
+        margin-bottom: .25rem;
     }
 
     .navbar-center-logo span {
-        font-size: 0.9rem;
+        font-size: .9rem;
         font-weight: 400;
         color: var(--forvia-blue);
         font-family: var(--forvia-font);
     }
 
-
-/* 📄 Sayfa içerikleri için yarı saydam blur arka plan */
+/* -------------------------------------
+   📄 Generic “glass” surface for pages
+   ------------------------------------- */
 .content-surface {
-   background: rgba(255, 255, 255, 0.85); /* beyaz yarı saydam */
-    backdrop-filter: blur(3px); /* blur efekti */
-    border-end-start-radius: 50px; /* köşeler yuvarlak */
-    padding: 20px; /* içerik boşluğu */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* hafif gölge */
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(3px);
+    border-end-start-radius: 50px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-
-/* ===== Move.cshtml özel stiller ===== */
-:root {
-    /* ...mevcut değişkenler... */
-    --forvia-success: #00B48F; /* IN — success */ /* FORVIA secondary */
-    --forvia-danger: #F06473; /* OUT — danger  */ /* FORVIA secondary */
-}
+/* -------------------------
+   ===== Move.cshtml Styles
+   ------------------------- */
 
 /* Tek tip kart yüzeyi */
 .move-card {
-    background: rgba(255, 255, 255, 0.85); /* beyaz yarı saydam */
-    backdrop-filter: blur(3px); /* blur efekti */
-    border-end-start-radius: 50px; /* köşeler yuvarlak */
-    padding: 20px; /* içerik boşluğu */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* hafif gölge */
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(3px);
+    border-end-start-radius: 50px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 /* Başlık renk varyantları */
@@ -157,7 +184,7 @@ body {
 }
 
     .btn-forvia-success:hover {
-        filter: brightness(0.92);
+        filter: brightness(.92);
     }
 
 .btn-forvia-danger {
@@ -167,7 +194,7 @@ body {
 }
 
     .btn-forvia-danger:hover {
-        filter: brightness(0.92);
+        filter: brightness(.92);
     }
 
 .btn-forvia-outline {
@@ -190,20 +217,19 @@ body {
     background: var(--forvia-danger);
 }
 
-/* ==== Compact Create Form (glass) ===================================== */
+/* -------------------------------
+   ==== Compact Create Form (glass)
+   ------------------------------- */
 .form-surface {
-    /* max 720px istersen 560 yapabilirsin */
-    max-width: 720px;
+    max-width: 720px; /* istersen 560 yap */
     margin: clamp(8px, 2vh, 24px) auto;
     padding: 16px 16px 18px;
     border-radius: 16px;
     border: 1px solid rgba(0,0,0,.06);
-    /* Glass effect */
     background: rgba(255,255,255,0.82);
     backdrop-filter: blur(5px);
     box-shadow: 0 12px 36px rgba(0,0,0,.18);
 }
-
     /* Form grid / spacing tweaks */
     .form-surface .row.g-2 {
         --bs-gutter-x: .75rem;
@@ -226,7 +252,6 @@ body {
     .form-surface .text-danger.small {
         font-size: .8rem;
     }
-
     /* Başlık ve butonlar */
     .form-surface h1.h4 {
         font-weight: 800;
@@ -243,7 +268,7 @@ body {
             filter: brightness(.92);
         }
 
-/* Küçük ekranlarda tek sütun, büyükte 2 sütun düzen */
+/* Breakpoints for the form surface */
 @media (min-width: 992px) {
     .form-surface {
         max-width: 900px;
@@ -257,131 +282,137 @@ body {
     }
 }
 
-/* Placeholder yazıları daha soluk görünür */
+/* Placeholder görünümü */
 ::placeholder {
-    color: #999 !important; /* açık gri */
-    font-size: 0.9em; /* biraz küçük */
-    opacity: 1; /* bazı tarayıcılar için */
+    color: #999 !important;
+    font-size: .9em;
+    opacity: 1;
 }
 
-
-/* ===== MOVE — görünürlük & okunabilirlik yükseltmesi (drop‑in) ===== */
-:root{
-  --move-shadow: 0 14px 32px rgba(0,0,0,.16);
-  --move-ring: 0 0 0 .25rem rgba(0,169,235,.18); /* forvia-light-blue halkası */
+/* ---------------------------------------------------
+   ===== MOVE — Görünürlük & okunabilirlik yükseltmesi
+   --------------------------------------------------- */
+.move-title {
+    font-weight: 800;
+    letter-spacing: .2px;
+    color: var(--forvia-blue);
+    text-shadow: 0 1px 0 rgba(255,255,255,.2);
 }
 
-/* Başlık daha belirgin */
-.move-title{
-  font-weight: 800;
-  letter-spacing: .2px;
-  color: var(--forvia-blue);
-  text-shadow: 0 1px 0 rgba(255,255,255,.2);
+/* Lookup bar */
+#scanForm .input-group {
+    background: rgba(255,255,255,.92);
+    border: 1.5px solid rgba(0,0,0,.06);
+    border-radius: 14px;
+    box-shadow: var(--move-shadow);
+    overflow: hidden;
 }
 
-/* Lookup bar: kalın çerçeve, hafif cam yüzey, büyük punto */
-#scanForm .input-group{
-  background: rgba(255,255,255,.92);
-  border: 1.5px solid rgba(0,0,0,.06);
-  border-radius: 14px;
-  box-shadow: var(--move-shadow);
-  overflow: hidden; /* buton/inputs yuvarlağa uysun */
+#barcodeInput.form-control {
+    height: 56px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: .3px;
+    color: #1a2230;
+    border: none;
 }
 
-#barcodeInput.form-control{
-  height: 56px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: .3px;
-  color: #1a2230;
-  border: none;
-}
-#barcodeInput.form-control:focus{
-  box-shadow: var(--move-ring);
+    #barcodeInput.form-control:focus {
+        box-shadow: var(--move-ring);
+    }
+
+/* Lookup butonları */
+.btn-forvia-primary {
+    background: var(--forvia-blue);
+    border-color: var(--forvia-blue);
+    color: #fff;
+    font-weight: 800;
 }
 
-/* Lookup butonu tonları (Move.cshtml'de btn-forvia-accent kullanılıyor) */
-.btn-forvia-primary{
-  background: var(--forvia-blue);
-  border-color: var(--forvia-blue);
-  color: #fff; font-weight: 800;
-}
-.btn-forvia-primary:hover{ filter: brightness(.92); }
+    .btn-forvia-primary:hover {
+        filter: brightness(.92);
+    }
 
-.btn-forvia-accent{
-  background: var(--forvia-light-blue);
-  border-color: var(--forvia-light-blue);
-  color:#fff; font-weight: 800;
-}
-.btn-forvia-accent:hover{ filter: brightness(.92); }
-
-/* Ürün bilgi paneli: sticky, sol şerit, güçlü gölge, animasyon */
-#resultPanel{
-  position: sticky; top: 12px; z-index: 2;
-  border: 1px solid rgba(0,0,0,.06);
-  border-left: 6px solid var(--forvia-light-blue);
-  background: rgba(255,255,255,.96);
-  backdrop-filter: blur(2px);
-  border-radius: 14px;
-  box-shadow: var(--move-shadow);
-  transform: translateY(0);
-  animation: moveFadeIn .18s ease;
-}
-@keyframes moveFadeIn{ from{ opacity:0; transform:translateY(4px) } to{ opacity:1; transform:translateY(0) } }
-
-/* Panel içi: iki kolon — metin solda, durum rozeti sağda */
-#resultPanel .card-body{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: center;
+.btn-forvia-accent {
+    background: var(--forvia-light-blue);
+    border-color: var(--forvia-light-blue);
+    color: #fff;
+    font-weight: 800;
 }
 
-/* Ürün adı: büyük & kalın */
-#pName{
-  font-size: 1.25rem; /* ~20px */
-  font-weight: 800;
-  line-height: 1.25;
-  color: #111;
+    .btn-forvia-accent:hover {
+        filter: brightness(.92);
+    }
+
+/* Ürün bilgi paneli */
+#resultPanel {
+    position: sticky;
+    top: 12px;
+    z-index: 2;
+    border: 1px solid rgba(0,0,0,.06);
+    border-left: 6px solid var(--forvia-light-blue);
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(2px);
+    border-radius: 14px;
+    box-shadow: var(--move-shadow);
+    transform: translateY(0);
+    animation: moveFadeIn .18s ease;
 }
 
-/* Tip/Marka/Model meta satırı */
-#pMeta{
-  margin-top: 2px;
-  font-size: .95rem;
-  color: #4f5b6a;
+@keyframes moveFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
 }
 
-/* Seri no: monospaced chip */
-#pSerial{
-  margin-top: 6px;
-  display: inline-block;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .2px;
-  background: rgba(0,0,0,.05);
-  color: #1b2533;
-  padding: 2px 8px;
-  border-radius: 6px;
+/* Panel grid */
+#resultPanel .card-body {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
 }
 
-/* Stok rozeti: daha büyük, okunur, kabartmalı */
-#pStockBadge{
-  font-size: .9rem;
-  font-weight: 800;
-  letter-spacing: .3px;
-  padding: .55rem .8rem;
-  border: 0;
-  color: #fff;  /* scanner.js zaten arkaplan rengini set ediyor */
-  box-shadow: 0 6px 16px rgba(0,0,0,.14);
+/* Ürün adı */
+#pName {
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #111;
 }
-
-/* IN/OUT kartları: cam yüzey & header tipografisi */
-/* Tek kart başlığı gradient ve kalın tipografi */
-.move-card .card-header {
+/* Tip/Marka/Model meta */
+#pMeta {
+    margin-top: 2px;
+    font-size: .95rem;
+    color: #4f5b6a;
+}
+/* Seri no chip */
+#pSerial {
+    margin-top: 6px;
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .2px;
+    background: rgba(0,0,0,.05);
+    color: #1b2533;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+/* Stok rozeti */
+#pStockBadge {
+    font-size: .9rem;
     font-weight: 800;
     letter-spacing: .3px;
-    font-size: 1rem;
+    padding: .55rem .8rem;
+    border: 0;
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(0,0,0,.14);
 }
 
 /* Form alanları */
@@ -390,9 +421,7 @@ body {
     color: #233044;
 }
 
-.move-page .form-control,
-.move-page .form-select,
-.move-page textarea {
+.move-page .form-control, .move-page .form-select, .move-page textarea {
     border: 1.5px solid rgba(0,0,0,.08);
 }
 
@@ -403,7 +432,7 @@ body {
         box-shadow: var(--move-ring);
     }
 
-/* Select (Location) chip gibi dursun */
+/* Select chip-like */
 .form-select {
     padding-top: .45rem;
     padding-bottom: .45rem;
@@ -411,11 +440,14 @@ body {
     color: #233044;
 }
 
-
 /* Yardım metni */
-.move-help{ color:#2b2b2b; opacity:.75; font-weight:600; }
+.move-help {
+    color: #2b2b2b;
+    opacity: .75;
+    font-weight: 600;
+}
 
-/* === Ek: Ürün bilgisi “chip” tipografisi ve hover ipucu === */
+/* Ürün bilgisi “chip” ve tooltip */
 .p-info-row {
     display: flex;
     gap: 10px;
@@ -432,7 +464,7 @@ body {
     background: rgba(0,0,0,.05);
     border: 1px solid rgba(0,0,0,.06);
     font-weight: 700;
-    font-size: 1rem; /* yazılar daha büyük */
+    font-size: 1rem;
     color: #233044;
     line-height: 1;
     box-shadow: 0 2px 6px rgba(0,0,0,.06) inset;
@@ -453,7 +485,7 @@ body {
         background: rgba(0,0,0,.07);
         box-shadow: 0 0 0 .2rem rgba(0,169,235,.12);
     }
-    /* CSS‑only tooltip (soluk açıklama) */
+    /* CSS-only tooltip */
     .info-chip[data-help]:hover::after {
         content: attr(data-help);
         position: absolute;
@@ -473,7 +505,9 @@ body {
         box-shadow: 0 6px 18px rgba(0,0,0,.18);
     }
 
-/* ===== Language Switch (top-right segmented box) ======================= */
+/* --------------------------------------------
+   ===== Language Switch (segmented pill switch)
+   -------------------------------------------- */
 .lang-box {
     display: inline-flex;
     align-items: center;
@@ -481,7 +515,7 @@ body {
     border: 1.6px solid rgba(255,255,255,.85); /* transparent topbar iken beyaz çerçeve */
     border-radius: 12px;
     overflow: hidden;
-    background: rgba(255,255,255,.08); /* hafif cam efekti */
+    background: rgba(255,255,255,.08);
     backdrop-filter: blur(4px);
     box-shadow: 0 6px 18px rgba(0,0,0,.16);
 }
@@ -511,20 +545,19 @@ body {
         transform: translateY(1px);
     }
 
-    /* Aktif dil */
     .lang-btn.is-active {
         background: var(--forvia-light-blue);
         color: #fff;
     }
 
-/* Topbar aktif olduğunda (site.css'te .topbar.active) tema terslenir */
+/* topbar active iken tema terslenir */
 .topbar.active .lang-box {
-    border-color: rgba(0,36,211,.35); /* forvia-blue %35 */
-    background: rgba(0,169,235,.10); /* light-blue %10 */
+    border-color: rgba(0,36,211,.35);
+    background: rgba(0,169,235,.10);
 }
 
 .topbar.active .lang-btn {
-    color: var(--forvia-blue); /* aktif topbar metni mavi */
+    color: var(--forvia-blue);
 }
 
     .topbar.active .lang-btn.is-active {
@@ -532,7 +565,7 @@ body {
         color: #fff;
     }
 
-/* Küçük ekran: menü içine sığması için biraz incelt */
+/* Küçük ekran: buton boyları */
 @media (max-width: 576px) {
     .lang-btn {
         min-width: 42px;
@@ -542,5 +575,124 @@ body {
 
     .lang-box {
         border-radius: 10px;
+    }
+}
+
+/* ==========================================================
+   📱 MOBILE FIRST FIXES — görünürlük ve performans iyileştirmesi
+   ========================================================== */
+@media (max-width: 576px) {
+    /* FIX: Mobile background jank — shorthand fixed yerine scroll */
+    body {
+        background-attachment: scroll !important; /* 🛠️ telefonlarda takılmayı engeller */
+        background-position: center top;
+        background-size: cover;
+    }
+
+    /* FIX: Transparent navbar over busy bg — okunabilirlik */
+    .topbar {
+        background: rgba(255,255,255,.92) !important; /* yarı opak beyaz */
+        box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+
+        .topbar .nav-link {
+            color: var(--forvia-blue) !important;
+        }
+
+            .topbar .nav-link::after {
+                background-color: var(--forvia-blue);
+            }
+
+    /* Language buttons mobil tema uyumu */
+    .lang-box {
+        border-color: rgba(0,36,211,.25);
+        background: rgba(0,169,235,.10);
+    }
+
+    .lang-btn {
+        color: var(--forvia-blue);
+    }
+
+        .lang-btn.is-active {
+            background: var(--forvia-blue);
+            color: #fff;
+        }
+
+    /* FIX: Content readability */
+    .content-surface {
+        background: rgba(255,255,255,.92);
+        backdrop-filter: blur(4px);
+    }
+
+    /* FIX: Wide tables — yatay scroll */
+    table.table {
+        display: block; /* scroll için block container */
+        width: 100%;
+        overflow-x: auto; /* yatay kaydırma */
+        -webkit-overflow-scrolling: touch;
+        background: rgba(255,255,255,.96);
+        border-radius: 10px;
+    }
+
+        table.table thead, table.table tbody, table.table tr,
+        table.table td, table.table th {
+            white-space: nowrap; /* sütunları daraltma, kaydır */
+        }
+
+    /* Form kompaktlığı */
+    .move-page .form-control, .move-page .form-select {
+        font-size: .95rem;
+    }
+}
+
+/* ==================================================
+   💻 DESKTOP — Language switch'i sağ-üstte sabitle
+   ================================================== */
+@media (min-width: 992px) {
+    .topbar {
+        position: sticky; /* header üstte kalsın */
+        top: 0;
+        z-index: 1000;
+    }
+        /* nav merkezde kalır */
+        .topbar .navbar-nav {
+            justify-content: center;
+        }
+
+        /* language switch sağ-üst köşe */
+        .topbar .lang-box {
+            position: absolute; /* 🛠️ yeni: sabitleme */
+            right: max(16px, env(safe-area-inset-right));
+            top: max(8px, env(safe-area-inset-top));
+            border-color: rgba(0,36,211,.35);
+            background: rgba(255,255,255,.9);
+            backdrop-filter: blur(6px);
+        }
+
+        .topbar .lang-btn {
+            color: var(--forvia-blue);
+        }
+
+            .topbar .lang-btn.is-active {
+                background: var(--forvia-blue);
+                color: #fff;
+            }
+}
+
+/* -------------------
+   🌐 Global Utilities
+   ------------------- */
+html, body {
+    overflow-x: hidden;
+}
+/* yatay taşmayı önle */
+table.table {
+    background: rgba(255,255,255,.9);
+}
+/* tablo kontrastı */
+@media (min-width: 992px) {
+    .content-surface {
+        background: rgba(255,255,255,.88);
+        backdrop-filter: blur(5px);
     }
 }
