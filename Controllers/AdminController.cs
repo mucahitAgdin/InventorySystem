@@ -46,7 +46,7 @@ namespace InventorySystem.Controllers
             if (admin == null)
             {
                 // i18n: use resx key "InvalidCredentials"
-                ViewBag.Error = _localizer["InvalidCredentials"];
+                ViewBag.Error = _localizer["InvalidCredentials"].Value; // FIX: ViewBag'a da string koymak tutarlılık sağlar
                 return View(model);
             }
 

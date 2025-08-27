@@ -1,9 +1,7 @@
-using InventorySystem.Models;
+﻿using InventorySystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Http;
 
 namespace InventorySystem.Controllers
 {
@@ -32,14 +30,7 @@ namespace InventorySystem.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            if (HttpContext.Session.GetString("IsAdmin") != "true")
-            {
-                context.Result = RedirectToAction("Login", "Admin");
-            }
-            base.OnActionExecuting(context);
-        }
+        // NOTE: Eski OnActionExecuting kaldırıldı. // FIX: Cookie auth ile çakışma engellendi.
 
         public IActionResult SetLanguage(string culture, string returnUrl = "/")
         {
@@ -50,6 +41,5 @@ namespace InventorySystem.Controllers
             );
             return LocalRedirect(returnUrl);
         }
-
     }
 }
