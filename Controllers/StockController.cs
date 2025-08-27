@@ -21,6 +21,8 @@ namespace InventorySystem.Controllers
         private readonly ILogger<StockController> _logger;
         private readonly IStringLocalizer<StockController> _localizer;
 
+        private string T(string key, params object[] args) => _localizer[key, args].Value; // FIX: TempData = string
+
         public StockController(
             ApplicationDbContext context,
             ILogger<StockController> logger,
@@ -49,14 +51,14 @@ namespace InventorySystem.Controllers
             var barcode = (vm.Barcode ?? "").Trim();
             if (barcode.Length < 6 || barcode.Length > 7)
             {
-                ModelState.AddModelError(nameof(vm.Barcode), _localizer["InvalidBarcodeLen"]);
+                ModelState.AddModelError(nameof(vm.Barcode), T("InvalidBarcodeLen")); // FIX: .Value
                 return View("Move", vm);
             }
 
             var p = await _context.Products.FirstOrDefaultAsync(x => x.Barcode == barcode);
             if (p is null)
             {
-                ModelState.AddModelError(nameof(vm.Barcode), _localizer["ProductNotFound"]);
+                ModelState.AddModelError(nameof(vm.Barcode), T("ProductNotFound")); // FIX: .Value
                 return View("Move", vm);
             }
 
@@ -95,13 +97,13 @@ namespace InventorySystem.Controllers
                     });
 
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = _localizer["MoveSuccess"];
+                    TempData["Success"] = T("MoveSuccess"); // FIX: string
                     return RedirectToAction("All", "Product");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Confirm move failed for {Barcode}", barcode);
-                    TempData["Error"] = _localizer["MoveError"];
+                    TempData["Error"] = T("MoveError"); // FIX
                     return View("Move", vm);
                 }
             }
