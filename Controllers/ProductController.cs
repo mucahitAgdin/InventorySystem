@@ -21,6 +21,9 @@ namespace InventorySystem.Controllers
         // 🌍 Çoklu dil desteği için localizer
         private readonly IStringLocalizer<ProductController> _localizer;
 
+        // Küçük yardımcı: LocalizedString → string
+        private string T(string key, params object[] args) => _localizer[key, args].Value; // FIX: TempData için hep string
+
         // Constructor → Dependency Injection
         public ProductController(ApplicationDbContext context,
                                  ILogger<ProductController> logger,
@@ -163,7 +166,7 @@ namespace InventorySystem.Controllers
         {
             if (input is null) return BadRequest();
 
-            // Basit validasyon örnekleri (sabit metinler i18n yapılmadı → ModelState default kalsın)
+            // Basit validasyon örnekleri
             if (string.IsNullOrWhiteSpace(input.Barcode))
                 ModelState.AddModelError(nameof(input.Barcode), "Barcode is required.");
 
@@ -199,14 +202,13 @@ namespace InventorySystem.Controllers
                 await _context.Products.AddAsync(input);
                 await _context.SaveChangesAsync();
 
-                // 🌍 Lokalize mesaj
-                TempData["Success"] = _localizer["CreateSuccess"];
+                TempData["Success"] = T("CreateSuccess"); // FIX: LocalizedString yerine string
                 return RedirectToAction(nameof(All));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Create Product failed for {@Input}", input);
-                TempData["Error"] = _localizer["CreateError"];
+                TempData["Error"] = T("CreateError"); // FIX
                 return View(input);
             }
         }
@@ -261,7 +263,7 @@ namespace InventorySystem.Controllers
                 _context.Entry(input).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = _localizer["UpdateSuccess"];
+                TempData["Success"] = T("UpdateSuccess"); // FIX
                 return RedirectToAction(nameof(All));
             }
             catch (DbUpdateConcurrencyException cex)
@@ -270,13 +272,13 @@ namespace InventorySystem.Controllers
                     return NotFound();
 
                 _logger.LogError(cex, "Concurrency error on Edit for Id={Id}", id);
-                TempData["Error"] = _localizer["UpdateConcurrencyError"];
+                TempData["Error"] = T("UpdateConcurrencyError"); // FIX
                 return View(input);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Edit Product failed for Id={Id}", id);
-                TempData["Error"] = _localizer["UpdateError"];
+                TempData["Error"] = T("UpdateError"); // FIX
                 return View(input);
             }
         }
@@ -295,13 +297,13 @@ namespace InventorySystem.Controllers
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = _localizer["DeleteSuccess"];
+                TempData["Success"] = T("DeleteSuccess"); // FIX
                 return RedirectToAction(nameof(All));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Delete Product failed for Id={Id}", id);
-                TempData["Error"] = _localizer["DeleteError"];
+                TempData["Error"] = T("DeleteError"); // FIX
                 return RedirectToAction(nameof(All));
             }
         }
