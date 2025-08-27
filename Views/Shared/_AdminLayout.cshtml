@@ -9,6 +9,7 @@
     // Aktif UI dili (tr/en)
     var rqf = Context.Features.Get<IRequestCultureFeature>();
     var current = rqf?.RequestCulture.UICulture.TwoLetterISOLanguageName ?? "tr";
+    var back = (Context?.Request?.Path.Value ?? "/") + (Context?.Request?.QueryString.Value ?? "");
 }
 
 <!DOCTYPE html>
@@ -45,8 +46,8 @@
             flex-direction: column;
             min-height: 100vh;
             background:
-            /* üstte hafif koyu overlay */
-            linear-gradient(0deg, rgba(0,0,0,.28), rgba(0,0,0,.28)), url('/images/DesktopBackground_1680x1050_Epingles_FORVIA.png') no-repeat center center fixed;
+              linear-gradient(0deg, rgba(0,0,0,.28), rgba(0,0,0,.28)),
+              url('/images/DesktopBackground_1680x1050_Epingles_FORVIA.png') no-repeat center center fixed;
             background-size: cover;
             background-color: #0b0b0f;
         }
@@ -56,19 +57,17 @@
             padding: 22px 0 8px;
             text-align: center;
         }
-
-            .brand-strip .brand {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: .5rem;
-                text-decoration: none;
-            }
-
-                .brand-strip .brand img {
-                    height: 64px;
-                    max-width: 80vw;
-                }
+        .brand-strip .brand {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            text-decoration: none;
+        }
+        .brand-strip .brand img {
+            height: 64px;
+            max-width: 80vw;
+        }
 
         /* İçerik alanı */
         main {
@@ -90,37 +89,25 @@
             backdrop-filter: blur(3px);
             background: rgba(255,255,255,.08); /* şeffaflık: görünüm aynı kalsın */
         }
-
-            .admin-surface .form-control:focus,
-            .admin-surface .form-select:focus {
-                border-color: var(--forvia-blue-2);
-                box-shadow: 0 0 0 .25rem rgba(0,169,235,.15);
-            }
-
-            .admin-surface .btn-primary {
-                background: var(--forvia-blue);
-                border-color: var(--forvia-blue);
-                font-weight: 700;
-                letter-spacing: .2px;
-            }
-
-                .admin-surface .btn-primary:hover {
-                    background: #001db0;
-                    border-color: #001db0;
-                }
-
-        footer.footer {
-            color: #ffffffd9;
+        .admin-surface .form-control:focus,
+        .admin-surface .form-select:focus {
+            border-color: var(--forvia-blue-2);
+            box-shadow: 0 0 0 .25rem rgba(0,169,235,.15);
+        }
+        .admin-surface .btn-primary {
+            background: var(--forvia-blue);
+            border-color: var(--forvia-blue);
+            font-weight: 700;
+            letter-spacing: .2px;
+        }
+        .admin-surface .btn-primary:hover {
+            background: #001db0;
+            border-color: #001db0;
         }
 
-            footer.footer a {
-                color: #fff;
-                text-decoration: underline;
-            }
-
-                footer.footer a:hover {
-                    opacity: .85;
-                }
+        footer.footer { color: #ffffffd9; }
+        footer.footer a { color: #fff; text-decoration: underline; }
+        footer.footer a:hover { opacity: .85; }
 
         /* Toast-like TempData alerts */
         .fx-alert {
@@ -134,11 +121,9 @@
         }
 
         /* Yumuşak dış boşluk */
-        .main-pad {
-            padding: clamp(10px, 2vw, 20px);
-        }
+        .main-pad { padding: clamp(10px, 2vw, 20px); }
 
-        /* Dil anahtarı: UI akışını bozmamak için fixed sağ üst */
+        /* Dil anahtarı: fixed sağ üst — modern cam kutu */
         .lang-switcher {
             position: fixed;
             top: 10px;
@@ -146,10 +131,23 @@
             z-index: 1200;
             backdrop-filter: blur(6px);
         }
-
-            .lang-switcher select {
-                min-width: 120px;
-            }
+        .lang-box{
+            display:inline-flex; align-items:center; gap:0;
+            border:1.6px solid rgba(255,255,255,.85);
+            border-radius:12px; overflow:hidden;
+            background:rgba(255,255,255,.08);
+            box-shadow:0 6px 18px rgba(0,0,0,.16);
+        }
+        .lang-btn{
+            display:inline-flex; align-items:center; justify-content:center;
+            min-width:48px; height:36px; padding:0 .8rem;
+            font-weight:800; letter-spacing:.4px; text-transform:uppercase;
+            text-decoration:none; user-select:none; border:0; color:#fff;
+            transition: background .15s ease, color .15s ease, transform .05s ease;
+        }
+        .lang-btn:hover{ background: rgba(255,255,255,.14); }
+        .lang-btn:active{ transform: translateY(1px); }
+        .lang-btn.is-active{ background: var(--forvia-blue-2); color:#fff; }
     </style>
 
     @await RenderSectionAsync("Styles", required: false)
@@ -157,17 +155,19 @@
 <body>
     <!-- Dil seçici (fixed) — UI düzenini değiştirmez -->
     <div class="lang-switcher">
-        <form asp-controller="Language" asp-action="Set" method="post" class="d-inline">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-            <select name="culture" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="tr" selected="@(current == "tr" ? "selected" : null)">Türkçe</option>
-                <option value="en" selected="@(current == "en" ? "selected" : null)">English</option>
-            </select>
-            <noscript><button class="btn btn-sm btn-primary">@Localizer["ChangeLanguage"]</button></noscript>
-        </form>
+        <div class="lang-box">
+            <a class="lang-btn @(current == "tr" ? "is-active" : "")"
+               asp-controller="Language" asp-action="Set" asp-route-culture="tr"
+               asp-route-returnUrl="@back">
+                TR
+            </a>
+            <a class="lang-btn @(current == "en" ? "is-active" : "")"
+               asp-controller="Language" asp-action="Set" asp-route-culture="en"
+               asp-route-returnUrl="@back">
+                EN
+            </a>
+        </div>
     </div>
-
     <!-- Logo: ortada ve büyük -->
     <div class="container brand-strip">
         <a class="brand" asp-controller="Admin" asp-action="Login">
@@ -185,7 +185,7 @@
 
     <footer class="footer text-center small mt-auto py-3">
         &copy; @DateTime.Now.Year - InventorySystem -
-        <a asp-controller="Home" asp-action="Privacy">@Localizer["Privacy", "Gizlilik"]</a>
+        <a asp-controller="Home" asp-action="Privacy">@Localizer["Privacy"]</a>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -472,3 +472,75 @@ body {
         z-index: 5;
         box-shadow: 0 6px 18px rgba(0,0,0,.18);
     }
+
+/* ===== Language Switch (top-right segmented box) ======================= */
+.lang-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border: 1.6px solid rgba(255,255,255,.85); /* transparent topbar iken beyaz çerçeve */
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255,255,255,.08); /* hafif cam efekti */
+    backdrop-filter: blur(4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.16);
+}
+
+.lang-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    height: 36px;
+    padding: 0 .8rem;
+    font-weight: 800;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    text-decoration: none;
+    user-select: none;
+    border: 0;
+    color: #fff; /* transparent topbar metni beyaz */
+    transition: background .15s ease, color .15s ease, transform .05s ease;
+}
+
+    .lang-btn:hover {
+        background: rgba(255,255,255,.14);
+    }
+
+    .lang-btn:active {
+        transform: translateY(1px);
+    }
+
+    /* Aktif dil */
+    .lang-btn.is-active {
+        background: var(--forvia-light-blue);
+        color: #fff;
+    }
+
+/* Topbar aktif olduğunda (site.css'te .topbar.active) tema terslenir */
+.topbar.active .lang-box {
+    border-color: rgba(0,36,211,.35); /* forvia-blue %35 */
+    background: rgba(0,169,235,.10); /* light-blue %10 */
+}
+
+.topbar.active .lang-btn {
+    color: var(--forvia-blue); /* aktif topbar metni mavi */
+}
+
+    .topbar.active .lang-btn.is-active {
+        background: var(--forvia-blue);
+        color: #fff;
+    }
+
+/* Küçük ekran: menü içine sığması için biraz incelt */
+@media (max-width: 576px) {
+    .lang-btn {
+        min-width: 42px;
+        height: 34px;
+        padding: 0 .6rem;
+    }
+
+    .lang-box {
+        border-radius: 10px;
+    }
+}

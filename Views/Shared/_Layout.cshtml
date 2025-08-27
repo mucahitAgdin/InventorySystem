@@ -3,6 +3,10 @@
 }
 @using System.Globalization
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName?.ToLowerInvariant() ?? "tr";
+    var back = (Context?.Request?.Path.Value ?? "/") + (Context?.Request?.QueryString.Value ?? "");
+}
 
 <!DOCTYPE html>
 <html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
@@ -55,6 +59,22 @@
                             <a class="nav-link" asp-controller="Stock" asp-action="History">
                                 @Localizer["Nav_History"]
                             </a>
+                        </li>
+
+                        <!-- 🔹 Language Switch (top-right box) -->
+                        <li class="nav-item ms-lg-3">
+                            <div class="lang-box">
+                                <a class="lang-btn @(lang == "tr" ? "is-active" : "")"
+                                   asp-controller="Language" asp-action="Set"
+                                   asp-route-culture="tr" asp-route-returnUrl="@back">
+                                    TR
+                                </a>
+                                <a class="lang-btn @(lang == "en" ? "is-active" : "")"
+                                   asp-controller="Language" asp-action="Set"
+                                   asp-route-culture="en" asp-route-returnUrl="@back">
+                                    EN
+                                </a>
+                            </div>
                         </li>
                     </ul>
                 </div>
