@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="BrandAlt" xml:space="preserve">
+    <value>Logo</value>
+  </data>
+  <data name="Nav_AllProducts" xml:space="preserve">
+    <value>Tüm Ürünler</value>
+  </data>
+  <data name="Nav_CreateProduct" xml:space="preserve">
+    <value>Ürün Ekle</value>
+  </data>
+  <data name="Nav_StockOps" xml:space="preserve">
+    <value>Stok İşlemleri</value>
+  </data>
+  <data name="Nav_History" xml:space="preserve">
+    <value>Geçmiş</value>
+  </data>
+  <data name="Footer_Privacy" xml:space="preserve">
+    <value>Gizlilik</value>
+  </data>
+</root>
