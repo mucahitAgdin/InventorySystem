@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace InventorySystem.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate_2025 : Migration
+    public partial class initial_started8272025 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
