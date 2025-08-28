@@ -1,51 +1,108 @@
 ﻿// site.js
-// site.js
+// =======================================================
+// NAVBAR / LOGO — mobile friendly (hover'suz cihazlar için)
+// =======================================================
+
+// Genel seçimler
 const navbar = document.querySelector('.topbar');
 // hem klasik marka hem de merkezdeki logo için geniş arama
 const logoImg = document.querySelector('.navbar-brand img, .navbar-center-logo img');
 
 const WHITE_LOGO = '/images/faurecia_inspiring_white.png';
-const BLUE_LOGO  = '/images/faurecia_inspiring_blue.png';
+const BLUE_LOGO = '/images/faurecia_inspiring_blue.png';
 
 function setLogo(src) {
-  if (logoImg) logoImg.src = src;
+    if (logoImg && logoImg.src !== location.origin + src && !logoImg.src.endsWith(src)) {
+        logoImg.src = src;
+    }
 }
 
-// Başlangıç: transparent navbar ise beyaz logo
-if (navbar) {
-  if (!navbar.classList.contains('active')) {
-    setLogo(WHITE_LOGO);
-  }
+// === Cihaz özelliklerini tespit et ===
+// "hover: none" + "pointer: coarse" → tipik mobil/tablet
+const mqMobile = window.matchMedia('(hover: none) and (pointer: coarse)');
+let IS_MOBILE = mqMobile.matches;
 
-  // Hover ile aktif/pasif
-  navbar.addEventListener('mouseenter', () => {
-    navbar.classList.add('active');
-    setLogo(BLUE_LOGO);   // beyaz zemin -> mavi logo
-  });
+// ⚠️ iOS Safari'de orientation / resize değişince state güncelle
+mqMobile.addEventListener?.('change', (e) => {
+    IS_MOBILE = e.matches;
+    applyNavbarMode();
+});
 
-  navbar.addEventListener('mouseleave', () => {
-    // Eğer scroll ile aktif tutulmuyorsa çıkar
-    if (window.scrollY < 20) {
-      navbar.classList.remove('active');
-      setLogo(WHITE_LOGO); // koyu/şeffaf zemin -> beyaz logo
-    }
-  });
+function applyNavbarMode() {
+    if (!navbar) return;
 
-  // Opsiyonel: sayfa kayınca header beyazda kalsın
-  const onScroll = () => {
-    if (window.scrollY >= 20) {
-      navbar.classList.add('active');
-      setLogo(BLUE_LOGO);
+    if (IS_MOBILE) {
+        // 📱 Mobil: hover yok → her zaman aktif header + mavi logo
+        navbar.classList.add('active');     // (CSS tarafında mobilde zaten yarı opak beyaz)
+        setLogo(BLUE_LOGO);
+
+        // Mobilde gereksiz hover/pointer event’larını temizle
+        window.removeEventListener('scroll', onScroll, { passive: true });
+
+        // Küçük güvenlik: scroll’da da aktif kalsın
+        window.addEventListener('scroll', () => {
+            if (!navbar.classList.contains('active')) navbar.classList.add('active');
+            setLogo(BLUE_LOGO);
+        }, { passive: true });
+
     } else {
-      navbar.classList.remove('active');
-      setLogo(WHITE_LOGO);
+        // 💻 Masaüstü: eski davranış (hover + scroll)
+        // başlangıç durumu
+        if (window.scrollY >= 20) {
+            navbar.classList.add('active');
+            setLogo(BLUE_LOGO);
+        } else {
+            navbar.classList.remove('active');
+            setLogo(WHITE_LOGO);
+        }
+
+        // hover için pointer event (mouse/touch hepsinde çalışır, mobilde tetiklenmez)
+        const enterEv = 'pointerenter';
+        const leaveEv = 'pointerleave';
+
+        navbar.addEventListener(enterEv, () => {
+            navbar.classList.add('active');
+            setLogo(BLUE_LOGO);   // beyaz zemin -> mavi logo
+        });
+
+        navbar.addEventListener(leaveEv, () => {
+            if (window.scrollY < 20) {
+                navbar.classList.remove('active');
+                setLogo(WHITE_LOGO); // koyu/şeffaf zemin -> beyaz logo
+            }
+        });
+
+        window.addEventListener('scroll', onScroll, { passive: true });
     }
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll(); // ilk yüklemede durumu ayarla
 }
+
+// Scroll davranışını ayrı fonksiyon yaptık ki mobil/desktop arasında aç/kapat kolay olsun
+function onScroll() {
+    if (!navbar) return;
+    if (window.scrollY >= 20) {
+        navbar.classList.add('active');
+        setLogo(BLUE_LOGO);
+    } else {
+        navbar.classList.remove('active');
+        setLogo(WHITE_LOGO);
+    }
+}
+
+// İlk uygulama
+applyNavbarMode();
+
+// Resize’da layout modu değişmişse tekrar uygula (ör. pencere daraltma/genişletme)
+window.addEventListener('resize', (() => {
+    let t;
+    return () => {
+        clearTimeout(t);
+        t = setTimeout(() => applyNavbarMode(), 120);
+    };
+})(), { passive: true });
+
 
 // ===================== Product Picker (In/Out sayfaları) =====================
+// (❗️Bu bölüm DEĞİŞMEDİ — sadece navbar tarafını mobile-friendly yaptık)
 (function () {
     // Utils
     const $ = (sel, root = document) => root.querySelector(sel);
