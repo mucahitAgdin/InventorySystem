@@ -1,5 +1,6 @@
-﻿// ViewModels/StockViewModels.cs
-// PURPOSE: Single-card stock move VM. DeliveredTo removed; Location is required (depo/ofis/stok dışı).
+﻿// File: ViewModels/StockViewModels.cs
+// Purpose: Single-card stock move VM. DeliveredTo removed; Location required.
+// i18n: Validation messages mapped to Resources/ViewModels.StockMoveVm.{culture}.resx
 
 using System.ComponentModel.DataAnnotations;
 
@@ -7,24 +8,33 @@ namespace InventorySystem.ViewModels
 {
     public enum MoveLocation
     {
+        [Display(Name = "Storage")]
         Depo,
+
+        [Display(Name = "Office")]
         Ofis,
-        [Display(Name = "Stok dışı")]
+
+        [Display(Name = "OutOfStock")]
         StokDisi
     }
 
     public class StockMoveVm
     {
-        [Required, StringLength(200)]
+        [Display(Name = "Barcode")]
+        [Required(ErrorMessage = "BarcodeRequired")]
+        [StringLength(200, ErrorMessage = "BarcodeLength")]
         public string Barcode { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Konum seçimi zorunludur.")]
+        [Display(Name = "Location")]
+        [Required(ErrorMessage = "LocationRequired")]
         public MoveLocation Location { get; set; }
 
-        [StringLength(200)]
-        public string? DeliveredBy { get; set; }   // opsiyonel: işlemi yapan/teslim eden
+        [Display(Name = "DeliveredBy")]
+        [StringLength(200, ErrorMessage = "DeliveredByLength")]
+        public string? DeliveredBy { get; set; }
 
-        [StringLength(500)]
-        public string? Note { get; set; }          // opsiyonel açıklama
+        [Display(Name = "Note")]
+        [StringLength(500, ErrorMessage = "NoteLength")]
+        public string? Note { get; set; }
     }
 }

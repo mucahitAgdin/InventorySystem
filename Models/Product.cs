@@ -1,6 +1,7 @@
-﻿// Dosya: Models/Product.cs
-// Amaç: Her fiziksel ürün = 1 satır. Barcode zorunlu/benzersiz, SerialNumber varsa benzersiz.
-// Quantity alanı tekil modelde kullanılmıyor. IsInStock DB tarafında computed olabilir.
+﻿// File: Models/Product.cs
+// Purpose: Each physical product = 1 row. Barcode required/unique, SerialNumber unique if present.
+// Quantity unused in single-item model. IsInStock computed by DB.
+// i18n: Display + Validation messages are resource keys in Resources/Models.Product.{culture}.resx
 
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -11,43 +12,49 @@ namespace InventorySystem.Models
     {
         public int Id { get; set; }
 
-        [StringLength(200)]
-        [Required(ErrorMessage = "Name is required.")]
+        [Display(Name = "Name")]
+        [StringLength(200, ErrorMessage = "NameLength")]
+        [Required(ErrorMessage = "NameRequired")]
         public string Name { get; set; } = string.Empty;
 
-        // 🔒 Tekil ürün için benzersiz barkod (DbContext’te AlternateKey/Unique ile destekli)
-        [StringLength(7, MinimumLength = 6, ErrorMessage ="Barcode must be between 6 and 7 characters.")]
-        [Required(ErrorMessage = "Barcode is required.")]
+        // 🔒 Unique barcode per product (DbContext AlternateKey/Unique supports it)
+        [Display(Name = "Barcode")]
+        [StringLength(7, MinimumLength = 6, ErrorMessage = "BarcodeLength")]
+        [Required(ErrorMessage = "BarcodeRequired")]
         public string Barcode { get; set; } = string.Empty;
 
-        // Tekil modelde adet yok — UI’da göstermiyoruz.
-        // public int Quantity { get; set; } = 1;
-
-        // DB’de computed (öneri: Location == 'Depo') olabilir; burada set etmiyoruz.
         public bool IsInStock { get; set; } = true;
 
-        [StringLength(200)]
-        public string? CurrentHolder { get; set; }   // dışarıdaysa kimde?
+        [Display(Name = "CurrentHolder")]
+        [StringLength(200, ErrorMessage = "CurrentHolderLength")]
+        public string? CurrentHolder { get; set; }
 
-        [StringLength(200)]
-        public string? Location { get; set; } = "Depo"; // 'Depo' / 'Dışarıda' vb.
+        [Display(Name = "Location")]
+        [StringLength(200, ErrorMessage = "LocationLength")]
+        public string? Location { get; set; } = "Depo";
 
-        [StringLength(100)]
+        [Display(Name = "ProductType")]
+        [StringLength(100, ErrorMessage = "ProductTypeLength")]
         public string? ProductType { get; set; }
 
-        [StringLength(100)]
+        [Display(Name = "Brand")]
+        [StringLength(100, ErrorMessage = "BrandLength")]
         public string? Brand { get; set; }
 
-        [StringLength(150)]
+        [Display(Name = "Model")]
+        [StringLength(150, ErrorMessage = "ModelLength")]
         public string? Model { get; set; }
 
+        [Display(Name = "Description")]
         public string? Description { get; set; }
 
-        // 🔒 Nullable unique (DbContext’te HasIndex(...).IsUnique().HasFilter("[SerialNumber] IS NOT NULL"))
-        [StringLength(150)]
-        [Required(ErrorMessage = "SerialNumber is required.")]
+        // 🔒 Nullable unique (DbContext HasIndex + filtered unique)
+        [Display(Name = "SerialNumber")]
+        [StringLength(150, ErrorMessage = "SerialNumberLength")]
+        [Required(ErrorMessage = "SerialNumberRequired")]
         public string? SerialNumber { get; set; }
 
-        public DateTime? DateTime { get; set; }      // eklenme/güncellenme tarihi (opsiyonel)
+        [Display(Name = "DateTime")]
+        public DateTime? DateTime { get; set; }
     }
 }

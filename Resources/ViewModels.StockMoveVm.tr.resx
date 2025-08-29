@@ -1,0 +1,10 @@
+﻿<root>
+  <data name="BarcodeRequired"><value>Barkod zorunludur.</value></data>
+  <data name="BarcodeLength"><value>Barkod çok uzun.</value></data>
+  <data name="LocationRequired"><value>Lokasyon seçimi zorunludur.</value></data>
+  <data name="DeliveredByLength"><value>Teslim eden bilgisi çok uzun.</value></data>
+  <data name="NoteLength"><value>Not çok uzun.</value></data>
+  <data name="Storage"><value>Depo</value></data>
+  <data name="Office"><value>Ofis</value></data>
+  <data name="OutOfStock"><value>Stok dışı</value></data>
+</root>

@@ -1,0 +1,35 @@
+﻿<root>
+	<data name="NameRequired">
+		<value>Name is required.</value>
+	</data>
+	<data name="NameLength">
+		<value>Name is too long.</value>
+	</data>
+	<data name="BarcodeRequired">
+		<value>Barcode is required.</value>
+	</data>
+	<data name="BarcodeLength">
+		<value>Barcode must be between 6 and 7 characters.</value>
+	</data>
+	<data name="CurrentHolderLength">
+		<value>Current holder is too long.</value>
+	</data>
+	<data name="LocationLength">
+		<value>Location is too long.</value>
+	</data>
+	<data name="ProductTypeLength">
+		<value>Product type is too long.</value>
+	</data>
+	<data name="BrandLength">
+		<value>Brand name is too long.</value>
+	</data>
+	<data name="ModelLength">
+		<value>Model name is too long.</value>
+	</data>
+	<data name="SerialNumberRequired">
+		<value>Serial number is required.</value>
+	</data>
+	<data name="SerialNumberLength">
+		<value>Serial number is too long.</value>
+	</data>
+</root>

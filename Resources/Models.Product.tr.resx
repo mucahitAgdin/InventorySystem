@@ -1,0 +1,35 @@
+﻿<root>
+	<data name="NameRequired">
+		<value>Ürün adı zorunludur.</value>
+	</data>
+	<data name="NameLength">
+		<value>Ürün adı çok uzun.</value>
+	</data>
+	<data name="BarcodeRequired">
+		<value>Barkod zorunludur.</value>
+	</data>
+	<data name="BarcodeLength">
+		<value>Barkod 6–7 karakter olmalıdır.</value>
+	</data>
+	<data name="CurrentHolderLength">
+		<value>Teslim alan bilgisi çok uzun.</value>
+	</data>
+	<data name="LocationLength">
+		<value>Lokasyon adı çok uzun.</value>
+	</data>
+	<data name="ProductTypeLength">
+		<value>Ürün tipi çok uzun.</value>
+	</data>
+	<data name="BrandLength">
+		<value>Marka adı çok uzun.</value>
+	</data>
+	<data name="ModelLength">
+		<value>Model adı çok uzun.</value>
+	</data>
+	<data name="SerialNumberRequired">
+		<value>Seri numarası zorunludur.</value>
+	</data>
+	<data name="SerialNumberLength">
+		<value>Seri numarası çok uzun.</value>
+	</data>
+</root>
