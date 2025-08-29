@@ -694,3 +694,7 @@ table.table {
         backdrop-filter: blur(5px);
     }
 }
+.navbar-brand img {
+    max-height: 40px;
+    width: auto;
+}
