@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="InvalidBarcodeLen" xml:space="preserve">
+    <value>Barkod 6–7 karakter olmalıdır.</value>
+  </data>
+	<data name="ProductNotFound" xml:space="preserve">
+    <value>Bu barkod ile kayıtlı ürün yok.</value>
+  </data>
+</root>
