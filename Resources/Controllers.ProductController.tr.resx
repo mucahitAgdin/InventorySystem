@@ -21,4 +21,23 @@
 	<data name="DeleteError" xml:space="preserve">
     <value>Ürün silinirken bir hata meydana geldi.</value>
   </data>
+	<data name="BarcodeRequired" xml:space="preserve">
+    <value>Barkod alanı zorunludur.</value>
+  </data>
+	<data name="BarcodeLength" xml:space="preserve">
+    <value>Barkod 6–7 karakter olmalıdır.</value>
+  </data>
+	<data name="BarcodeExists" xml:space="preserve">
+    <value>Bu barkod zaten kayıtlı.</value>
+  </data>
+	<data name="SerialExists" xml:space="preserve">
+    <value>Bu seri numarası zaten kayıtlı.</value>
+  </data>
+	<data name="BarcodeUsedByOther" xml:space="preserve">
+    <value>Bu barkod başka bir ürün tarafından kullanılmaktadır.</value>
+  </data>
+	<data name="SerialUsedByOther" xml:space="preserve">
+    <value>Bu seri numarası başka bir ürün tarafından kullanılmaktadır.</value>
+  </data>
+
 </root>

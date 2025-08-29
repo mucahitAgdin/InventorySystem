@@ -168,24 +168,24 @@ namespace InventorySystem.Controllers
 
             // Basit validasyon örnekleri
             if (string.IsNullOrWhiteSpace(input.Barcode))
-                ModelState.AddModelError(nameof(input.Barcode), "Barcode is required.");
+                ModelState.AddModelError(nameof(input.Barcode), _localizer["BarcodeRequired"]);
 
             if (!string.IsNullOrEmpty(input.Barcode) &&
                 (input.Barcode.Length < 6 || input.Barcode.Length > 7))
             {
-                ModelState.AddModelError(nameof(input.Barcode), "Barcode must be between 6 and 7 characters.");
+                ModelState.AddModelError(nameof(input.Barcode), _localizer["BarcodeLength"]);
             }
 
             if (!string.IsNullOrWhiteSpace(input.Barcode) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode))
             {
-                ModelState.AddModelError(nameof(input.Barcode), "This barcode already exists.");
+                ModelState.AddModelError(nameof(input.Barcode), _localizer["BarcodeExists"]);
             }
 
             if (!string.IsNullOrWhiteSpace(input.SerialNumber) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.SerialNumber == input.SerialNumber))
             {
-                ModelState.AddModelError(nameof(input.SerialNumber), "This serial number already exists.");
+                ModelState.AddModelError(nameof(input.SerialNumber), _localizer["SerialExists"]);
             }
 
             if (string.IsNullOrWhiteSpace(input.Location))
@@ -236,19 +236,19 @@ namespace InventorySystem.Controllers
             if (!string.IsNullOrWhiteSpace(input.Barcode) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.Barcode == input.Barcode && p.Id != id))
             {
-                ModelState.AddModelError(nameof(input.Barcode), "This barcode is used by another product.");
+                ModelState.AddModelError(nameof(input.Barcode), _localizer["BarcodeUsedByOther"]);
             }
 
             if (!string.IsNullOrEmpty(input.Barcode) &&
                 (input.Barcode.Length < 6 || input.Barcode.Length > 7))
             {
-                ModelState.AddModelError(nameof(input.Barcode), "Barcode must be between 6 and 7 characters.");
+                ModelState.AddModelError(nameof(input.Barcode), _localizer["BarcodeLength"]);
             }
 
             if (!string.IsNullOrWhiteSpace(input.SerialNumber) &&
                 await _context.Products.AsNoTracking().AnyAsync(p => p.SerialNumber == input.SerialNumber && p.Id != id))
             {
-                ModelState.AddModelError(nameof(input.SerialNumber), "This serial number is used by another product.");
+                ModelState.AddModelError(nameof(input.SerialNumber), _localizer["SerialUsedByOther"]);
             }
 
             if (!ModelState.IsValid)

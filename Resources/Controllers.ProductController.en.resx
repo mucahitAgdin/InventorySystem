@@ -21,4 +21,22 @@
 	<data name="DeleteError" xml:space="preserve">
     <value>An error occurred while deleting the product.</value>
   </data>
+	<data name="BarcodeRequired" xml:space="preserve">
+    <value>Barcode is required.</value>
+  </data>
+	<data name="BarcodeLength" xml:space="preserve">
+    <value>Barcode must be between 6 and 7 characters.</value>
+  </data>
+	<data name="BarcodeExists" xml:space="preserve">
+    <value>This barcode already exists.</value>
+  </data>
+	<data name="SerialExists" xml:space="preserve">
+    <value>This serial number already exists.</value>
+  </data>
+	<data name="BarcodeUsedByOther" xml:space="preserve">
+    <value>This barcode is used by another product.</value>
+  </data>
+	<data name="SerialUsedByOther" xml:space="preserve">
+    <value>This serial number is used by another product.</value>
+  </data>
 </root>
