@@ -104,6 +104,17 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.Use(async (ctx, next) =>
+{
+    if (ctx.Request.Path.StartsWithSegments("/sys-admin") && !ctx.User.Identity?.IsAuthenticated == true)
+    {
+        ctx.Response.StatusCode = 404; // login’e değil 404’e düşür; gizlilik
+        return;
+    }
+    await next();
+});
+
+
 // Global try-catch + log (senin custom middleware’in)
 app.UseGlobalExceptionHandling();
 
