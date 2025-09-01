@@ -8,10 +8,15 @@
 <div class="form-surface">
     <div class="d-flex align-items-center justify-content-between mb-2">
         <h1 class="h5 m-0">Admin Management</h1>
-        <a asp-controller="Product" asp-action="All" class="btn btn-outline-secondary btn-sm">Back</a>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+                Add Admin
+            </button>
+            <a asp-controller="Product" asp-action="All" class="btn btn-outline-secondary btn-sm">Back</a>
+        </div>
     </div>
 
-    @* Basit mesaj kutuları *@
+    @* Flash messages *@
     @if (!string.IsNullOrWhiteSpace(ViewBag.Message as string))
     {
         <div class="alert alert-success small">@ViewBag.Message</div>
@@ -37,18 +42,64 @@
                     <td>@a.Id</td>
                     <td>@a.Username</td>
                     <td class="text-end">
-                            <form method="post" action="/sys-admin/users/@a.Id/delete" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-danger btn-sm"
-                                        onclick="return confirm('Delete admin @a.Username ?');">
-                                    Delete
-                                </button>
-                            </form>
-
+                        <form method="post" action="/sys-admin/users/@a.Id/delete" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger btn-sm"
+                                    onclick="return confirm('Delete admin \'@a.Username\'?');">
+                                Delete
+                            </button>
+                        </form>
                     </td>
                 </tr>
             }
             </tbody>
         </table>
     </div>
+
+    @if (!(Model?.Any() ?? false))
+    {
+        <div class="alert alert-info small mt-2 mb-0">No admins found.</div>
+    }
 </div>
+
+@* --- Add Admin Modal (Bootstrap 5) --- *@
+<div class="modal fade" id="addAdminModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" action="/sys-admin/user/add" autocomplete="off" novalidate>
+        @Html.AntiForgeryToken()
+        <div class="modal-header">
+          <h5 class="modal-title">Add Admin</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2">
+            <label class="form-label small">Username</label>
+            <input name="username" class="form-control form-control-sm" maxlength="50" required />
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Password</label>
+            <input type="password" name="password" class="form-control form-control-sm" minlength="6" required />
+          </div>
+          <div>
+            <label class="form-label small">Confirm Password</label>
+            <input type="password" name="confirmPassword" class="form-control form-control-sm" minlength="6" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script>
+    // Focus username when modal opens
+    document.getElementById('addAdminModal')?.addEventListener('shown.bs.modal', function () {
+        this.querySelector('input[name="username"]')?.focus();
+    });
+    </script>
+}

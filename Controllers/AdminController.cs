@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;   // 🔹 i18n for controller messages
-using Serilog;
+
 using System.Security.Claims;
 
 namespace InventorySystem.Controllers
