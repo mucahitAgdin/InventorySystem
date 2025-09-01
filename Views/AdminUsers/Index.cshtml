@@ -1,0 +1,54 @@
+﻿@using InventorySystem.Models
+@model IEnumerable<Admin>
+
+@{
+    ViewData["Title"] = "Admin Management";
+}
+
+<div class="form-surface">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h1 class="h5 m-0">Admin Management</h1>
+        <a asp-controller="Product" asp-action="All" class="btn btn-outline-secondary btn-sm">Back</a>
+    </div>
+
+    @* Basit mesaj kutuları *@
+    @if (!string.IsNullOrWhiteSpace(ViewBag.Message as string))
+    {
+        <div class="alert alert-success small">@ViewBag.Message</div>
+    }
+    @if (!string.IsNullOrWhiteSpace(ViewBag.Error as string))
+    {
+        <div class="alert alert-danger small">@ViewBag.Error</div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th style="width:80px">Id</th>
+                    <th>Username</th>
+                    <th style="width:160px" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.Id</td>
+                    <td>@a.Username</td>
+                    <td class="text-end">
+                            <form method="post" action="/sys-admin/users/@a.Id/delete" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Delete admin @a.Username ?');">
+                                    Delete
+                                </button>
+                            </form>
+
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
